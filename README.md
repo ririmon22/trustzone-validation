@@ -62,3 +62,4 @@ Normal要求者認証、鍵memory抽出耐性、通常署名TAのruntime load、
 ## Git登録と証跡
 
 source、手順、固定依存lock、コンパクトな結果/hashを登録対象とします。build生成物、外部source checkout、秘密情報、大量の実行logは除外し、既存logはローカルで保持します。過去の報告にあるlogリンクの一部はsource-only cloneでは再生成が必要です。[追加作業確認記録](results/manual-validation-summary.json)に現在の再検査結果とGit登録状況を記録します。外部sourceは会社の許可Gitへ別途mirrorし、固定commitとlicenseを保持してください。
+# trustzone-validation
