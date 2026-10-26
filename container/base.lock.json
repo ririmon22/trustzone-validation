@@ -1,0 +1,9 @@
+{
+    "platform": "linux/amd64",
+    "distribution": "Ubuntu 26.04",
+    "image": null,
+    "digest": null,
+    "verified": false,
+    "status": "BLOCKED",
+    "reason": "Podman initialization clone is denied in this execution process; immutable base image not fetched or verified"
+}

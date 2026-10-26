@@ -1,0 +1,107 @@
+{
+    "TZ-SYS-01": {
+        "expected_result": "independent secure and normal counters retain state"
+    },
+    "TZ-SYS-02": {
+        "expected_result": "repeated service roundtrips return expected values and preserve state"
+    },
+    "TZ-SYS-03": {
+        "expected_result": "allowed access succeeds; denied reads/writes fail; secure data unchanged"
+    },
+    "TZ-SYS-04": {
+        "expected_result": "secure peripheral operation succeeds and prohibited operation has no effect"
+    },
+    "TZ-SYS-05": {
+        "expected_result": "allowed DMA succeeds and secure read/write DMA is denied without modification"
+    },
+    "TZ-SYS-06": {
+        "expected_result": "secure and nonsecure IRQ handlers receive only assigned interrupts and resume"
+    },
+    "TZ-SYS-07": {
+        "expected_result": "debug access follows configured permission"
+    },
+    "TEE-01": {
+        "expected_result": "valid requests and multiple sessions succeed; malformed requests rejected"
+    },
+    "TEE-02": {
+        "expected_result": "authentication and authorization independently enforced including stale session"
+    },
+    "TEE-03": {
+        "expected_result": "TA and core isolation survives controlled illegal access"
+    },
+    "TEE-04": {
+        "expected_result": "signed TA accepted and modified TA rejected"
+    },
+    "TEE-05": {
+        "expected_result": "secure key operation matches vector; key not exportable"
+    },
+    "TEE-06": {
+        "expected_result": "secure persistent storage resists access/tampering and survives restart"
+    },
+    "TEE-07": {
+        "expected_result": "TA panic detected and other TA remains usable"
+    },
+    "TEE-08": {
+        "expected_result": "authenticated boot accepts original and rejects modified image"
+    },
+    "PERF-01": {
+        "expected_result": "measurement includes warmup, samples, timing conditions and statistical summary"
+    },
+    "PERF-02": {
+        "expected_result": "measurement includes warmup, samples, timing conditions and statistical summary"
+    },
+    "PERF-03": {
+        "expected_result": "measurement includes warmup, samples, timing conditions and statistical summary"
+    },
+    "PERF-04": {
+        "expected_result": "measurement includes warmup, samples, timing conditions and statistical summary"
+    },
+    "PERF-05": {
+        "expected_result": "measurement includes warmup, samples, timing conditions and statistical summary"
+    },
+    "PERF-06": {
+        "expected_result": "measurement includes warmup, samples, timing conditions and statistical summary"
+    },
+    "PERF-07": {
+        "expected_result": "measurement includes warmup, samples, timing conditions and statistical summary"
+    },
+    "B1-SMCCC-01": {
+        "expected_result": "SMCCC and PSCI return supported version values"
+    },
+    "TEE-AUTH-TA": {
+        "expected_result": "Core-supplied TA identity authorizes TA-A and denies PUBLIC even with claimed A identifier"
+    },
+    "TEE-AUTH-NS": {
+        "expected_result": "Normal requester credentials verified independently of self-reported identifiers"
+    },
+    "TEE-SHM-01": {
+        "expected_result": "valid memref accepted, wrong size and invalid ranges rejected, service and buffer intact"
+    },
+    "TEE-KEY-API": {
+        "expected_result": "Secure key is nonextractable, export denied, AES KAT and subsequent key use succeed"
+    },
+    "TEE-KEY-MEM": {
+        "expected_result": "memory key extraction attempt denied with key intact"
+    },
+    "TEE-ISO-TA": {
+        "expected_result": "allowed own access succeeds, cross-TA read/write fault, victim secret unchanged"
+    },
+    "TEE-ISO-CORE": {
+        "expected_result": "Core access denied and Core protected contents rechecked unchanged"
+    },
+    "PERF-08": {
+        "expected_result": "measure session open with existing TA instance"
+    },
+    "PERF-09": {
+        "expected_result": "measure session close while another session remains"
+    },
+    "PERF-10": {
+        "expected_result": "measure panic plus cleanup and recovery through successful echo"
+    },
+    "PERF-11": {
+        "expected_result": "measure post-TARGET_DEAD recovery through successful echo"
+    },
+    "TEE-STRESS-01": {
+        "expected_result": "512 measured cycles after 32 warmup with A/B sessions, commands, panic recovery, invalid SHM and key lifecycle; no resource growth or allocation failures"
+    }
+}

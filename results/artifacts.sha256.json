@@ -1,0 +1,22 @@
+{
+    "recorded_at": "2026-10-26T10:43:03.771593+00:00",
+    "sha256": {
+        "build/qemu/tfa_bl33.elf": "f64cfeec4e1361637f6dc84ea3be27d0675f42f0321e7c635131b8d24120f065",
+        "build/qemu/nonsecure.elf": "2cd8a2cba28505ae707f2944d7405bfa60f75d36e974dda262bd6748795d5885",
+        "build/qemu/optee_bl33.elf": "3a8a5acc24bb3f814dbe0d204688cf822d22774d2676df4dcb2b374c106314aa",
+        "build/qemu/el3.elf": "b22a2a1c1063787735314e7121299d47cd6e50fd69892bb0cac892323f641d1f",
+        "build/qemu/secure.elf": "e93727d553b00d006c76ad6cdd22bbb8a7d6634b7521ad8cdeccb57024226e0f",
+        "build/zcu106/tfa_bl33.elf": "e4355d1fc490e1f6769d4d7ebb7c29e6497620a54a02645e7887cb8fb5111514",
+        "build/zcu106/nonsecure.elf": "a518ff3ee02c99ba27d87a4266c7cc5d74daf7caeffe5c4d9393ef1bbdb71ff6",
+        "build/zcu106/optee_bl33.elf": "ad1c8d054ee33f286398d6a8c0c2679f0f6c41b808788450ebc1d0902bcceb91",
+        "build/zcu106/el3.elf": "64031e35ac1d37859cc674957895bfd1c475fa53885e797d9c91a899df632624",
+        "build/zcu106/secure.elf": "124dcfe75b8ef2adbb29dbbc11d5365d358bbc0a56f4d526bcd7a89e5eb64227",
+        "results/build/zcu106-preparation.log": "a767a66f11f176489d7fca7ab0406b6845440a6e1d6ae6019710fbc9496f7317",
+        "results/build/dependency-fetch.log": "5dd0f6c302bbcbf29819c2fd18e6de8518b750ff9b66de5958d15979b62f3d47",
+        "results/build/zcu106-build.log": "c1b0143577f9632eea172f3aab7873957808ff7cba231df69923c852f24e932b",
+        "results/build/qemu-build-attempt-01.log": "fe1978a4d852b2a424c9fe59dfb875a853a86ea9bcf97440824590274c59420b",
+        "results/build/qemu-build-incremental.log": "519e3a1234cb913395324fa7e64de9a87e306b54d5bd3b09e21b10bfbb9d84fd",
+        "results/build/qemu-build.log": "5afd6eff1059fe96f0634a4611f5512a359a65a55fd7460765b5407b99976845",
+        "results/build/host-tests.log": "586c89713bc0da70554f0906576765885fbc8e8da4bc149bfdbadd6047bcbcbd"
+    }
+}

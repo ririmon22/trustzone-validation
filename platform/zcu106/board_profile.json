@@ -1,0 +1,19 @@
+{
+    "hardware_map_verified": false,
+    "master_route_verified": false,
+    "secure_el3_verified": false,
+    "configuration_unlocked": false,
+    "other_masters_quiesced": false,
+    "xmpu_bank_bases": [],
+    "protected_start": null,
+    "protected_end": null,
+    "apu_master_id": null,
+    "dma_master_id": null,
+    "dma_channel": null,
+    "peripheral_base": null,
+    "xppu_aperture": null,
+    "xppu_master_profiles": [],
+    "gic_routing_verified": false,
+    "status": "BLOCKED",
+    "reason": "No generated hardware/BSP, route mapping or live register snapshots available"
+}

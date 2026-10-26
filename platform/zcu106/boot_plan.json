@@ -1,0 +1,199 @@
+{
+    "platform": "zcu106",
+    "configuration": "B2",
+    "evidence": {
+        "xsa": {
+            "path": null,
+            "sha256": null,
+            "verified": false
+        },
+        "bsp_map": {
+            "path": null,
+            "sha256": null,
+            "verified": false
+        },
+        "live_register_snapshot": {
+            "path": null,
+            "sha256": null,
+            "verified": false
+        },
+        "debug_boot_review": {
+            "path": null,
+            "sha256": null,
+            "verified": false
+        }
+    },
+    "images": {
+        "fsbl": {
+            "path": null,
+            "sha256": null,
+            "entry": null,
+            "translation_verified": false,
+            "system_address_bias": null,
+            "runtime": {
+                "stack": {
+                    "verified": false,
+                    "mode": null,
+                    "evidence": null
+                },
+                "heap": {
+                    "verified": false,
+                    "mode": null,
+                    "evidence": null
+                },
+                "dynamic": {
+                    "verified": false,
+                    "mode": null,
+                    "evidence": null
+                }
+            },
+            "translation_evidence": null
+        },
+        "pmufw": {
+            "path": null,
+            "sha256": null,
+            "entry": null,
+            "translation_verified": false,
+            "system_address_bias": null,
+            "runtime": {
+                "stack": {
+                    "verified": false,
+                    "mode": null,
+                    "evidence": null
+                },
+                "heap": {
+                    "verified": false,
+                    "mode": null,
+                    "evidence": null
+                },
+                "dynamic": {
+                    "verified": false,
+                    "mode": null,
+                    "evidence": null
+                }
+            },
+            "translation_evidence": null
+        },
+        "bl31": {
+            "path": "build/external/tfa-zynqmp/zynqmp/release/bl31/bl31.elf",
+            "sha256": null,
+            "entry": null,
+            "translation_verified": false,
+            "system_address_bias": null,
+            "runtime": {
+                "stack": {
+                    "verified": false,
+                    "mode": null,
+                    "evidence": null
+                },
+                "heap": {
+                    "verified": false,
+                    "mode": null,
+                    "evidence": null
+                },
+                "dynamic": {
+                    "verified": false,
+                    "mode": null,
+                    "evidence": null
+                }
+            },
+            "translation_evidence": null
+        },
+        "bl32": {
+            "path": null,
+            "sha256": null,
+            "entry": null,
+            "translation_verified": false,
+            "system_address_bias": null,
+            "runtime": {
+                "stack": {
+                    "verified": false,
+                    "mode": null,
+                    "evidence": null
+                },
+                "heap": {
+                    "verified": false,
+                    "mode": null,
+                    "evidence": null
+                },
+                "dynamic": {
+                    "verified": false,
+                    "mode": null,
+                    "evidence": null
+                }
+            },
+            "translation_evidence": null
+        },
+        "bl33": {
+            "path": null,
+            "sha256": null,
+            "entry": null,
+            "translation_verified": false,
+            "system_address_bias": null,
+            "runtime": {
+                "stack": {
+                    "verified": false,
+                    "mode": null,
+                    "evidence": null
+                },
+                "heap": {
+                    "verified": false,
+                    "mode": null,
+                    "evidence": null
+                },
+                "dynamic": {
+                    "verified": false,
+                    "mode": null,
+                    "evidence": null
+                }
+            },
+            "translation_evidence": null
+        }
+    },
+    "allocations": [],
+    "reviews": {
+        "jtag_boot_mode": {
+            "verified": false,
+            "evidence": null
+        },
+        "debug_authorization": {
+            "verified": false,
+            "evidence": null
+        },
+        "initial_el_security": {
+            "verified": false,
+            "evidence": null
+        },
+        "handoff": {
+            "verified": false,
+            "evidence": null
+        },
+        "uart_clock_route": {
+            "verified": false,
+            "evidence": null
+        },
+        "fsbl_pmufw_lifetime": {
+            "verified": false,
+            "evidence": null
+        },
+        "mmio_allowlist": {
+            "verified": false,
+            "evidence": null
+        },
+        "master_route": {
+            "verified": false,
+            "evidence": null
+        },
+        "gic_routing": {
+            "verified": false,
+            "evidence": null
+        }
+    },
+    "mmio": [],
+    "masters": {
+        "apu": null,
+        "dma": null,
+        "nonsecure_verified": false,
+        "evidence": null
+    }
+}

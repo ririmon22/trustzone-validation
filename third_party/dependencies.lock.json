@@ -1,0 +1,42 @@
+{
+    "tfa-amd": {
+        "repository": "https://github.com/Xilinx/arm-trusted-firmware.git",
+        "branch": "xlnx_rebase_v2.12",
+        "release": "xlnx_rebase_v2.12_2025.1",
+        "commit": "dd3512287a17eea866d5c82fa7b86ad58de59163",
+        "build_status": "BUILD PASS: ZynqMP BL31 and QEMU B1/B2",
+        "compatibility": "AMD release provenance identified; ZCU106 Vitis 2025.1 combination NOT_RUN"
+    },
+    "optee": {
+        "repository": "https://github.com/OP-TEE/optee_os.git",
+        "branch": "4.5.0",
+        "release": "4.5.0",
+        "commit": "0919de0f7c79ad35ad3c8ace5f823ad1344b4716",
+        "build_status": "BUILD PASS: QEMU Core/SDK/Early TA and ZynqMP ZCU106 Core/SDK/Early TA; hardware NOT_RUN",
+        "compatibility": "Upstream zynqmp-zcu106 flavor exists and builds with Clang 21.1.8; Ubuntu24/Vitis pairing and hardware boot NOT_RUN"
+    },
+    "embeddedsw": {
+        "repository": "https://github.com/Xilinx/embeddedsw.git",
+        "branch": "xilinx_v2025.1",
+        "release": "xilinx_v2025.1",
+        "commit": "c0aed2eff7a30f307238ec853fa8fbc45dcabdda",
+        "build_status": "BLOCKED",
+        "compatibility": "xilinx_v2025.1 tag resolved through GitHub connector; BSP/FSBL/PMUFW builds NOT_RUN"
+    },
+    "pyelftools": {
+        "repository": "https://github.com/eliben/pyelftools.git",
+        "branch": "v0.32",
+        "release": "v0.32",
+        "commit": "d4ea35fc3c34eb0e4d3f8cfafb31552f5b5c37d6",
+        "build_status": "HOST SOURCE IMPORTED",
+        "compatibility": "Python source dependency for OP-TEE ELF processing"
+    },
+    "compiler-rt": {
+        "repository": "https://github.com/llvm/llvm-project.git",
+        "branch": "llvmorg-21.1.8",
+        "release": "llvmorg-21.1.8",
+        "commit": "2078da43e25a4623cab2d0d60decddf709aaea28",
+        "build_status": "BUILD PASS",
+        "compatibility": "AArch64 udivti3/udivmodti4 builtins only; remaining runtime is not bundled"
+    }
+}

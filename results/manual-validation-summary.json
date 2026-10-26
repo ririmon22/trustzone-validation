@@ -1,0 +1,242 @@
+{
+    "scope": "Phase8 documentation addition; no new QEMU boot or hardware/GUI execution",
+    "manual_files": [
+        "00_overview.md",
+        "01_environment_setup.md",
+        "02_vitis_platform_creation.md",
+        "03_vitis_application_creation.md",
+        "04_baremetal_build.md",
+        "05_tfa_build.md",
+        "06_optee_build.md",
+        "07_jtag_baremetal.md",
+        "08_jtag_tfa.md",
+        "09_jtag_optee.md",
+        "10_uart_logging.md",
+        "11_test_execution.md",
+        "12_performance_measurement.md",
+        "13_troubleshooting.md",
+        "14_hardware_safety_check.md",
+        "15_offline_source_transfer.md"
+    ],
+    "host_tests": {
+        "count": 120,
+        "status": "PASS",
+        "evidence": "results/manual/host-tests.log"
+    },
+    "artifact_hashes": {
+        "qemu_source_only_artifacts": {
+            "build/qemu/tfa_bl33.elf": true,
+            "build/qemu/nonsecure.elf": true,
+            "build/qemu/optee_bl33.elf": true,
+            "build/qemu/el3.elf": true,
+            "build/qemu/secure.elf": true,
+            "build/zcu106/tfa_bl33.elf": true,
+            "build/zcu106/nonsecure.elf": true,
+            "build/zcu106/optee_bl33.elf": true,
+            "build/zcu106/el3.elf": true,
+            "build/zcu106/secure.elf": true,
+            "build/external/ta-a/6dc13418-534f-4642-9138-215876304910.stripped.elf": true,
+            "build/external/ta-a/6dc13418-534f-4642-9138-215876304910.elf": true,
+            "build/external/ta-b/6dc13419-534f-4642-9138-215876304910.elf": true,
+            "build/external/ta-b/6dc13419-534f-4642-9138-215876304910.stripped.elf": true,
+            "build/external/optee/ldelf/ldelf.elf": true,
+            "build/external/optee/core/tee.elf": true,
+            "build/external/tfa-qemu-b2/qemu/release/bl2/bl2.elf": true,
+            "build/external/tfa-qemu-b2/qemu/release/bl1/bl1.elf": true,
+            "build/external/tfa-qemu-b2/qemu/release/bl31/bl31.elf": true,
+            "build/external/tfa-qemu-b1/qemu/release/bl2/bl2.elf": true,
+            "build/external/tfa-qemu-b1/qemu/release/bl1/bl1.elf": true,
+            "build/external/tfa-qemu-b1/qemu/release/bl31/bl31.elf": true,
+            "build/qemu/external/tfa_bl33.elf": true,
+            "build/qemu/external/optee_bl33.elf": true
+        },
+        "zcu106_build_artifacts": {
+            "build/zcu106/tfa_bl33.elf": true,
+            "build/zcu106/nonsecure.elf": true,
+            "build/zcu106/optee_bl33.elf": true,
+            "build/zcu106/el3.elf": true,
+            "build/zcu106/secure.elf": true,
+            "build/external/ta-a/6dc13418-534f-4642-9138-215876304910.stripped.elf": true,
+            "build/external/ta-a/6dc13418-534f-4642-9138-215876304910.elf": true,
+            "build/external/ta-b/6dc13419-534f-4642-9138-215876304910.elf": true,
+            "build/external/ta-b/6dc13419-534f-4642-9138-215876304910.stripped.elf": true,
+            "build/external/tfa-zynqmp/zynqmp/release/bl31/bl31.elf": true,
+            "build/external/tfa-zynqmp-b2/zynqmp/release/bl31/bl31.elf": true,
+            "build/external/optee-zynqmp/ldelf/ldelf.elf": true,
+            "build/external/optee-zynqmp/core/tee.elf": true
+        },
+        "all_match": true
+    },
+    "saved_uart_reparse": {
+        "baremetal": {
+            "PASS": 3,
+            "BLOCKED": 3,
+            "SKIP": 1
+        },
+        "tfa": {
+            "PASS": 1,
+            "BLOCKED": 6,
+            "SKIP": 1
+        },
+        "optee": {
+            "PASS": 9,
+            "BLOCKED": 7
+        }
+    },
+    "saved_uart_validation": [
+        {
+            "command": [
+                "python3",
+                "scripts/parse_results.py",
+                "results/phase8/git-trial-results/qemu/baremetal.log",
+                "--configuration",
+                "baremetal",
+                "--output",
+                "results/manual/baremetal.json"
+            ],
+            "exit_code": 0
+        },
+        {
+            "command": [
+                "python3",
+                "scripts/parse_results.py",
+                "results/phase8/git-trial-results/qemu/tfa.log",
+                "--configuration",
+                "tfa",
+                "--output",
+                "results/manual/tfa.json"
+            ],
+            "exit_code": 0
+        },
+        {
+            "command": [
+                "python3",
+                "scripts/parse_results.py",
+                "results/phase8/git-trial-results/qemu/optee.log",
+                "--configuration",
+                "optee",
+                "--output",
+                "results/manual/optee.json",
+                "--require-security"
+            ],
+            "exit_code": 0
+        },
+        {
+            "command": [
+                "python3",
+                "scripts/check_tz_audit.py",
+                "results/phase8/git-trial-results/qemu/baremetal.log",
+                "--output",
+                "results/manual/tz-audit.json"
+            ],
+            "exit_code": 0
+        },
+        {
+            "command": [
+                "python3",
+                "scripts/check_security_evidence.py",
+                "results/phase8/git-trial-results/qemu/optee.log",
+                "results/phase8/git-trial-results/qemu/optee-secure.log",
+                "--output",
+                "results/manual/security-evidence.json"
+            ],
+            "exit_code": 0
+        }
+    ],
+    "new_qemu_boot": "NOT_RUN (documentation changes only; saved Phase8 UART revalidated)",
+    "ubuntu24_vitis_build": "NOT_RUN",
+    "vitis_gui": "NOT_RUN",
+    "zcu106_execution": "NOT_RUN",
+    "load_gate": "BLOCKED",
+    "load_gate_evidence": "results/manual/hardware-gate.log",
+    "boot_gate": "BLOCKED",
+    "startup_source": {
+        "repository": "Xilinx/embeddedsw",
+        "commit": "c0aed2eff7a30f307238ec853fa8fbc45dcabdda",
+        "path": "lib/bsp/standalone/src/arm/ARMv8/64bit/gcc/boot.S",
+        "blob": "19b4210ad81b0aec6bca3bc2afcd97ccaa2eb62d",
+        "scope": "fixed source inspected; generated Vitis BSP NOT_RUN"
+    },
+    "git": {
+        "existing_history": "unborn main; no commits",
+        "scope": "local index registration; no commit or remote publication",
+        "logs": "excluded from index and preserved locally",
+        "ignore_policy": ".gitignore",
+        "indexed_files": 202,
+        "generated_or_private_filename_candidates": [],
+        "limited_private_key_or_cloud_token_pattern_candidates": [],
+        "secret_review_scope": "limited filename/content pattern review; not a guarantee of no other secrets"
+    },
+    "manual_checks": {
+        "status": "PASS",
+        "files": [
+            {
+                "path": "docs/manual/00_overview.md",
+                "shell_blocks": 1
+            },
+            {
+                "path": "docs/manual/01_environment_setup.md",
+                "shell_blocks": 2
+            },
+            {
+                "path": "docs/manual/02_vitis_platform_creation.md",
+                "shell_blocks": 1
+            },
+            {
+                "path": "docs/manual/03_vitis_application_creation.md",
+                "shell_blocks": 0
+            },
+            {
+                "path": "docs/manual/04_baremetal_build.md",
+                "shell_blocks": 1
+            },
+            {
+                "path": "docs/manual/05_tfa_build.md",
+                "shell_blocks": 1
+            },
+            {
+                "path": "docs/manual/06_optee_build.md",
+                "shell_blocks": 1
+            },
+            {
+                "path": "docs/manual/07_jtag_baremetal.md",
+                "shell_blocks": 2
+            },
+            {
+                "path": "docs/manual/08_jtag_tfa.md",
+                "shell_blocks": 2
+            },
+            {
+                "path": "docs/manual/09_jtag_optee.md",
+                "shell_blocks": 2
+            },
+            {
+                "path": "docs/manual/10_uart_logging.md",
+                "shell_blocks": 2
+            },
+            {
+                "path": "docs/manual/11_test_execution.md",
+                "shell_blocks": 1
+            },
+            {
+                "path": "docs/manual/12_performance_measurement.md",
+                "shell_blocks": 1
+            },
+            {
+                "path": "docs/manual/13_troubleshooting.md",
+                "shell_blocks": 0
+            },
+            {
+                "path": "docs/manual/14_hardware_safety_check.md",
+                "shell_blocks": 1
+            },
+            {
+                "path": "docs/manual/15_offline_source_transfer.md",
+                "shell_blocks": 4
+            }
+        ],
+        "issues": [],
+        "scope": "document completeness, local links and snippet syntax only; no GUI, hardware or command execution",
+        "hardware_execution": "NOT_RUN"
+    }
+}

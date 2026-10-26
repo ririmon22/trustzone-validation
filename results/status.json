@@ -1,0 +1,1743 @@
+[
+    {
+        "test_id": "TZ-SYS-01",
+        "target_platform": "qemu",
+        "configuration": "baremetal",
+        "execution_status": "PASS",
+        "expected_result": "independent secure and normal counters retain state",
+        "actual_result": "independent-counters",
+        "execution_ticks": 135951,
+        "build_status": "BUILD PASS (executed image)",
+        "evidence": [
+            "results/phase6/qemu/baremetal.log"
+        ],
+        "execution_time": null,
+        "limitation": "QEMU TCG only; not ZCU106 hardware evidence"
+    },
+    {
+        "test_id": "TZ-SYS-02",
+        "target_platform": "qemu",
+        "configuration": "baremetal",
+        "execution_status": "PASS",
+        "expected_result": "repeated service roundtrips return expected values and preserve state",
+        "actual_result": "repeated-world-roundtrip",
+        "execution_ticks": 79839,
+        "build_status": "BUILD PASS (executed image)",
+        "evidence": [
+            "results/phase6/qemu/baremetal.log"
+        ],
+        "execution_time": null,
+        "limitation": "QEMU TCG only; not ZCU106 hardware evidence"
+    },
+    {
+        "test_id": "TZ-SYS-03",
+        "target_platform": "qemu",
+        "configuration": "baremetal",
+        "execution_status": "PASS",
+        "expected_result": "allowed access succeeds; denied reads/writes fail; secure data unchanged",
+        "actual_result": "allowed-access+denied-read-write+secure-recheck+boundaries",
+        "execution_ticks": 26088,
+        "build_status": "BUILD PASS (executed image)",
+        "evidence": [
+            "results/phase6/qemu/baremetal.log"
+        ],
+        "execution_time": null,
+        "limitation": "QEMU TCG only; not ZCU106 hardware evidence"
+    },
+    {
+        "test_id": "TZ-SYS-04",
+        "target_platform": "qemu",
+        "configuration": "baremetal",
+        "execution_status": "BLOCKED",
+        "expected_result": "secure peripheral operation succeeds and prohibited operation has no effect",
+        "actual_result": "secure-peripheral-test-not-implemented",
+        "execution_ticks": 0,
+        "build_status": "BUILD PASS (executed image)",
+        "evidence": [
+            "results/phase6/qemu/baremetal.log"
+        ],
+        "execution_time": null,
+        "limitation": "QEMU TCG only; not ZCU106 hardware evidence"
+    },
+    {
+        "test_id": "TZ-SYS-05",
+        "target_platform": "qemu",
+        "configuration": "baremetal",
+        "execution_status": "SKIP",
+        "expected_result": "allowed DMA succeeds and secure read/write DMA is denied without modification",
+        "actual_result": "Zynq-DMA-not-on-virt",
+        "execution_ticks": 0,
+        "build_status": "BUILD PASS (executed image)",
+        "evidence": [
+            "results/phase6/qemu/baremetal.log"
+        ],
+        "execution_time": null,
+        "limitation": "QEMU TCG only; not ZCU106 hardware evidence"
+    },
+    {
+        "test_id": "TZ-SYS-06",
+        "target_platform": "qemu",
+        "configuration": "baremetal",
+        "execution_status": "BLOCKED",
+        "expected_result": "secure and nonsecure IRQ handlers receive only assigned interrupts and resume",
+        "actual_result": "GIC-driver-and-interrupt-test-not-implemented",
+        "execution_ticks": 0,
+        "build_status": "BUILD PASS (executed image)",
+        "evidence": [
+            "results/phase6/qemu/baremetal.log"
+        ],
+        "execution_time": null,
+        "limitation": "QEMU TCG only; not ZCU106 hardware evidence"
+    },
+    {
+        "test_id": "TZ-SYS-07",
+        "target_platform": "qemu",
+        "configuration": "baremetal",
+        "execution_status": "BLOCKED",
+        "expected_result": "debug access follows configured permission",
+        "actual_result": "requires-hardware-debug-policy",
+        "execution_ticks": 0,
+        "build_status": "BUILD PASS (executed image)",
+        "evidence": [
+            "results/phase6/qemu/baremetal.log"
+        ],
+        "execution_time": null,
+        "limitation": "QEMU TCG only; not ZCU106 hardware evidence"
+    },
+    {
+        "test_id": "PERF-01",
+        "target_platform": "qemu",
+        "configuration": "baremetal",
+        "build_status": "BUILD PASS",
+        "execution_status": "PASS",
+        "expected_result": "measurement includes warmup, samples, timing conditions and statistical summary",
+        "actual_result": "Measurement acquired; see current CSV for 128 samples and statistics",
+        "execution_time": null,
+        "evidence": [
+            "results/phase6/qemu/baremetal.log",
+            "results/phase6/qemu/baremetal-benchmarks.csv"
+        ],
+        "limitation": "QEMU measurement acquisition only; no performance threshold or hardware claim"
+    },
+    {
+        "test_id": "PERF-02",
+        "target_platform": "qemu",
+        "configuration": "baremetal",
+        "build_status": "BUILD PASS",
+        "execution_status": "PASS",
+        "expected_result": "measurement includes warmup, samples, timing conditions and statistical summary",
+        "actual_result": "Measurement acquired; see current CSV for 128 samples and statistics",
+        "execution_time": null,
+        "evidence": [
+            "results/phase6/qemu/baremetal.log",
+            "results/phase6/qemu/baremetal-benchmarks.csv"
+        ],
+        "limitation": "QEMU measurement acquisition only; no performance threshold or hardware claim"
+    },
+    {
+        "test_id": "PERF-03",
+        "target_platform": "qemu",
+        "configuration": "baremetal",
+        "build_status": "NOT_BUILT (required implementation incomplete)",
+        "execution_status": "BLOCKED",
+        "expected_result": "measurement includes warmup, samples, timing conditions and statistical summary",
+        "actual_result": "Measurement backend or applicable test is not integrated in this configuration",
+        "execution_time": null,
+        "evidence": [
+            "docs/known_limitations.md"
+        ],
+        "limitation": "Not measured; no hardware performance claim"
+    },
+    {
+        "test_id": "PERF-04",
+        "target_platform": "qemu",
+        "configuration": "baremetal",
+        "build_status": "NOT_BUILT (required implementation incomplete)",
+        "execution_status": "BLOCKED",
+        "expected_result": "measurement includes warmup, samples, timing conditions and statistical summary",
+        "actual_result": "Measurement backend or applicable test is not integrated in this configuration",
+        "execution_time": null,
+        "evidence": [
+            "docs/known_limitations.md"
+        ],
+        "limitation": "Not measured; no hardware performance claim"
+    },
+    {
+        "test_id": "PERF-05",
+        "target_platform": "qemu",
+        "configuration": "baremetal",
+        "build_status": "NOT_BUILT (required implementation incomplete)",
+        "execution_status": "BLOCKED",
+        "expected_result": "measurement includes warmup, samples, timing conditions and statistical summary",
+        "actual_result": "Measurement backend or applicable test is not integrated in this configuration",
+        "execution_time": null,
+        "evidence": [
+            "docs/known_limitations.md"
+        ],
+        "limitation": "Not measured; no hardware performance claim"
+    },
+    {
+        "test_id": "PERF-06",
+        "target_platform": "qemu",
+        "configuration": "baremetal",
+        "build_status": "NOT_BUILT (required implementation incomplete)",
+        "execution_status": "BLOCKED",
+        "expected_result": "measurement includes warmup, samples, timing conditions and statistical summary",
+        "actual_result": "Measurement backend or applicable test is not integrated in this configuration",
+        "execution_time": null,
+        "evidence": [
+            "docs/known_limitations.md"
+        ],
+        "limitation": "Not measured; no hardware performance claim"
+    },
+    {
+        "test_id": "PERF-07",
+        "target_platform": "qemu",
+        "configuration": "baremetal",
+        "build_status": "NOT_BUILT (required implementation incomplete)",
+        "execution_status": "BLOCKED",
+        "expected_result": "measurement includes warmup, samples, timing conditions and statistical summary",
+        "actual_result": "Measurement backend or applicable test is not integrated in this configuration",
+        "execution_time": null,
+        "evidence": [
+            "docs/known_limitations.md"
+        ],
+        "limitation": "Not measured; no hardware performance claim"
+    },
+    {
+        "test_id": "TZ-SYS-01",
+        "target_platform": "qemu",
+        "configuration": "tfa",
+        "execution_status": "BLOCKED",
+        "expected_result": "independent secure and normal counters retain state",
+        "actual_result": "secure-EL1-payload-not-integrated",
+        "execution_ticks": 0,
+        "build_status": "BUILD PASS (executed image)",
+        "evidence": [
+            "results/phase6/qemu/tfa.log"
+        ],
+        "execution_time": null,
+        "limitation": "QEMU TCG only; not ZCU106 hardware evidence"
+    },
+    {
+        "test_id": "TZ-SYS-02",
+        "target_platform": "qemu",
+        "configuration": "tfa",
+        "execution_status": "BLOCKED",
+        "expected_result": "repeated service roundtrips return expected values and preserve state",
+        "actual_result": "SMCCC-smoke-does-not-cover-world-context-test",
+        "execution_ticks": 0,
+        "build_status": "BUILD PASS (executed image)",
+        "evidence": [
+            "results/phase6/qemu/tfa.log"
+        ],
+        "execution_time": null,
+        "limitation": "QEMU TCG only; not ZCU106 hardware evidence"
+    },
+    {
+        "test_id": "TZ-SYS-03",
+        "target_platform": "qemu",
+        "configuration": "tfa",
+        "execution_status": "BLOCKED",
+        "expected_result": "allowed access succeeds; denied reads/writes fail; secure data unchanged",
+        "actual_result": "platform-protection-test-not-integrated",
+        "execution_ticks": 0,
+        "build_status": "BUILD PASS (executed image)",
+        "evidence": [
+            "results/phase6/qemu/tfa.log"
+        ],
+        "execution_time": null,
+        "limitation": "QEMU TCG only; not ZCU106 hardware evidence"
+    },
+    {
+        "test_id": "TZ-SYS-04",
+        "target_platform": "qemu",
+        "configuration": "tfa",
+        "execution_status": "BLOCKED",
+        "expected_result": "secure peripheral operation succeeds and prohibited operation has no effect",
+        "actual_result": "peripheral-service-missing",
+        "execution_ticks": 0,
+        "build_status": "BUILD PASS (executed image)",
+        "evidence": [
+            "results/phase6/qemu/tfa.log"
+        ],
+        "execution_time": null,
+        "limitation": "QEMU TCG only; not ZCU106 hardware evidence"
+    },
+    {
+        "test_id": "TZ-SYS-05",
+        "target_platform": "qemu",
+        "configuration": "tfa",
+        "execution_status": "SKIP",
+        "expected_result": "allowed DMA succeeds and secure read/write DMA is denied without modification",
+        "actual_result": "Zynq-DMA-not-on-virt",
+        "execution_ticks": 0,
+        "build_status": "BUILD PASS (executed image)",
+        "evidence": [
+            "results/phase6/qemu/tfa.log"
+        ],
+        "execution_time": null,
+        "limitation": "QEMU TCG only; not ZCU106 hardware evidence"
+    },
+    {
+        "test_id": "TZ-SYS-06",
+        "target_platform": "qemu",
+        "configuration": "tfa",
+        "execution_status": "BLOCKED",
+        "expected_result": "secure and nonsecure IRQ handlers receive only assigned interrupts and resume",
+        "actual_result": "interrupt-test-missing",
+        "execution_ticks": 0,
+        "build_status": "BUILD PASS (executed image)",
+        "evidence": [
+            "results/phase6/qemu/tfa.log"
+        ],
+        "execution_time": null,
+        "limitation": "QEMU TCG only; not ZCU106 hardware evidence"
+    },
+    {
+        "test_id": "TZ-SYS-07",
+        "target_platform": "qemu",
+        "configuration": "tfa",
+        "execution_status": "BLOCKED",
+        "expected_result": "debug access follows configured permission",
+        "actual_result": "requires-hardware",
+        "execution_ticks": 0,
+        "build_status": "BUILD PASS (executed image)",
+        "evidence": [
+            "results/phase6/qemu/tfa.log"
+        ],
+        "execution_time": null,
+        "limitation": "QEMU TCG only; not ZCU106 hardware evidence"
+    },
+    {
+        "test_id": "PERF-01",
+        "target_platform": "qemu",
+        "configuration": "tfa",
+        "build_status": "NOT_BUILT (required implementation incomplete)",
+        "execution_status": "BLOCKED",
+        "expected_result": "measurement includes warmup, samples, timing conditions and statistical summary",
+        "actual_result": "Measurement backend or applicable test is not integrated in this configuration",
+        "execution_time": null,
+        "evidence": [
+            "docs/known_limitations.md"
+        ],
+        "limitation": "Not measured; no hardware performance claim"
+    },
+    {
+        "test_id": "PERF-02",
+        "target_platform": "qemu",
+        "configuration": "tfa",
+        "build_status": "NOT_BUILT (required implementation incomplete)",
+        "execution_status": "BLOCKED",
+        "expected_result": "measurement includes warmup, samples, timing conditions and statistical summary",
+        "actual_result": "Measurement backend or applicable test is not integrated in this configuration",
+        "execution_time": null,
+        "evidence": [
+            "docs/known_limitations.md"
+        ],
+        "limitation": "Not measured; no hardware performance claim"
+    },
+    {
+        "test_id": "PERF-03",
+        "target_platform": "qemu",
+        "configuration": "tfa",
+        "build_status": "NOT_BUILT (required implementation incomplete)",
+        "execution_status": "BLOCKED",
+        "expected_result": "measurement includes warmup, samples, timing conditions and statistical summary",
+        "actual_result": "Measurement backend or applicable test is not integrated in this configuration",
+        "execution_time": null,
+        "evidence": [
+            "docs/known_limitations.md"
+        ],
+        "limitation": "Not measured; no hardware performance claim"
+    },
+    {
+        "test_id": "PERF-04",
+        "target_platform": "qemu",
+        "configuration": "tfa",
+        "build_status": "NOT_BUILT (required implementation incomplete)",
+        "execution_status": "BLOCKED",
+        "expected_result": "measurement includes warmup, samples, timing conditions and statistical summary",
+        "actual_result": "Measurement backend or applicable test is not integrated in this configuration",
+        "execution_time": null,
+        "evidence": [
+            "docs/known_limitations.md"
+        ],
+        "limitation": "Not measured; no hardware performance claim"
+    },
+    {
+        "test_id": "PERF-05",
+        "target_platform": "qemu",
+        "configuration": "tfa",
+        "build_status": "NOT_BUILT (required implementation incomplete)",
+        "execution_status": "BLOCKED",
+        "expected_result": "measurement includes warmup, samples, timing conditions and statistical summary",
+        "actual_result": "Measurement backend or applicable test is not integrated in this configuration",
+        "execution_time": null,
+        "evidence": [
+            "docs/known_limitations.md"
+        ],
+        "limitation": "Not measured; no hardware performance claim"
+    },
+    {
+        "test_id": "PERF-06",
+        "target_platform": "qemu",
+        "configuration": "tfa",
+        "build_status": "NOT_BUILT (required implementation incomplete)",
+        "execution_status": "BLOCKED",
+        "expected_result": "measurement includes warmup, samples, timing conditions and statistical summary",
+        "actual_result": "Measurement backend or applicable test is not integrated in this configuration",
+        "execution_time": null,
+        "evidence": [
+            "docs/known_limitations.md"
+        ],
+        "limitation": "Not measured; no hardware performance claim"
+    },
+    {
+        "test_id": "PERF-07",
+        "target_platform": "qemu",
+        "configuration": "tfa",
+        "build_status": "NOT_BUILT (required implementation incomplete)",
+        "execution_status": "BLOCKED",
+        "expected_result": "measurement includes warmup, samples, timing conditions and statistical summary",
+        "actual_result": "Measurement backend or applicable test is not integrated in this configuration",
+        "execution_time": null,
+        "evidence": [
+            "docs/known_limitations.md"
+        ],
+        "limitation": "Not measured; no hardware performance claim"
+    },
+    {
+        "test_id": "TEE-01",
+        "target_platform": "qemu",
+        "configuration": "optee",
+        "execution_status": "PASS",
+        "expected_result": "valid requests and multiple sessions succeed; malformed requests rejected",
+        "actual_result": "two-sessions+echo+invalid-command",
+        "execution_ticks": 0,
+        "build_status": "BUILD PASS (executed image)",
+        "evidence": [
+            "results/phase6/qemu/optee.log",
+            "results/phase6/qemu/optee-secure.log",
+            "results/phase6/qemu/security-evidence.json"
+        ],
+        "execution_time": null,
+        "limitation": "QEMU TCG only; not ZCU106 hardware evidence"
+    },
+    {
+        "test_id": "TEE-02",
+        "target_platform": "qemu",
+        "configuration": "optee",
+        "execution_status": "BLOCKED",
+        "expected_result": "authentication and authorization independently enforced including stale session",
+        "actual_result": "Normal-requester-authentication-missing-TA-identity-tested-separately",
+        "execution_ticks": 0,
+        "build_status": "BUILD PASS (executed image)",
+        "evidence": [
+            "results/phase6/qemu/optee.log",
+            "results/phase6/qemu/optee-secure.log",
+            "results/phase6/qemu/security-evidence.json"
+        ],
+        "execution_time": null,
+        "limitation": "QEMU TCG only; not ZCU106 hardware evidence"
+    },
+    {
+        "test_id": "TEE-03",
+        "target_platform": "qemu",
+        "configuration": "optee",
+        "execution_status": "PASS",
+        "expected_result": "TA and core isolation survives controlled illegal access",
+        "actual_result": "TA-private-data-and-Core-canary-access-denied-and-unchanged",
+        "execution_ticks": 0,
+        "build_status": "BUILD PASS (executed image)",
+        "evidence": [
+            "results/phase6/qemu/optee.log",
+            "results/phase6/qemu/optee-secure.log",
+            "results/phase6/qemu/security-evidence.json"
+        ],
+        "execution_time": null,
+        "limitation": "QEMU TCG only; not ZCU106 hardware evidence"
+    },
+    {
+        "test_id": "TEE-04",
+        "target_platform": "qemu",
+        "configuration": "optee",
+        "execution_status": "BLOCKED",
+        "expected_result": "signed TA accepted and modified TA rejected",
+        "actual_result": "Early-TA-is-not-signed-file-loader-test",
+        "execution_ticks": 0,
+        "build_status": "BUILD PASS (executed image)",
+        "evidence": [
+            "results/phase6/qemu/optee.log",
+            "results/phase6/qemu/optee-secure.log",
+            "results/phase6/qemu/security-evidence.json"
+        ],
+        "execution_time": null,
+        "limitation": "QEMU TCG only; not ZCU106 hardware evidence"
+    },
+    {
+        "test_id": "TEE-05",
+        "target_platform": "qemu",
+        "configuration": "optee",
+        "execution_status": "BLOCKED",
+        "expected_result": "secure key operation matches vector; key not exportable",
+        "actual_result": "AES-KAT-and-export-policy-tested-memory-extraction-missing",
+        "execution_ticks": 0,
+        "build_status": "BUILD PASS (executed image)",
+        "evidence": [
+            "results/phase6/qemu/optee.log",
+            "results/phase6/qemu/optee-secure.log",
+            "results/phase6/qemu/security-evidence.json"
+        ],
+        "execution_time": null,
+        "limitation": "QEMU TCG only; not ZCU106 hardware evidence"
+    },
+    {
+        "test_id": "TEE-06",
+        "target_platform": "qemu",
+        "configuration": "optee",
+        "execution_status": "BLOCKED",
+        "expected_result": "secure persistent storage resists access/tampering and survives restart",
+        "actual_result": "no-storage-backend-or-RPC",
+        "execution_ticks": 0,
+        "build_status": "BUILD PASS (executed image)",
+        "evidence": [
+            "results/phase6/qemu/optee.log",
+            "results/phase6/qemu/optee-secure.log",
+            "results/phase6/qemu/security-evidence.json"
+        ],
+        "execution_time": null,
+        "limitation": "QEMU TCG only; not ZCU106 hardware evidence"
+    },
+    {
+        "test_id": "TEE-07",
+        "target_platform": "qemu",
+        "configuration": "optee",
+        "execution_status": "PASS",
+        "expected_result": "TA panic detected and other TA remains usable",
+        "actual_result": "TA-A-panic+TA-B-continuity+TA-A-reopen",
+        "execution_ticks": 0,
+        "build_status": "BUILD PASS (executed image)",
+        "evidence": [
+            "results/phase6/qemu/optee.log",
+            "results/phase6/qemu/optee-secure.log",
+            "results/phase6/qemu/security-evidence.json"
+        ],
+        "execution_time": null,
+        "limitation": "QEMU TCG only; not ZCU106 hardware evidence"
+    },
+    {
+        "test_id": "TEE-08",
+        "target_platform": "qemu",
+        "configuration": "optee",
+        "execution_status": "BLOCKED",
+        "expected_result": "authenticated boot accepts original and rejects modified image",
+        "actual_result": "authenticated-boot-chain-not-configured",
+        "execution_ticks": 0,
+        "build_status": "BUILD PASS (executed image)",
+        "evidence": [
+            "results/phase6/qemu/optee.log",
+            "results/phase6/qemu/optee-secure.log",
+            "results/phase6/qemu/security-evidence.json"
+        ],
+        "execution_time": null,
+        "limitation": "QEMU TCG only; not ZCU106 hardware evidence"
+    },
+    {
+        "test_id": "PERF-01",
+        "target_platform": "qemu",
+        "configuration": "optee",
+        "build_status": "NOT_BUILT (required implementation incomplete)",
+        "execution_status": "BLOCKED",
+        "expected_result": "measurement includes warmup, samples, timing conditions and statistical summary",
+        "actual_result": "Measurement backend or applicable test is not integrated in this configuration",
+        "execution_time": null,
+        "evidence": [
+            "docs/known_limitations.md"
+        ],
+        "limitation": "Not measured; no hardware performance claim"
+    },
+    {
+        "test_id": "PERF-02",
+        "target_platform": "qemu",
+        "configuration": "optee",
+        "build_status": "NOT_BUILT (required implementation incomplete)",
+        "execution_status": "BLOCKED",
+        "expected_result": "measurement includes warmup, samples, timing conditions and statistical summary",
+        "actual_result": "Measurement backend or applicable test is not integrated in this configuration",
+        "execution_time": null,
+        "evidence": [
+            "docs/known_limitations.md"
+        ],
+        "limitation": "Not measured; no hardware performance claim"
+    },
+    {
+        "test_id": "PERF-03",
+        "target_platform": "qemu",
+        "configuration": "optee",
+        "build_status": "NOT_BUILT (required implementation incomplete)",
+        "execution_status": "BLOCKED",
+        "expected_result": "measurement includes warmup, samples, timing conditions and statistical summary",
+        "actual_result": "Measurement backend or applicable test is not integrated in this configuration",
+        "execution_time": null,
+        "evidence": [
+            "docs/known_limitations.md"
+        ],
+        "limitation": "Not measured; no hardware performance claim"
+    },
+    {
+        "test_id": "PERF-04",
+        "target_platform": "qemu",
+        "configuration": "optee",
+        "build_status": "NOT_BUILT (required implementation incomplete)",
+        "execution_status": "BLOCKED",
+        "expected_result": "measurement includes warmup, samples, timing conditions and statistical summary",
+        "actual_result": "Measurement backend or applicable test is not integrated in this configuration",
+        "execution_time": null,
+        "evidence": [
+            "docs/known_limitations.md"
+        ],
+        "limitation": "Not measured; no hardware performance claim"
+    },
+    {
+        "test_id": "PERF-05",
+        "target_platform": "qemu",
+        "configuration": "optee",
+        "build_status": "BUILD PASS",
+        "execution_status": "PASS",
+        "expected_result": "measurement includes warmup, samples, timing conditions and statistical summary",
+        "actual_result": "Measurement acquired; see current CSV for 128 samples and statistics",
+        "execution_time": null,
+        "evidence": [
+            "results/phase6/qemu/optee.log",
+            "results/phase6/qemu/optee-benchmarks.csv"
+        ],
+        "limitation": "QEMU measurement acquisition only; no performance threshold or hardware claim"
+    },
+    {
+        "test_id": "PERF-06",
+        "target_platform": "qemu",
+        "configuration": "optee",
+        "build_status": "BUILD PASS",
+        "execution_status": "PASS",
+        "expected_result": "measurement includes warmup, samples, timing conditions and statistical summary",
+        "actual_result": "Measurement acquired; see current CSV for 128 samples and statistics",
+        "execution_time": null,
+        "evidence": [
+            "results/phase6/qemu/optee.log",
+            "results/phase6/qemu/optee-benchmarks.csv"
+        ],
+        "limitation": "QEMU measurement acquisition only; no performance threshold or hardware claim"
+    },
+    {
+        "test_id": "PERF-07",
+        "target_platform": "qemu",
+        "configuration": "optee",
+        "build_status": "NOT_BUILT (required implementation incomplete)",
+        "execution_status": "BLOCKED",
+        "expected_result": "measurement includes warmup, samples, timing conditions and statistical summary",
+        "actual_result": "Measurement backend or applicable test is not integrated in this configuration",
+        "execution_time": null,
+        "evidence": [
+            "docs/known_limitations.md"
+        ],
+        "limitation": "Not measured; no hardware performance claim"
+    },
+    {
+        "test_id": "TZ-SYS-01",
+        "target_platform": "zcu106",
+        "configuration": "baremetal",
+        "build_status": "BUILD PASS (self-authored payload only)",
+        "execution_status": "NOT_RUN",
+        "expected_result": "independent secure and normal counters retain state",
+        "actual_result": "No hardware execution; board, generated BSP/FSBL/PMUFW reservations and verified master/routing settings unavailable",
+        "execution_time": null,
+        "evidence": [
+            "results/phase4/build-zcu106.log",
+            "results/phase4/zcu106-load-gate.log",
+            "results/phase4/zcu106-profile-gate.log",
+            "docs/zcu106_phase4_handoff.md"
+        ],
+        "limitation": "NOT_RUN on ZCU106; OCM BL31 placement must be reconciled; load safety gates remain BLOCKED"
+    },
+    {
+        "test_id": "TZ-SYS-02",
+        "target_platform": "zcu106",
+        "configuration": "baremetal",
+        "build_status": "BUILD PASS (self-authored payload only)",
+        "execution_status": "NOT_RUN",
+        "expected_result": "repeated service roundtrips return expected values and preserve state",
+        "actual_result": "No hardware execution; board, generated BSP/FSBL/PMUFW reservations and verified master/routing settings unavailable",
+        "execution_time": null,
+        "evidence": [
+            "results/phase4/build-zcu106.log",
+            "results/phase4/zcu106-load-gate.log",
+            "results/phase4/zcu106-profile-gate.log",
+            "docs/zcu106_phase4_handoff.md"
+        ],
+        "limitation": "NOT_RUN on ZCU106; OCM BL31 placement must be reconciled; load safety gates remain BLOCKED"
+    },
+    {
+        "test_id": "TZ-SYS-03",
+        "target_platform": "zcu106",
+        "configuration": "baremetal",
+        "build_status": "PARTIAL: native register/probe/vector library BUILD PASS; board execution integration incomplete",
+        "execution_status": "NOT_RUN",
+        "expected_result": "allowed access succeeds; denied reads/writes fail; secure data unchanged",
+        "actual_result": "No hardware execution; board, generated BSP/FSBL/PMUFW reservations and verified master/routing settings unavailable",
+        "execution_time": null,
+        "evidence": [
+            "results/phase4/build-zcu106.log",
+            "results/phase4/zcu106-load-gate.log",
+            "results/phase4/zcu106-profile-gate.log",
+            "docs/zcu106_phase4_handoff.md"
+        ],
+        "limitation": "NOT_RUN on ZCU106; OCM BL31 placement must be reconciled; load safety gates remain BLOCKED"
+    },
+    {
+        "test_id": "TZ-SYS-04",
+        "target_platform": "zcu106",
+        "configuration": "baremetal",
+        "build_status": "PARTIAL: native register/probe/vector library BUILD PASS; board execution integration incomplete",
+        "execution_status": "NOT_RUN",
+        "expected_result": "secure peripheral operation succeeds and prohibited operation has no effect",
+        "actual_result": "No hardware execution; board, generated BSP/FSBL/PMUFW reservations and verified master/routing settings unavailable",
+        "execution_time": null,
+        "evidence": [
+            "results/phase4/build-zcu106.log",
+            "results/phase4/zcu106-load-gate.log",
+            "results/phase4/zcu106-profile-gate.log",
+            "docs/zcu106_phase4_handoff.md"
+        ],
+        "limitation": "NOT_RUN on ZCU106; OCM BL31 placement must be reconciled; load safety gates remain BLOCKED"
+    },
+    {
+        "test_id": "TZ-SYS-05",
+        "target_platform": "zcu106",
+        "configuration": "baremetal",
+        "build_status": "PARTIAL: native register/probe/vector library BUILD PASS; board execution integration incomplete",
+        "execution_status": "NOT_RUN",
+        "expected_result": "allowed DMA succeeds and secure read/write DMA is denied without modification",
+        "actual_result": "No hardware execution; board, generated BSP/FSBL/PMUFW reservations and verified master/routing settings unavailable",
+        "execution_time": null,
+        "evidence": [
+            "results/phase4/build-zcu106.log",
+            "results/phase4/zcu106-load-gate.log",
+            "results/phase4/zcu106-profile-gate.log",
+            "docs/zcu106_phase4_handoff.md"
+        ],
+        "limitation": "NOT_RUN on ZCU106; OCM BL31 placement must be reconciled; load safety gates remain BLOCKED"
+    },
+    {
+        "test_id": "TZ-SYS-06",
+        "target_platform": "zcu106",
+        "configuration": "baremetal",
+        "build_status": "PARTIAL: native register/probe/vector library BUILD PASS; board execution integration incomplete",
+        "execution_status": "NOT_RUN",
+        "expected_result": "secure and nonsecure IRQ handlers receive only assigned interrupts and resume",
+        "actual_result": "No hardware execution; board, generated BSP/FSBL/PMUFW reservations and verified master/routing settings unavailable",
+        "execution_time": null,
+        "evidence": [
+            "results/phase4/build-zcu106.log",
+            "results/phase4/zcu106-load-gate.log",
+            "results/phase4/zcu106-profile-gate.log",
+            "docs/zcu106_phase4_handoff.md"
+        ],
+        "limitation": "NOT_RUN on ZCU106; OCM BL31 placement must be reconciled; load safety gates remain BLOCKED"
+    },
+    {
+        "test_id": "TZ-SYS-07",
+        "target_platform": "zcu106",
+        "configuration": "baremetal",
+        "build_status": "NOT_BUILT (required implementation incomplete)",
+        "execution_status": "NOT_RUN",
+        "expected_result": "debug access follows configured permission",
+        "actual_result": "No hardware execution; board, generated BSP/FSBL/PMUFW reservations and verified master/routing settings unavailable",
+        "execution_time": null,
+        "evidence": [
+            "results/phase4/build-zcu106.log",
+            "results/phase4/zcu106-load-gate.log",
+            "results/phase4/zcu106-profile-gate.log",
+            "docs/zcu106_phase4_handoff.md"
+        ],
+        "limitation": "NOT_RUN on ZCU106; OCM BL31 placement must be reconciled; load safety gates remain BLOCKED"
+    },
+    {
+        "test_id": "PERF-01",
+        "target_platform": "zcu106",
+        "configuration": "baremetal",
+        "build_status": "BUILD PASS (self-authored payload only)",
+        "execution_status": "NOT_RUN",
+        "expected_result": "measurement includes warmup, samples, timing conditions and statistical summary",
+        "actual_result": "No hardware execution; board, generated BSP/FSBL/PMUFW reservations and verified master/routing settings unavailable",
+        "execution_time": null,
+        "evidence": [
+            "results/phase4/build-zcu106.log",
+            "results/phase4/zcu106-load-gate.log",
+            "results/phase4/zcu106-profile-gate.log",
+            "docs/zcu106_phase4_handoff.md"
+        ],
+        "limitation": "NOT_RUN on ZCU106; OCM BL31 placement must be reconciled; load safety gates remain BLOCKED"
+    },
+    {
+        "test_id": "PERF-02",
+        "target_platform": "zcu106",
+        "configuration": "baremetal",
+        "build_status": "BUILD PASS (self-authored payload only)",
+        "execution_status": "NOT_RUN",
+        "expected_result": "measurement includes warmup, samples, timing conditions and statistical summary",
+        "actual_result": "No hardware execution; board, generated BSP/FSBL/PMUFW reservations and verified master/routing settings unavailable",
+        "execution_time": null,
+        "evidence": [
+            "results/phase4/build-zcu106.log",
+            "results/phase4/zcu106-load-gate.log",
+            "results/phase4/zcu106-profile-gate.log",
+            "docs/zcu106_phase4_handoff.md"
+        ],
+        "limitation": "NOT_RUN on ZCU106; OCM BL31 placement must be reconciled; load safety gates remain BLOCKED"
+    },
+    {
+        "test_id": "PERF-03",
+        "target_platform": "zcu106",
+        "configuration": "baremetal",
+        "build_status": "NOT_BUILT (required implementation incomplete)",
+        "execution_status": "NOT_RUN",
+        "expected_result": "measurement includes warmup, samples, timing conditions and statistical summary",
+        "actual_result": "No hardware execution; board, generated BSP/FSBL/PMUFW reservations and verified master/routing settings unavailable",
+        "execution_time": null,
+        "evidence": [
+            "results/phase4/build-zcu106.log",
+            "results/phase4/zcu106-load-gate.log",
+            "results/phase4/zcu106-profile-gate.log",
+            "docs/zcu106_phase4_handoff.md"
+        ],
+        "limitation": "NOT_RUN on ZCU106; OCM BL31 placement must be reconciled; load safety gates remain BLOCKED"
+    },
+    {
+        "test_id": "PERF-04",
+        "target_platform": "zcu106",
+        "configuration": "baremetal",
+        "build_status": "NOT_BUILT (required implementation incomplete)",
+        "execution_status": "NOT_RUN",
+        "expected_result": "measurement includes warmup, samples, timing conditions and statistical summary",
+        "actual_result": "No hardware execution; board, generated BSP/FSBL/PMUFW reservations and verified master/routing settings unavailable",
+        "execution_time": null,
+        "evidence": [
+            "results/phase4/build-zcu106.log",
+            "results/phase4/zcu106-load-gate.log",
+            "results/phase4/zcu106-profile-gate.log",
+            "docs/zcu106_phase4_handoff.md"
+        ],
+        "limitation": "NOT_RUN on ZCU106; OCM BL31 placement must be reconciled; load safety gates remain BLOCKED"
+    },
+    {
+        "test_id": "PERF-05",
+        "target_platform": "zcu106",
+        "configuration": "baremetal",
+        "build_status": "NOT_BUILT (required implementation incomplete)",
+        "execution_status": "NOT_RUN",
+        "expected_result": "measurement includes warmup, samples, timing conditions and statistical summary",
+        "actual_result": "No hardware execution; board, generated BSP/FSBL/PMUFW reservations and verified master/routing settings unavailable",
+        "execution_time": null,
+        "evidence": [
+            "results/phase4/build-zcu106.log",
+            "results/phase4/zcu106-load-gate.log",
+            "results/phase4/zcu106-profile-gate.log",
+            "docs/zcu106_phase4_handoff.md"
+        ],
+        "limitation": "NOT_RUN on ZCU106; OCM BL31 placement must be reconciled; load safety gates remain BLOCKED"
+    },
+    {
+        "test_id": "PERF-06",
+        "target_platform": "zcu106",
+        "configuration": "baremetal",
+        "build_status": "NOT_BUILT (required implementation incomplete)",
+        "execution_status": "NOT_RUN",
+        "expected_result": "measurement includes warmup, samples, timing conditions and statistical summary",
+        "actual_result": "No hardware execution; board, generated BSP/FSBL/PMUFW reservations and verified master/routing settings unavailable",
+        "execution_time": null,
+        "evidence": [
+            "results/phase4/build-zcu106.log",
+            "results/phase4/zcu106-load-gate.log",
+            "results/phase4/zcu106-profile-gate.log",
+            "docs/zcu106_phase4_handoff.md"
+        ],
+        "limitation": "NOT_RUN on ZCU106; OCM BL31 placement must be reconciled; load safety gates remain BLOCKED"
+    },
+    {
+        "test_id": "PERF-07",
+        "target_platform": "zcu106",
+        "configuration": "baremetal",
+        "build_status": "NOT_BUILT (required implementation incomplete)",
+        "execution_status": "NOT_RUN",
+        "expected_result": "measurement includes warmup, samples, timing conditions and statistical summary",
+        "actual_result": "No hardware execution; board, generated BSP/FSBL/PMUFW reservations and verified master/routing settings unavailable",
+        "execution_time": null,
+        "evidence": [
+            "results/phase4/build-zcu106.log",
+            "results/phase4/zcu106-load-gate.log",
+            "results/phase4/zcu106-profile-gate.log",
+            "docs/zcu106_phase4_handoff.md"
+        ],
+        "limitation": "NOT_RUN on ZCU106; OCM BL31 placement must be reconciled; load safety gates remain BLOCKED"
+    },
+    {
+        "test_id": "TZ-SYS-01",
+        "target_platform": "zcu106",
+        "configuration": "tfa",
+        "build_status": "NOT_BUILT (required implementation incomplete)",
+        "execution_status": "NOT_RUN",
+        "expected_result": "independent secure and normal counters retain state",
+        "actual_result": "No hardware execution; board, generated BSP/FSBL/PMUFW reservations and verified master/routing settings unavailable",
+        "execution_time": null,
+        "evidence": [
+            "results/phase4/build-zcu106.log",
+            "results/phase4/zcu106-load-gate.log",
+            "results/phase4/zcu106-profile-gate.log",
+            "docs/zcu106_phase4_handoff.md"
+        ],
+        "limitation": "NOT_RUN on ZCU106; OCM BL31 placement must be reconciled; load safety gates remain BLOCKED"
+    },
+    {
+        "test_id": "TZ-SYS-02",
+        "target_platform": "zcu106",
+        "configuration": "tfa",
+        "build_status": "NOT_BUILT (required implementation incomplete)",
+        "execution_status": "NOT_RUN",
+        "expected_result": "repeated service roundtrips return expected values and preserve state",
+        "actual_result": "No hardware execution; board, generated BSP/FSBL/PMUFW reservations and verified master/routing settings unavailable",
+        "execution_time": null,
+        "evidence": [
+            "results/phase4/build-zcu106.log",
+            "results/phase4/zcu106-load-gate.log",
+            "results/phase4/zcu106-profile-gate.log",
+            "docs/zcu106_phase4_handoff.md"
+        ],
+        "limitation": "NOT_RUN on ZCU106; OCM BL31 placement must be reconciled; load safety gates remain BLOCKED"
+    },
+    {
+        "test_id": "TZ-SYS-03",
+        "target_platform": "zcu106",
+        "configuration": "tfa",
+        "build_status": "PARTIAL: native register/probe/vector library BUILD PASS; board execution integration incomplete",
+        "execution_status": "NOT_RUN",
+        "expected_result": "allowed access succeeds; denied reads/writes fail; secure data unchanged",
+        "actual_result": "No hardware execution; board, generated BSP/FSBL/PMUFW reservations and verified master/routing settings unavailable",
+        "execution_time": null,
+        "evidence": [
+            "results/phase4/build-zcu106.log",
+            "results/phase4/zcu106-load-gate.log",
+            "results/phase4/zcu106-profile-gate.log",
+            "docs/zcu106_phase4_handoff.md"
+        ],
+        "limitation": "NOT_RUN on ZCU106; OCM BL31 placement must be reconciled; load safety gates remain BLOCKED"
+    },
+    {
+        "test_id": "TZ-SYS-04",
+        "target_platform": "zcu106",
+        "configuration": "tfa",
+        "build_status": "PARTIAL: native register/probe/vector library BUILD PASS; board execution integration incomplete",
+        "execution_status": "NOT_RUN",
+        "expected_result": "secure peripheral operation succeeds and prohibited operation has no effect",
+        "actual_result": "No hardware execution; board, generated BSP/FSBL/PMUFW reservations and verified master/routing settings unavailable",
+        "execution_time": null,
+        "evidence": [
+            "results/phase4/build-zcu106.log",
+            "results/phase4/zcu106-load-gate.log",
+            "results/phase4/zcu106-profile-gate.log",
+            "docs/zcu106_phase4_handoff.md"
+        ],
+        "limitation": "NOT_RUN on ZCU106; OCM BL31 placement must be reconciled; load safety gates remain BLOCKED"
+    },
+    {
+        "test_id": "TZ-SYS-05",
+        "target_platform": "zcu106",
+        "configuration": "tfa",
+        "build_status": "PARTIAL: native register/probe/vector library BUILD PASS; board execution integration incomplete",
+        "execution_status": "NOT_RUN",
+        "expected_result": "allowed DMA succeeds and secure read/write DMA is denied without modification",
+        "actual_result": "No hardware execution; board, generated BSP/FSBL/PMUFW reservations and verified master/routing settings unavailable",
+        "execution_time": null,
+        "evidence": [
+            "results/phase4/build-zcu106.log",
+            "results/phase4/zcu106-load-gate.log",
+            "results/phase4/zcu106-profile-gate.log",
+            "docs/zcu106_phase4_handoff.md"
+        ],
+        "limitation": "NOT_RUN on ZCU106; OCM BL31 placement must be reconciled; load safety gates remain BLOCKED"
+    },
+    {
+        "test_id": "TZ-SYS-06",
+        "target_platform": "zcu106",
+        "configuration": "tfa",
+        "build_status": "PARTIAL: native register/probe/vector library BUILD PASS; board execution integration incomplete",
+        "execution_status": "NOT_RUN",
+        "expected_result": "secure and nonsecure IRQ handlers receive only assigned interrupts and resume",
+        "actual_result": "No hardware execution; board, generated BSP/FSBL/PMUFW reservations and verified master/routing settings unavailable",
+        "execution_time": null,
+        "evidence": [
+            "results/phase4/build-zcu106.log",
+            "results/phase4/zcu106-load-gate.log",
+            "results/phase4/zcu106-profile-gate.log",
+            "docs/zcu106_phase4_handoff.md"
+        ],
+        "limitation": "NOT_RUN on ZCU106; OCM BL31 placement must be reconciled; load safety gates remain BLOCKED"
+    },
+    {
+        "test_id": "TZ-SYS-07",
+        "target_platform": "zcu106",
+        "configuration": "tfa",
+        "build_status": "NOT_BUILT (required implementation incomplete)",
+        "execution_status": "NOT_RUN",
+        "expected_result": "debug access follows configured permission",
+        "actual_result": "No hardware execution; board, generated BSP/FSBL/PMUFW reservations and verified master/routing settings unavailable",
+        "execution_time": null,
+        "evidence": [
+            "results/phase4/build-zcu106.log",
+            "results/phase4/zcu106-load-gate.log",
+            "results/phase4/zcu106-profile-gate.log",
+            "docs/zcu106_phase4_handoff.md"
+        ],
+        "limitation": "NOT_RUN on ZCU106; OCM BL31 placement must be reconciled; load safety gates remain BLOCKED"
+    },
+    {
+        "test_id": "PERF-01",
+        "target_platform": "zcu106",
+        "configuration": "tfa",
+        "build_status": "NOT_BUILT (required implementation incomplete)",
+        "execution_status": "NOT_RUN",
+        "expected_result": "measurement includes warmup, samples, timing conditions and statistical summary",
+        "actual_result": "No hardware execution; board, generated BSP/FSBL/PMUFW reservations and verified master/routing settings unavailable",
+        "execution_time": null,
+        "evidence": [
+            "results/phase4/build-zcu106.log",
+            "results/phase4/zcu106-load-gate.log",
+            "results/phase4/zcu106-profile-gate.log",
+            "docs/zcu106_phase4_handoff.md"
+        ],
+        "limitation": "NOT_RUN on ZCU106; OCM BL31 placement must be reconciled; load safety gates remain BLOCKED"
+    },
+    {
+        "test_id": "PERF-02",
+        "target_platform": "zcu106",
+        "configuration": "tfa",
+        "build_status": "NOT_BUILT (required implementation incomplete)",
+        "execution_status": "NOT_RUN",
+        "expected_result": "measurement includes warmup, samples, timing conditions and statistical summary",
+        "actual_result": "No hardware execution; board, generated BSP/FSBL/PMUFW reservations and verified master/routing settings unavailable",
+        "execution_time": null,
+        "evidence": [
+            "results/phase4/build-zcu106.log",
+            "results/phase4/zcu106-load-gate.log",
+            "results/phase4/zcu106-profile-gate.log",
+            "docs/zcu106_phase4_handoff.md"
+        ],
+        "limitation": "NOT_RUN on ZCU106; OCM BL31 placement must be reconciled; load safety gates remain BLOCKED"
+    },
+    {
+        "test_id": "PERF-03",
+        "target_platform": "zcu106",
+        "configuration": "tfa",
+        "build_status": "NOT_BUILT (required implementation incomplete)",
+        "execution_status": "NOT_RUN",
+        "expected_result": "measurement includes warmup, samples, timing conditions and statistical summary",
+        "actual_result": "No hardware execution; board, generated BSP/FSBL/PMUFW reservations and verified master/routing settings unavailable",
+        "execution_time": null,
+        "evidence": [
+            "results/phase4/build-zcu106.log",
+            "results/phase4/zcu106-load-gate.log",
+            "results/phase4/zcu106-profile-gate.log",
+            "docs/zcu106_phase4_handoff.md"
+        ],
+        "limitation": "NOT_RUN on ZCU106; OCM BL31 placement must be reconciled; load safety gates remain BLOCKED"
+    },
+    {
+        "test_id": "PERF-04",
+        "target_platform": "zcu106",
+        "configuration": "tfa",
+        "build_status": "NOT_BUILT (required implementation incomplete)",
+        "execution_status": "NOT_RUN",
+        "expected_result": "measurement includes warmup, samples, timing conditions and statistical summary",
+        "actual_result": "No hardware execution; board, generated BSP/FSBL/PMUFW reservations and verified master/routing settings unavailable",
+        "execution_time": null,
+        "evidence": [
+            "results/phase4/build-zcu106.log",
+            "results/phase4/zcu106-load-gate.log",
+            "results/phase4/zcu106-profile-gate.log",
+            "docs/zcu106_phase4_handoff.md"
+        ],
+        "limitation": "NOT_RUN on ZCU106; OCM BL31 placement must be reconciled; load safety gates remain BLOCKED"
+    },
+    {
+        "test_id": "PERF-05",
+        "target_platform": "zcu106",
+        "configuration": "tfa",
+        "build_status": "NOT_BUILT (required implementation incomplete)",
+        "execution_status": "NOT_RUN",
+        "expected_result": "measurement includes warmup, samples, timing conditions and statistical summary",
+        "actual_result": "No hardware execution; board, generated BSP/FSBL/PMUFW reservations and verified master/routing settings unavailable",
+        "execution_time": null,
+        "evidence": [
+            "results/phase4/build-zcu106.log",
+            "results/phase4/zcu106-load-gate.log",
+            "results/phase4/zcu106-profile-gate.log",
+            "docs/zcu106_phase4_handoff.md"
+        ],
+        "limitation": "NOT_RUN on ZCU106; OCM BL31 placement must be reconciled; load safety gates remain BLOCKED"
+    },
+    {
+        "test_id": "PERF-06",
+        "target_platform": "zcu106",
+        "configuration": "tfa",
+        "build_status": "NOT_BUILT (required implementation incomplete)",
+        "execution_status": "NOT_RUN",
+        "expected_result": "measurement includes warmup, samples, timing conditions and statistical summary",
+        "actual_result": "No hardware execution; board, generated BSP/FSBL/PMUFW reservations and verified master/routing settings unavailable",
+        "execution_time": null,
+        "evidence": [
+            "results/phase4/build-zcu106.log",
+            "results/phase4/zcu106-load-gate.log",
+            "results/phase4/zcu106-profile-gate.log",
+            "docs/zcu106_phase4_handoff.md"
+        ],
+        "limitation": "NOT_RUN on ZCU106; OCM BL31 placement must be reconciled; load safety gates remain BLOCKED"
+    },
+    {
+        "test_id": "PERF-07",
+        "target_platform": "zcu106",
+        "configuration": "tfa",
+        "build_status": "NOT_BUILT (required implementation incomplete)",
+        "execution_status": "NOT_RUN",
+        "expected_result": "measurement includes warmup, samples, timing conditions and statistical summary",
+        "actual_result": "No hardware execution; board, generated BSP/FSBL/PMUFW reservations and verified master/routing settings unavailable",
+        "execution_time": null,
+        "evidence": [
+            "results/phase4/build-zcu106.log",
+            "results/phase4/zcu106-load-gate.log",
+            "results/phase4/zcu106-profile-gate.log",
+            "docs/zcu106_phase4_handoff.md"
+        ],
+        "limitation": "NOT_RUN on ZCU106; OCM BL31 placement must be reconciled; load safety gates remain BLOCKED"
+    },
+    {
+        "test_id": "TEE-01",
+        "target_platform": "zcu106",
+        "configuration": "optee",
+        "build_status": "BUILD PASS (self-authored payload only)",
+        "execution_status": "NOT_RUN",
+        "expected_result": "valid requests and multiple sessions succeed; malformed requests rejected",
+        "actual_result": "No hardware execution; board, generated BSP/FSBL/PMUFW reservations and verified master/routing settings unavailable",
+        "execution_time": null,
+        "evidence": [
+            "results/phase4/build-zcu106.log",
+            "results/phase4/zcu106-load-gate.log",
+            "results/phase4/zcu106-profile-gate.log",
+            "docs/zcu106_phase4_handoff.md"
+        ],
+        "limitation": "NOT_RUN on ZCU106; OCM BL31 placement must be reconciled; load safety gates remain BLOCKED"
+    },
+    {
+        "test_id": "TEE-02",
+        "target_platform": "zcu106",
+        "configuration": "optee",
+        "build_status": "BUILD PASS (self-authored payload only)",
+        "execution_status": "NOT_RUN",
+        "expected_result": "authentication and authorization independently enforced including stale session",
+        "actual_result": "No hardware execution; board, generated BSP/FSBL/PMUFW reservations and verified master/routing settings unavailable",
+        "execution_time": null,
+        "evidence": [
+            "results/phase4/build-zcu106.log",
+            "results/phase4/zcu106-load-gate.log",
+            "results/phase4/zcu106-profile-gate.log",
+            "docs/zcu106_phase4_handoff.md"
+        ],
+        "limitation": "NOT_RUN on ZCU106; OCM BL31 placement must be reconciled; load safety gates remain BLOCKED"
+    },
+    {
+        "test_id": "TEE-03",
+        "target_platform": "zcu106",
+        "configuration": "optee",
+        "build_status": "NOT_BUILT (required implementation incomplete)",
+        "execution_status": "NOT_RUN",
+        "expected_result": "TA and core isolation survives controlled illegal access",
+        "actual_result": "No hardware execution; board, generated BSP/FSBL/PMUFW reservations and verified master/routing settings unavailable",
+        "execution_time": null,
+        "evidence": [
+            "results/phase4/build-zcu106.log",
+            "results/phase4/zcu106-load-gate.log",
+            "results/phase4/zcu106-profile-gate.log",
+            "docs/zcu106_phase4_handoff.md"
+        ],
+        "limitation": "NOT_RUN on ZCU106; OCM BL31 placement must be reconciled; load safety gates remain BLOCKED"
+    },
+    {
+        "test_id": "TEE-04",
+        "target_platform": "zcu106",
+        "configuration": "optee",
+        "build_status": "NOT_BUILT (required implementation incomplete)",
+        "execution_status": "NOT_RUN",
+        "expected_result": "signed TA accepted and modified TA rejected",
+        "actual_result": "No hardware execution; board, generated BSP/FSBL/PMUFW reservations and verified master/routing settings unavailable",
+        "execution_time": null,
+        "evidence": [
+            "results/phase4/build-zcu106.log",
+            "results/phase4/zcu106-load-gate.log",
+            "results/phase4/zcu106-profile-gate.log",
+            "docs/zcu106_phase4_handoff.md"
+        ],
+        "limitation": "NOT_RUN on ZCU106; OCM BL31 placement must be reconciled; load safety gates remain BLOCKED"
+    },
+    {
+        "test_id": "TEE-05",
+        "target_platform": "zcu106",
+        "configuration": "optee",
+        "build_status": "BUILD PASS (self-authored payload only)",
+        "execution_status": "NOT_RUN",
+        "expected_result": "secure key operation matches vector; key not exportable",
+        "actual_result": "No hardware execution; board, generated BSP/FSBL/PMUFW reservations and verified master/routing settings unavailable",
+        "execution_time": null,
+        "evidence": [
+            "results/phase4/build-zcu106.log",
+            "results/phase4/zcu106-load-gate.log",
+            "results/phase4/zcu106-profile-gate.log",
+            "docs/zcu106_phase4_handoff.md"
+        ],
+        "limitation": "NOT_RUN on ZCU106; OCM BL31 placement must be reconciled; load safety gates remain BLOCKED"
+    },
+    {
+        "test_id": "TEE-06",
+        "target_platform": "zcu106",
+        "configuration": "optee",
+        "build_status": "NOT_BUILT (required implementation incomplete)",
+        "execution_status": "NOT_RUN",
+        "expected_result": "secure persistent storage resists access/tampering and survives restart",
+        "actual_result": "No hardware execution; board, generated BSP/FSBL/PMUFW reservations and verified master/routing settings unavailable",
+        "execution_time": null,
+        "evidence": [
+            "results/phase4/build-zcu106.log",
+            "results/phase4/zcu106-load-gate.log",
+            "results/phase4/zcu106-profile-gate.log",
+            "docs/zcu106_phase4_handoff.md"
+        ],
+        "limitation": "NOT_RUN on ZCU106; OCM BL31 placement must be reconciled; load safety gates remain BLOCKED"
+    },
+    {
+        "test_id": "TEE-07",
+        "target_platform": "zcu106",
+        "configuration": "optee",
+        "build_status": "BUILD PASS (self-authored payload only)",
+        "execution_status": "NOT_RUN",
+        "expected_result": "TA panic detected and other TA remains usable",
+        "actual_result": "No hardware execution; board, generated BSP/FSBL/PMUFW reservations and verified master/routing settings unavailable",
+        "execution_time": null,
+        "evidence": [
+            "results/phase4/build-zcu106.log",
+            "results/phase4/zcu106-load-gate.log",
+            "results/phase4/zcu106-profile-gate.log",
+            "docs/zcu106_phase4_handoff.md"
+        ],
+        "limitation": "NOT_RUN on ZCU106; OCM BL31 placement must be reconciled; load safety gates remain BLOCKED"
+    },
+    {
+        "test_id": "TEE-08",
+        "target_platform": "zcu106",
+        "configuration": "optee",
+        "build_status": "NOT_BUILT (required implementation incomplete)",
+        "execution_status": "NOT_RUN",
+        "expected_result": "authenticated boot accepts original and rejects modified image",
+        "actual_result": "No hardware execution; board, generated BSP/FSBL/PMUFW reservations and verified master/routing settings unavailable",
+        "execution_time": null,
+        "evidence": [
+            "results/phase4/build-zcu106.log",
+            "results/phase4/zcu106-load-gate.log",
+            "results/phase4/zcu106-profile-gate.log",
+            "docs/zcu106_phase4_handoff.md"
+        ],
+        "limitation": "NOT_RUN on ZCU106; OCM BL31 placement must be reconciled; load safety gates remain BLOCKED"
+    },
+    {
+        "test_id": "PERF-01",
+        "target_platform": "zcu106",
+        "configuration": "optee",
+        "build_status": "NOT_BUILT (required implementation incomplete)",
+        "execution_status": "NOT_RUN",
+        "expected_result": "measurement includes warmup, samples, timing conditions and statistical summary",
+        "actual_result": "No hardware execution; board, generated BSP/FSBL/PMUFW reservations and verified master/routing settings unavailable",
+        "execution_time": null,
+        "evidence": [
+            "results/phase4/build-zcu106.log",
+            "results/phase4/zcu106-load-gate.log",
+            "results/phase4/zcu106-profile-gate.log",
+            "docs/zcu106_phase4_handoff.md"
+        ],
+        "limitation": "NOT_RUN on ZCU106; OCM BL31 placement must be reconciled; load safety gates remain BLOCKED"
+    },
+    {
+        "test_id": "PERF-02",
+        "target_platform": "zcu106",
+        "configuration": "optee",
+        "build_status": "NOT_BUILT (required implementation incomplete)",
+        "execution_status": "NOT_RUN",
+        "expected_result": "measurement includes warmup, samples, timing conditions and statistical summary",
+        "actual_result": "No hardware execution; board, generated BSP/FSBL/PMUFW reservations and verified master/routing settings unavailable",
+        "execution_time": null,
+        "evidence": [
+            "results/phase4/build-zcu106.log",
+            "results/phase4/zcu106-load-gate.log",
+            "results/phase4/zcu106-profile-gate.log",
+            "docs/zcu106_phase4_handoff.md"
+        ],
+        "limitation": "NOT_RUN on ZCU106; OCM BL31 placement must be reconciled; load safety gates remain BLOCKED"
+    },
+    {
+        "test_id": "PERF-03",
+        "target_platform": "zcu106",
+        "configuration": "optee",
+        "build_status": "NOT_BUILT (required implementation incomplete)",
+        "execution_status": "NOT_RUN",
+        "expected_result": "measurement includes warmup, samples, timing conditions and statistical summary",
+        "actual_result": "No hardware execution; board, generated BSP/FSBL/PMUFW reservations and verified master/routing settings unavailable",
+        "execution_time": null,
+        "evidence": [
+            "results/phase4/build-zcu106.log",
+            "results/phase4/zcu106-load-gate.log",
+            "results/phase4/zcu106-profile-gate.log",
+            "docs/zcu106_phase4_handoff.md"
+        ],
+        "limitation": "NOT_RUN on ZCU106; OCM BL31 placement must be reconciled; load safety gates remain BLOCKED"
+    },
+    {
+        "test_id": "PERF-04",
+        "target_platform": "zcu106",
+        "configuration": "optee",
+        "build_status": "NOT_BUILT (required implementation incomplete)",
+        "execution_status": "NOT_RUN",
+        "expected_result": "measurement includes warmup, samples, timing conditions and statistical summary",
+        "actual_result": "No hardware execution; board, generated BSP/FSBL/PMUFW reservations and verified master/routing settings unavailable",
+        "execution_time": null,
+        "evidence": [
+            "results/phase4/build-zcu106.log",
+            "results/phase4/zcu106-load-gate.log",
+            "results/phase4/zcu106-profile-gate.log",
+            "docs/zcu106_phase4_handoff.md"
+        ],
+        "limitation": "NOT_RUN on ZCU106; OCM BL31 placement must be reconciled; load safety gates remain BLOCKED"
+    },
+    {
+        "test_id": "PERF-05",
+        "target_platform": "zcu106",
+        "configuration": "optee",
+        "build_status": "BUILD PASS (self-authored payload only)",
+        "execution_status": "NOT_RUN",
+        "expected_result": "measurement includes warmup, samples, timing conditions and statistical summary",
+        "actual_result": "No hardware execution; board, generated BSP/FSBL/PMUFW reservations and verified master/routing settings unavailable",
+        "execution_time": null,
+        "evidence": [
+            "results/phase4/build-zcu106.log",
+            "results/phase4/zcu106-load-gate.log",
+            "results/phase4/zcu106-profile-gate.log",
+            "docs/zcu106_phase4_handoff.md"
+        ],
+        "limitation": "NOT_RUN on ZCU106; OCM BL31 placement must be reconciled; load safety gates remain BLOCKED"
+    },
+    {
+        "test_id": "PERF-06",
+        "target_platform": "zcu106",
+        "configuration": "optee",
+        "build_status": "BUILD PASS (self-authored payload only)",
+        "execution_status": "NOT_RUN",
+        "expected_result": "measurement includes warmup, samples, timing conditions and statistical summary",
+        "actual_result": "No hardware execution; board, generated BSP/FSBL/PMUFW reservations and verified master/routing settings unavailable",
+        "execution_time": null,
+        "evidence": [
+            "results/phase4/build-zcu106.log",
+            "results/phase4/zcu106-load-gate.log",
+            "results/phase4/zcu106-profile-gate.log",
+            "docs/zcu106_phase4_handoff.md"
+        ],
+        "limitation": "NOT_RUN on ZCU106; OCM BL31 placement must be reconciled; load safety gates remain BLOCKED"
+    },
+    {
+        "test_id": "PERF-07",
+        "target_platform": "zcu106",
+        "configuration": "optee",
+        "build_status": "NOT_BUILT (required implementation incomplete)",
+        "execution_status": "NOT_RUN",
+        "expected_result": "measurement includes warmup, samples, timing conditions and statistical summary",
+        "actual_result": "No hardware execution; board, generated BSP/FSBL/PMUFW reservations and verified master/routing settings unavailable",
+        "execution_time": null,
+        "evidence": [
+            "results/phase4/build-zcu106.log",
+            "results/phase4/zcu106-load-gate.log",
+            "results/phase4/zcu106-profile-gate.log",
+            "docs/zcu106_phase4_handoff.md"
+        ],
+        "limitation": "NOT_RUN on ZCU106; OCM BL31 placement must be reconciled; load safety gates remain BLOCKED"
+    },
+    {
+        "test_id": "B1-SMCCC-01",
+        "target_platform": "qemu",
+        "configuration": "tfa",
+        "execution_status": "PASS",
+        "expected_result": "SMCCC and PSCI return supported version values",
+        "actual_result": "standard-interface-smoke-only",
+        "execution_ticks": 0,
+        "build_status": "BUILD PASS (executed image)",
+        "evidence": [
+            "results/phase6/qemu/tfa.log"
+        ],
+        "execution_time": null,
+        "limitation": "QEMU TCG only; not ZCU106 hardware evidence"
+    },
+    {
+        "test_id": "TEE-AUTH-TA",
+        "target_platform": "qemu",
+        "configuration": "optee",
+        "execution_status": "PASS",
+        "expected_result": "Core-supplied TA identity authorizes TA-A and denies PUBLIC even with claimed A identifier",
+        "actual_result": "Core-client-identity+TA-A-allowlist+forged-login-and-PUBLIC-denied",
+        "execution_ticks": 0,
+        "build_status": "BUILD PASS (executed image)",
+        "evidence": [
+            "results/phase6/qemu/optee.log",
+            "results/phase6/qemu/optee-secure.log",
+            "results/phase6/qemu/security-evidence.json"
+        ],
+        "execution_time": null,
+        "limitation": "QEMU TCG only; not ZCU106 hardware evidence"
+    },
+    {
+        "test_id": "TEE-AUTH-NS",
+        "target_platform": "qemu",
+        "configuration": "optee",
+        "execution_status": "BLOCKED",
+        "expected_result": "Normal requester credentials verified independently of self-reported identifiers",
+        "actual_result": "Normal-requester-authentication-not-provisioned",
+        "execution_ticks": 0,
+        "build_status": "BUILD PASS (executed image)",
+        "evidence": [
+            "results/phase6/qemu/optee.log",
+            "results/phase6/qemu/optee-secure.log",
+            "results/phase6/qemu/security-evidence.json"
+        ],
+        "execution_time": null,
+        "limitation": "QEMU TCG only; not ZCU106 hardware evidence"
+    },
+    {
+        "test_id": "TEE-SHM-01",
+        "target_platform": "qemu",
+        "configuration": "optee",
+        "execution_status": "PASS",
+        "expected_result": "valid memref accepted, wrong size and invalid ranges rejected, service and buffer intact",
+        "actual_result": "valid+wrong-size+outside+secure+overflow+continuity+buffer-unchanged",
+        "execution_ticks": 0,
+        "build_status": "BUILD PASS (executed image)",
+        "evidence": [
+            "results/phase6/qemu/optee.log",
+            "results/phase6/qemu/optee-secure.log",
+            "results/phase6/qemu/security-evidence.json"
+        ],
+        "execution_time": null,
+        "limitation": "QEMU TCG only; not ZCU106 hardware evidence"
+    },
+    {
+        "test_id": "TEE-KEY-API",
+        "target_platform": "qemu",
+        "configuration": "optee",
+        "execution_status": "PASS",
+        "expected_result": "Secure key is nonextractable, export denied, AES KAT and subsequent key use succeed",
+        "actual_result": "Secure-generated-nonextractable-key+export-denied+AES-KAT+key-still-usable",
+        "execution_ticks": 0,
+        "build_status": "BUILD PASS (executed image)",
+        "evidence": [
+            "results/phase6/qemu/optee.log",
+            "results/phase6/qemu/optee-secure.log",
+            "results/phase6/qemu/security-evidence.json"
+        ],
+        "execution_time": null,
+        "limitation": "QEMU TCG only; not ZCU106 hardware evidence"
+    },
+    {
+        "test_id": "TEE-KEY-MEM",
+        "target_platform": "qemu",
+        "configuration": "optee",
+        "execution_status": "BLOCKED",
+        "expected_result": "memory key extraction attempt denied with key intact",
+        "actual_result": "raw-key-memory-extraction-not-tested",
+        "execution_ticks": 0,
+        "build_status": "BUILD PASS (executed image)",
+        "evidence": [
+            "results/phase6/qemu/optee.log",
+            "results/phase6/qemu/optee-secure.log",
+            "results/phase6/qemu/security-evidence.json"
+        ],
+        "execution_time": null,
+        "limitation": "QEMU TCG only; not ZCU106 hardware evidence"
+    },
+    {
+        "test_id": "TEE-ISO-TA",
+        "target_platform": "qemu",
+        "configuration": "optee",
+        "execution_status": "PASS",
+        "expected_result": "allowed own access succeeds, cross-TA read/write fault, victim secret unchanged",
+        "actual_result": "B-secret-read-write-probes+A-fault+B-private-state-recheck+A-reopen",
+        "execution_ticks": 0,
+        "build_status": "BUILD PASS (executed image)",
+        "evidence": [
+            "results/phase6/qemu/optee.log",
+            "results/phase6/qemu/optee-secure.log",
+            "results/phase6/qemu/security-evidence.json"
+        ],
+        "execution_time": null,
+        "limitation": "QEMU TCG only; not ZCU106 hardware evidence"
+    },
+    {
+        "test_id": "TEE-ISO-CORE",
+        "target_platform": "qemu",
+        "configuration": "optee",
+        "execution_status": "PASS",
+        "expected_result": "Core access denied and Core protected contents rechecked unchanged",
+        "actual_result": "Core-private-canary+read-write-faults+privileged-recheck+TA-continuity",
+        "execution_ticks": 0,
+        "build_status": "BUILD PASS (executed image)",
+        "evidence": [
+            "results/phase6/qemu/optee.log",
+            "results/phase6/qemu/optee-secure.log",
+            "results/phase6/qemu/security-evidence.json"
+        ],
+        "execution_time": null,
+        "limitation": "QEMU TCG only; not ZCU106 hardware evidence"
+    },
+    {
+        "test_id": "TEE-AUTH-TA",
+        "target_platform": "zcu106",
+        "configuration": "optee",
+        "build_status": "Client BUILD PASS; ZCU106 Core integration NOT_BUILT",
+        "execution_status": "NOT_RUN",
+        "expected_result": "Core-supplied TA identity authorizes TA-A and denies PUBLIC even with claimed A identifier",
+        "actual_result": "No physical execution; QEMU validation result is not hardware evidence",
+        "execution_time": null,
+        "evidence": [
+            "results/phase6/build-zcu106.log",
+            "results/phase6/zcu106-load-gate.log",
+            "results/phase6/zcu106-profile-gate.log"
+        ],
+        "limitation": "Unverified board routing/reservations and OP-TEE port; load is prohibited"
+    },
+    {
+        "test_id": "TEE-AUTH-NS",
+        "target_platform": "zcu106",
+        "configuration": "optee",
+        "build_status": "Client BUILD PASS; ZCU106 Core integration NOT_BUILT",
+        "execution_status": "NOT_RUN",
+        "expected_result": "Normal requester credentials verified independently of self-reported identifiers",
+        "actual_result": "No physical execution; QEMU validation result is not hardware evidence",
+        "execution_time": null,
+        "evidence": [
+            "results/phase6/build-zcu106.log",
+            "results/phase6/zcu106-load-gate.log",
+            "results/phase6/zcu106-profile-gate.log"
+        ],
+        "limitation": "Unverified board routing/reservations and OP-TEE port; load is prohibited"
+    },
+    {
+        "test_id": "TEE-SHM-01",
+        "target_platform": "zcu106",
+        "configuration": "optee",
+        "build_status": "Client BUILD PASS; ZCU106 Core integration NOT_BUILT",
+        "execution_status": "NOT_RUN",
+        "expected_result": "valid memref accepted, wrong size and invalid ranges rejected, service and buffer intact",
+        "actual_result": "No physical execution; QEMU validation result is not hardware evidence",
+        "execution_time": null,
+        "evidence": [
+            "results/phase6/build-zcu106.log",
+            "results/phase6/zcu106-load-gate.log",
+            "results/phase6/zcu106-profile-gate.log"
+        ],
+        "limitation": "Unverified board routing/reservations and OP-TEE port; load is prohibited"
+    },
+    {
+        "test_id": "TEE-KEY-API",
+        "target_platform": "zcu106",
+        "configuration": "optee",
+        "build_status": "Client BUILD PASS; ZCU106 Core integration NOT_BUILT",
+        "execution_status": "NOT_RUN",
+        "expected_result": "Secure key is nonextractable, export denied, AES KAT and subsequent key use succeed",
+        "actual_result": "No physical execution; QEMU validation result is not hardware evidence",
+        "execution_time": null,
+        "evidence": [
+            "results/phase6/build-zcu106.log",
+            "results/phase6/zcu106-load-gate.log",
+            "results/phase6/zcu106-profile-gate.log"
+        ],
+        "limitation": "Unverified board routing/reservations and OP-TEE port; load is prohibited"
+    },
+    {
+        "test_id": "TEE-KEY-MEM",
+        "target_platform": "zcu106",
+        "configuration": "optee",
+        "build_status": "Client BUILD PASS; ZCU106 Core integration NOT_BUILT",
+        "execution_status": "NOT_RUN",
+        "expected_result": "memory key extraction attempt denied with key intact",
+        "actual_result": "No physical execution; QEMU validation result is not hardware evidence",
+        "execution_time": null,
+        "evidence": [
+            "results/phase6/build-zcu106.log",
+            "results/phase6/zcu106-load-gate.log",
+            "results/phase6/zcu106-profile-gate.log"
+        ],
+        "limitation": "Unverified board routing/reservations and OP-TEE port; load is prohibited"
+    },
+    {
+        "test_id": "TEE-ISO-TA",
+        "target_platform": "zcu106",
+        "configuration": "optee",
+        "build_status": "Client BUILD PASS; ZCU106 Core integration NOT_BUILT",
+        "execution_status": "NOT_RUN",
+        "expected_result": "allowed own access succeeds, cross-TA read/write fault, victim secret unchanged",
+        "actual_result": "No physical execution; QEMU validation result is not hardware evidence",
+        "execution_time": null,
+        "evidence": [
+            "results/phase6/build-zcu106.log",
+            "results/phase6/zcu106-load-gate.log",
+            "results/phase6/zcu106-profile-gate.log"
+        ],
+        "limitation": "Unverified board routing/reservations and OP-TEE port; load is prohibited"
+    },
+    {
+        "test_id": "TEE-ISO-CORE",
+        "target_platform": "zcu106",
+        "configuration": "optee",
+        "build_status": "Client BUILD PASS; ZCU106 Core integration NOT_BUILT",
+        "execution_status": "NOT_RUN",
+        "expected_result": "Core access denied and Core protected contents rechecked unchanged",
+        "actual_result": "No physical execution; QEMU validation result is not hardware evidence",
+        "execution_time": null,
+        "evidence": [
+            "results/phase6/build-zcu106.log",
+            "results/phase6/zcu106-load-gate.log",
+            "results/phase6/zcu106-profile-gate.log"
+        ],
+        "limitation": "Unverified board routing/reservations and OP-TEE port; load is prohibited"
+    },
+    {
+        "test_id": "PERF-08",
+        "target_platform": "qemu",
+        "configuration": "optee",
+        "build_status": "BUILD PASS (client)",
+        "execution_status": "PASS",
+        "expected_result": "measure session open with existing TA instance",
+        "actual_result": "{\"test_id\": \"PERF-08\", \"platform\": \"qemu\", \"configuration\": \"optee\", \"status\": \"MEASURED\", \"count\": 128, \"timer_hz\": 62500000, \"cpu_hz\": null, \"ticks\": {\"minimum\": 21389.0, \"maximum\": 27064.0, \"mean\": 21981.6796875, \"median\": 21592.0, \"p95\": 25599.0, \"p99\": 26862.0}, \"microseconds\": {\"minimum\": 342.224, \"maximum\": 433.024, \"mean\": 351.706875, \"median\": 345.472, \"p95\": 409.584, \"p99\": 429.792}, \"conditions\": \"timer_hz=62500000 cpu_hz=unknown cache=on mmu=on irq=masked interval=session-open-only-existing-TA-instance warmup=16\", \"evidence\": \"results/phase6/qemu/optee-benchmarks.csv\"}",
+        "execution_time": null,
+        "evidence": [
+            "results/phase6/performance.json",
+            "results/phase6/qemu/optee.log"
+        ],
+        "limitation": "Measurement acquisition only; QEMU is not hardware performance"
+    },
+    {
+        "test_id": "PERF-09",
+        "target_platform": "qemu",
+        "configuration": "optee",
+        "build_status": "BUILD PASS (client)",
+        "execution_status": "PASS",
+        "expected_result": "measure session close while another session remains",
+        "actual_result": "{\"test_id\": \"PERF-09\", \"platform\": \"qemu\", \"configuration\": \"optee\", \"status\": \"MEASURED\", \"count\": 128, \"timer_hz\": 62500000, \"cpu_hz\": null, \"ticks\": {\"minimum\": 17724.0, \"maximum\": 20912.0, \"mean\": 18731.546875, \"median\": 18704.5, \"p95\": 19547.0, \"p99\": 19722.0}, \"microseconds\": {\"minimum\": 283.584, \"maximum\": 334.592, \"mean\": 299.70475, \"median\": 299.272, \"p95\": 312.752, \"p99\": 315.552}, \"conditions\": \"timer_hz=62500000 cpu_hz=unknown cache=on mmu=on irq=masked interval=session-close-only-other-session-remains-open warmup=16\", \"evidence\": \"results/phase6/qemu/optee-benchmarks.csv\"}",
+        "execution_time": null,
+        "evidence": [
+            "results/phase6/performance.json",
+            "results/phase6/qemu/optee.log"
+        ],
+        "limitation": "Measurement acquisition only; QEMU is not hardware performance"
+    },
+    {
+        "test_id": "PERF-10",
+        "target_platform": "qemu",
+        "configuration": "optee",
+        "build_status": "BUILD PASS (client)",
+        "execution_status": "PASS",
+        "expected_result": "measure panic plus cleanup and recovery through successful echo",
+        "actual_result": "{\"test_id\": \"PERF-10\", \"platform\": \"qemu\", \"configuration\": \"optee\", \"status\": \"MEASURED\", \"count\": 128, \"timer_hz\": 62500000, \"cpu_hz\": null, \"ticks\": {\"minimum\": 3667029.0, \"maximum\": 3903083.0, \"mean\": 3738005.296875, \"median\": 3710820.5, \"p95\": 3890732.0, \"p99\": 3901198.0}, \"microseconds\": {\"minimum\": 58672.464, \"maximum\": 62449.328, \"mean\": 59808.08475, \"median\": 59373.128, \"p95\": 62251.712, \"p99\": 62419.168}, \"conditions\": \"timer_hz=62500000 cpu_hz=unknown cache=on mmu=on irq=masked interval=panic-diagnostic+TA-reopen+echo-excluding-final-close warmup=16\", \"evidence\": \"results/phase6/qemu/optee-benchmarks.csv\"}",
+        "execution_time": null,
+        "evidence": [
+            "results/phase6/performance.json",
+            "results/phase6/qemu/optee.log"
+        ],
+        "limitation": "Measurement acquisition only; QEMU is not hardware performance"
+    },
+    {
+        "test_id": "PERF-11",
+        "target_platform": "qemu",
+        "configuration": "optee",
+        "build_status": "BUILD PASS (client)",
+        "execution_status": "PASS",
+        "expected_result": "measure post-TARGET_DEAD recovery through successful echo",
+        "actual_result": "{\"test_id\": \"PERF-11\", \"platform\": \"qemu\", \"configuration\": \"optee\", \"status\": \"MEASURED\", \"count\": 128, \"timer_hz\": 62500000, \"cpu_hz\": null, \"ticks\": {\"minimum\": 3313735.0, \"maximum\": 3923194.0, \"mean\": 3385141.2109375, \"median\": 3370807.0, \"p95\": 3514824.0, \"p99\": 3555259.0}, \"microseconds\": {\"minimum\": 53019.76, \"maximum\": 62771.104, \"mean\": 54162.259375, \"median\": 53932.912, \"p95\": 56237.184, \"p99\": 56884.144}, \"conditions\": \"timer_hz=62500000 cpu_hz=unknown cache=on mmu=on irq=masked interval=TARGET-DEAD-observed-to-TA-reopen-and-successful-echo warmup=16\", \"evidence\": \"results/phase6/qemu/optee-benchmarks.csv\"}",
+        "execution_time": null,
+        "evidence": [
+            "results/phase6/performance.json",
+            "results/phase6/qemu/optee.log"
+        ],
+        "limitation": "Measurement acquisition only; QEMU is not hardware performance"
+    },
+    {
+        "test_id": "PERF-08",
+        "target_platform": "zcu106",
+        "configuration": "optee",
+        "build_status": "BUILD PASS (client)",
+        "execution_status": "NOT_RUN",
+        "expected_result": "measure session open with existing TA instance",
+        "actual_result": "{\"test_id\": \"PERF-08\", \"platform\": \"zcu106\", \"status\": \"NOT_RUN\", \"count\": 0, \"ticks\": null, \"microseconds\": null, \"reason\": \"Hardware unavailable; load gate BLOCKED\"}",
+        "execution_time": null,
+        "evidence": [
+            "results/phase6/performance.json",
+            "results/phase6/qemu/optee.log"
+        ],
+        "limitation": "Measurement acquisition only; QEMU is not hardware performance"
+    },
+    {
+        "test_id": "PERF-09",
+        "target_platform": "zcu106",
+        "configuration": "optee",
+        "build_status": "BUILD PASS (client)",
+        "execution_status": "NOT_RUN",
+        "expected_result": "measure session close while another session remains",
+        "actual_result": "{\"test_id\": \"PERF-09\", \"platform\": \"zcu106\", \"status\": \"NOT_RUN\", \"count\": 0, \"ticks\": null, \"microseconds\": null, \"reason\": \"Hardware unavailable; load gate BLOCKED\"}",
+        "execution_time": null,
+        "evidence": [
+            "results/phase6/performance.json",
+            "results/phase6/qemu/optee.log"
+        ],
+        "limitation": "Measurement acquisition only; QEMU is not hardware performance"
+    },
+    {
+        "test_id": "PERF-10",
+        "target_platform": "zcu106",
+        "configuration": "optee",
+        "build_status": "BUILD PASS (client)",
+        "execution_status": "NOT_RUN",
+        "expected_result": "measure panic plus cleanup and recovery through successful echo",
+        "actual_result": "{\"test_id\": \"PERF-10\", \"platform\": \"zcu106\", \"status\": \"NOT_RUN\", \"count\": 0, \"ticks\": null, \"microseconds\": null, \"reason\": \"Hardware unavailable; load gate BLOCKED\"}",
+        "execution_time": null,
+        "evidence": [
+            "results/phase6/performance.json",
+            "results/phase6/qemu/optee.log"
+        ],
+        "limitation": "Measurement acquisition only; QEMU is not hardware performance"
+    },
+    {
+        "test_id": "PERF-11",
+        "target_platform": "zcu106",
+        "configuration": "optee",
+        "build_status": "BUILD PASS (client)",
+        "execution_status": "NOT_RUN",
+        "expected_result": "measure post-TARGET_DEAD recovery through successful echo",
+        "actual_result": "{\"test_id\": \"PERF-11\", \"platform\": \"zcu106\", \"status\": \"NOT_RUN\", \"count\": 0, \"ticks\": null, \"microseconds\": null, \"reason\": \"Hardware unavailable; load gate BLOCKED\"}",
+        "execution_time": null,
+        "evidence": [
+            "results/phase6/performance.json",
+            "results/phase6/qemu/optee.log"
+        ],
+        "limitation": "Measurement acquisition only; QEMU is not hardware performance"
+    }
+]

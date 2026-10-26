@@ -1,0 +1,167 @@
+{
+    "platform": "qemu",
+    "confirmed": true,
+    "exclusive_end": true,
+    "regions": [
+        {
+            "name": "el3_firmware",
+            "base": 234881024,
+            "end": 234946560,
+            "size": 65536,
+            "alignment": 4096,
+            "security": "secure",
+            "memory_type": "normal-nc",
+            "owner": "el3",
+            "purpose": "code",
+            "protection": "qemu-secure-ram"
+        },
+        {
+            "name": "exception_vector",
+            "base": 234946560,
+            "end": 235012096,
+            "size": 65536,
+            "alignment": 4096,
+            "security": "secure",
+            "memory_type": "normal-nc",
+            "owner": "el3",
+            "purpose": "vector",
+            "protection": "qemu-secure-ram"
+        },
+        {
+            "name": "secure_code",
+            "base": 235012096,
+            "end": 235077632,
+            "size": 65536,
+            "alignment": 4096,
+            "security": "secure",
+            "memory_type": "normal-nc",
+            "owner": "secure",
+            "purpose": "code",
+            "protection": "qemu-secure-ram"
+        },
+        {
+            "name": "secure_data",
+            "base": 235077632,
+            "end": 235143168,
+            "size": 65536,
+            "alignment": 4096,
+            "security": "secure",
+            "memory_type": "normal-nc",
+            "owner": "secure",
+            "purpose": "data",
+            "protection": "qemu-secure-ram"
+        },
+        {
+            "name": "secure_stack",
+            "base": 235143168,
+            "end": 235208704,
+            "size": 65536,
+            "alignment": 4096,
+            "security": "secure",
+            "memory_type": "normal-nc",
+            "owner": "secure",
+            "purpose": "stack",
+            "protection": "qemu-secure-ram"
+        },
+        {
+            "name": "protected_buffer",
+            "base": 235208704,
+            "end": 235274240,
+            "size": 65536,
+            "alignment": 4096,
+            "security": "secure",
+            "memory_type": "normal-nc",
+            "owner": "secure",
+            "purpose": "protected",
+            "protection": "qemu-secure-ram"
+        },
+        {
+            "name": "el3_stack",
+            "base": 235274240,
+            "end": 235339776,
+            "size": 65536,
+            "alignment": 4096,
+            "security": "secure",
+            "memory_type": "normal-nc",
+            "owner": "el3",
+            "purpose": "stack",
+            "protection": "qemu-secure-ram"
+        },
+        {
+            "name": "nonsecure_code",
+            "base": 1075838976,
+            "end": 1076887552,
+            "size": 1048576,
+            "alignment": 4096,
+            "security": "nonsecure",
+            "memory_type": "normal-nc",
+            "owner": "nonsecure",
+            "purpose": "code",
+            "protection": "none"
+        },
+        {
+            "name": "nonsecure_data",
+            "base": 1076887552,
+            "end": 1077936128,
+            "size": 1048576,
+            "alignment": 4096,
+            "security": "nonsecure",
+            "memory_type": "normal-nc",
+            "owner": "nonsecure",
+            "purpose": "data",
+            "protection": "none"
+        },
+        {
+            "name": "nonsecure_stack",
+            "base": 1077936128,
+            "end": 1078984704,
+            "size": 1048576,
+            "alignment": 4096,
+            "security": "nonsecure",
+            "memory_type": "normal-nc",
+            "owner": "nonsecure",
+            "purpose": "stack",
+            "protection": "none"
+        },
+        {
+            "name": "shared_memory",
+            "base": 1078984704,
+            "end": 1080033280,
+            "size": 1048576,
+            "alignment": 4096,
+            "security": "shared",
+            "memory_type": "normal-nc",
+            "owner": "client",
+            "purpose": "shared",
+            "protection": "none"
+        },
+        {
+            "name": "tfa_reserved",
+            "base": 235405312,
+            "end": 235929600,
+            "size": 524288,
+            "alignment": 4096,
+            "security": "secure",
+            "memory_type": "normal-nc",
+            "owner": "tfa",
+            "purpose": "reserved",
+            "protection": "qemu-secure-ram"
+        },
+        {
+            "name": "optee_reserved",
+            "base": 235929600,
+            "end": 251658240,
+            "size": 15728640,
+            "alignment": 4096,
+            "security": "secure",
+            "memory_type": "normal-nc",
+            "owner": "optee",
+            "purpose": "reserved",
+            "protection": "qemu-secure-ram"
+        }
+    ],
+    "protection_window": [
+        234881024,
+        251658240
+    ]
+}

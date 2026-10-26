@@ -1,0 +1,6 @@
+{
+    "target_platform": "zcu106",
+    "execution_status": "NOT_RUN",
+    "hardware_pass": false,
+    "reason": "No physical board or Vitis. Provisional map. Required hardware drivers incomplete."
+}
