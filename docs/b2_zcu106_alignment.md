@@ -6,7 +6,7 @@
 
 作業開始時の未コミット33ファイルをresults/b2-alignment/baselineへfile copy/hashとgit diff patchで保存した。docs/b2_integration.md、results/b2-integration-summary.json、そのreceiptが指す生成ELFとlogを確認した。前回のZCU106 ELFは、BL31 entry 0x1000（LOAD終端約0x1c000）、BL32 entry 0x60000000（BSSを含むLOAD終端0x600c5380）、BL33 entry 0x10200000（stack終端0x10500000）だった。旧A共通mapのtfa_reserved=0x60080000..0x60100000、optee_reserved=0x60100000..0x61000000と比較していたことが不一致の一因だった。
 
-過去のsummary・run log・ELFは上書きしない。今回の結果は[別集計](../results/b2-alignment-summary.json)とresults/b2-alignment/へ保存する。
+過去のsummary・run log・ELFは上書きしない。今回の結果は別集計（別途生成・用意: `../results/b2-alignment-summary.json`）とresults/b2-alignment/へ保存する。
 
 ## 設定値の所在と変更前後
 
@@ -89,7 +89,7 @@ export TZ_B2_BOARD="$(python3 -c 'import json; print(json.load(open("results/pha
 python3 scripts/check_b2_integration.py --platform zynqmp --root "$TZ_B2_BOARD" --output results/b2-alignment/readiness.json --require-integrated
 ```
 
-最後のcommandは残る実機条件によりexit2になる。これをFAILの隠蔽やload許可に変換しない。今回の実結果・全command/log/ELF hashは[整合化結果](../results/b2-alignment-summary.json)。
+最後のcommandは残る実機条件によりexit2になる。これをFAILの隠蔽やload許可に変換しない。今回の実結果・全command/log/ELF hashは整合化結果（別途生成・用意: `../results/b2-alignment-summary.json`）。
 
 ## 参照根拠
 

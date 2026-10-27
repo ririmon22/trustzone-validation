@@ -64,14 +64,14 @@ B1の補助試験 `B1-SMCCC-01` は `tfa_standalone/integration/main.c`。全TZ�
 |TEE-SHM-01|client.c TMEM、ta/security.c BUFFER_CHECK、tests/security_tests.c|PASS：正常、不整合size、範囲外、Secure、overflow、継続と非改変|
 |通常TA署名ホスト検査|scripts/check_signed_ta.py＋固定版sign_encrypt.py|5ケース成功、HOSTのみ。TEE-04 runtimeはBLOCKED|
 
-期待値は独立した `tests/expectations.json`。Secure abort証跡は `scripts/check_security_evidence.py` がaddress/direction/classを検査し、関連単体試験は `tests/test_phase5.py`。詳細と前提は [Phase 5](phase5_progress.md)。ZCU106は全NOT_RUN。
+期待値は独立した `tests/expectations.json`。Secure abort証跡は `scripts/check_security_evidence.py` がaddress/direction/classを検査し、関連単体試験は `tests/test_phase5.py`。詳細と前提は Phase 5（別途生成・用意: `phase5_progress.md`）。ZCU106は全NOT_RUN。
 
 Phase 6の特性・拒否機構・非改変・対象範囲・source・証跡は [根拠表](security_evidence_phase6.md)。性能は [測定区間表](performance_phase6.md)。実機は全NOT_RUN。
 
 Phase 7のTEE-STRESS-01はoptee_standalone/tests/stress_tests.c、clientのdead-session CLOSE、TAのkey cycle、明示的なPTA statsを使用。最新結果はresults/phase7/latest-report.md。TZ-SYS-03はcheck_tz_audit.pyでMMU-off External Abortを要求しTranslation Faultを合格にしない。
 
-Phase 8では同じ機能試験をlocal Git source受領先からfresh buildして再実行した。IDごとの期待値・実値・ticks・UARTとbuild証跡は [Phase 8結果表](../results/phase8/results.json)、範囲と制約は [報告](phase8_progress.md)。QEMU A 3 PASS、B1 1 PASS、B2 9 PASSであり、既存BLOCKED/SKIPと全実機NOT_RUNを維持する。Vitis/GNU/Ubuntu24.04のbuildはNOT_RUN。
+Phase 8では同じ機能試験をlocal Git source受領先からfresh buildして再実行した。IDごとの期待値・実値・ticks・UARTとbuild証跡は Phase 8結果表（別途生成・用意: `../results/phase8/results.json`）、範囲と制約は 報告（別途生成・用意: `phase8_progress.md`）。QEMU A 3 PASS、B1 1 PASS、B2 9 PASSであり、既存BLOCKED/SKIPと全実機NOT_RUNを維持する。Vitis/GNU/Ubuntu24.04のbuildはNOT_RUN。
 
 ## B2統合再検証
 
-TF-A＋OP-TEE＋Standaloneは既存B2そのもの。最新のsource-only再buildとQEMU A3/B1 1/B2 9 PASS、stress512回、host142件の証跡は[統合集計](../results/b2-integration-summary.json)、接続と未完了範囲は[統合手順](b2_integration.md)。既存TEEのBLOCKED項目と全実機NOT_RUNを維持する。Core canary/統計PTAはQEMU検証overlayに限定し、通常ZCU106 Coreの試験済みとしない。GPIO/DMAは保留。
+TF-A＋OP-TEE＋Standaloneは既存B2そのもの。最新のsource-only再buildとQEMU A3/B1 1/B2 9 PASS、stress512回、host142件の証跡は統合集計（別途生成・用意: `../results/b2-integration-summary.json`）、接続と未完了範囲は[統合手順](b2_integration.md)。既存TEEのBLOCKED項目と全実機NOT_RUNを維持する。Core canary/統計PTAはQEMU検証overlayに限定し、通常ZCU106 Coreの試験済みとしない。GPIO/DMAは保留。

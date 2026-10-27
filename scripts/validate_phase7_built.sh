@@ -1,7 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 cd "$(dirname "$0")/.."
-python3 scripts/toolchain_manifest.py --verify container/toolchain.lock.json --output results/phase7/execution-toolchain.json
+toolchain_lock="${TZ_TOOLCHAIN_LOCK:-results/offline/toolchain-baseline.json}"
+if [[ ! -f "$toolchain_lock" ]]; then
+    echo 'BLOCKED: capture and review a local toolchain baseline; see docs/offline_transfer.md' >&2
+    exit 2
+fi
+python3 scripts/toolchain_manifest.py --verify "$toolchain_lock" --output results/phase7/execution-toolchain.json
 for configuration in baremetal tfa optee; do
     RESULT_DIR=results/phase7/qemu bash scripts/run_qemu.sh "$configuration" > "results/phase7/${configuration}-console.log" 2>&1
 done

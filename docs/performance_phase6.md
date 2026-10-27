@@ -1,6 +1,6 @@
 # 性能測定コードと条件
 
-実測統計は [結果](../results/phase6/performance.md)、raw metadataとticksは同directoryのperformance.jsonとqemu/*-benchmarks.csv。いずれもQEMU TCGでありZCU106性能ではない。
+実測統計は 結果（別途生成・用意: `../results/phase6/performance.md`）、raw metadataとticksは同directoryのperformance.jsonとqemu/*-benchmarks.csv。いずれもQEMU TCGでありZCU106性能ではない。
 
 |ID|区間|状態|
 |---|---|---|

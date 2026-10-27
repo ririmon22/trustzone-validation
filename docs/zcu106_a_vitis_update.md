@@ -102,7 +102,7 @@ python3 scripts/check_zcu106_a.py --build-dir "$TZ_A_BUILD/build/zcu106" --outpu
 python3 scripts/check_zcu106_a.py --build-dir "$TZ_A_BUILD/build/zcu106" --require-load-ready --output results/zcu106-a/load-readiness.json
 ```
 
-最後のcommandはSTATIC PASSであってもload BLOCKEDとしてexit2を返す。既存check_hardware_profile.py/check_boot_plan.py/require-protection検査も維持する。結果集計と実logの対応は [A移植確認記録](../results/zcu106-a-summary.json)。過去Phase8のQEMU PASSは過去バイナリの証跡であり、この改修版の新規実行PASSにはしない。
+最後のcommandはSTATIC PASSであってもload BLOCKEDとしてexit2を返す。既存check_hardware_profile.py/check_boot_plan.py/require-protection検査も維持する。結果集計と実logの対応は A移植確認記録（別途生成・用意: `../results/zcu106-a-summary.json`）。過去Phase8のQEMU PASSは過去バイナリの証跡であり、この改修版の新規実行PASSにはしない。
 
 ## 根拠と未取得資料
 

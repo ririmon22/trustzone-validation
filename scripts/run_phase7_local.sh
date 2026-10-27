@@ -6,7 +6,12 @@ if [[ -e build/qemu || -e build/external ]]; then
     exit 2
 fi
 mkdir -p results/phase7
-python3 scripts/toolchain_manifest.py --verify container/toolchain.lock.json --output results/phase7/toolchain.json
+toolchain_lock="${TZ_TOOLCHAIN_LOCK:-results/offline/toolchain-baseline.json}"
+if [[ ! -f "$toolchain_lock" ]]; then
+    echo 'BLOCKED: capture and review a local toolchain baseline; see docs/offline_transfer.md' >&2
+    exit 2
+fi
+python3 scripts/toolchain_manifest.py --verify "$toolchain_lock" --output results/phase7/toolchain.json
 python3 scripts/source_snapshot.py tfa-amd optee compiler-rt pyelftools --output results/phase7/source-verification.json
 make all > results/phase7/build-qemu.log 2>&1
 make PLATFORM=zcu106 all > results/phase7/build-zcu106.log 2>&1

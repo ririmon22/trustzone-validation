@@ -1,6 +1,6 @@
 # ZCU106 B2 実機確認の準備・証跡取得手順
 
-[前回の整合化](b2_zcu106_alignment.md)と[実績](../results/b2-alignment-summary.json)を生成ELF/logと再照合した。今回firmwareは変更せず、実機load/run/JTAG接続も行わない。B2_RUNTIME_READY=0、load_authorized=false、全安全ゲートBLOCKEDを維持する。GPIO/DMAは保留。原本と実測がない項目はNOT_RUNで、取得不能なら理由を付けBLOCKEDとする。
+[前回の整合化](b2_zcu106_alignment.md)と実績（別途生成・用意: `../results/b2-alignment-summary.json`）を生成ELF/logと再照合した。今回firmwareは変更せず、実機load/run/JTAG接続も行わない。B2_RUNTIME_READY=0、load_authorized=false、全安全ゲートBLOCKEDを維持する。GPIO/DMAは保留。原本と実測がない項目はNOT_RUNで、取得不能なら理由を付けBLOCKEDとする。
 
 記入する票は[Markdownチェックリスト](b2_hardware_checklist.md)／[JSON原本](b2_hardware_checklist.json)。23項目の「何を・どこで・どう確認」「期待条件・実測値・証跡・判定」を用意した。JSONのコピーに記入し、原本templateや過去runを上書きしない。
 
@@ -148,7 +148,7 @@ python3 -S scripts/check_b2_hardware_checklist.py "$TZ_EVIDENCE/checklist.json" 
 - [UG1087 LOCK XMPU_DDR](https://docs.amd.com/r/en-US/ug1087-zynq-ultrascale-registers/LOCK-XMPU_DDR-Register)、UG1085第10/16章、[backend根拠](zcu106_backends.md)：address/protection/read副作用の照合。実policyは未確認。
 - [TF-A 2.12 §7.45.1/7.45.5](https://trustedfirmware-a.readthedocs.io/en/v2.12/plat/xilinx-zynqmp.html)と固定source：build options/handoff。実JTAG branchの選択を推測しない。
 
-今回の再検査・tool有無・ELF hash・host試験・記録validator結果は[準備結果](../results/b2-hardware-prep-summary.json)。firmware/source build条件は変更せず、QEMU再起動や実機実行は行わない。
+今回の再検査・tool有無・ELF hash・host試験・記録validator結果は準備結果（別途生成・用意: `../results/b2-hardware-prep-summary.json`）。firmware/source build条件は変更せず、QEMU再起動や実機実行は行わない。
 
 ## 今回のローカル確認結果
 

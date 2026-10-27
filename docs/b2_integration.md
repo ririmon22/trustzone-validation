@@ -1,6 +1,6 @@
 # TF-A＋OP-TEE統合検証（B2）
 
-更新：共有memory/cacheとB2専用予約のソース不一致は [ZCU106 B2整合化](b2_zcu106_alignment.md) で修正した。以下の旧値の比較は初回統合監査時の記録として残す。現在のsoftware契約PASSと実機条件BLOCKEDは[新しい結果](../results/b2-alignment-summary.json)を参照。
+更新：共有memory/cacheとB2専用予約のソース不一致は [ZCU106 B2整合化](b2_zcu106_alignment.md) で修正した。以下の旧値の比較は初回統合監査時の記録として残す。現在のsoftware契約PASSと実機条件BLOCKEDは新しい結果（別途生成・用意: `../results/b2-alignment-summary.json`）を参照。
 
 既存B2を統合環境として再利用する。新しい独自monitorやLinux clientは追加しない。TF-A/OP-TEE単体のBUILD結果だけで統合PASSとはせず、linked BL31/BL32/BL33、FIP、Early TAの実体、共有memory契約、実行証跡を別々に確認する。最終対象はZCU106。GPIO・DMAの実機機能/性能は保留、全実機NOT_RUN、load gate BLOCKEDを維持する。
 
@@ -109,7 +109,7 @@ QEMUの配置をZCU106へ転記しない。ZCU106用にB2独立の全予約/SHM/
 
 ## 実ログとGit状態
 
-最終のbuild/static/QEMU/host結果とID対応は [統合確認記録](../results/b2-integration-summary.json)。raw logはresults/b2-integration/とfresh run側に保持し、Gitにはコンパクトな集計だけを登録対象にする。作業開始時の未コミット変更22ファイルはresults/b2-integration/baselineへpatchとfile copy/hashで保存した。checkout/reset/clean、既存成果物削除、commit/pushは行わない。
+最終のbuild/static/QEMU/host結果とID対応は 統合確認記録（別途生成・用意: `../results/b2-integration-summary.json`）。raw logはresults/b2-integration/とfresh run側に保持し、Gitにはコンパクトな集計だけを登録対象にする。作業開始時の未コミット変更22ファイルはresults/b2-integration/baselineへpatchとfile copy/hashで保存した。checkout/reset/clean、既存成果物削除、commit/pushは行わない。
 
 ## 参照資料
 

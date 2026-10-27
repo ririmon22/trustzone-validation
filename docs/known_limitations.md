@@ -1,6 +1,6 @@
 # 未完成・制約（Phase 5）
 
-最新結果は [Phase 5報告](phase5_progress.md)。ホスト105件成功。QEMU AはTZ-SYS-01/02/03、B1は標準API補助、B2はTEE-01/03/07と補助5項目がPASS。HARDWARE PASSはない。
+最新結果は Phase 5報告（別途生成・用意: `phase5_progress.md`）。ホスト105件成功。QEMU AはTZ-SYS-01/02/03、B1は標準API補助、B2はTEE-01/03/07と補助5項目がPASS。HARDWARE PASSはない。
 
 |項目|状態／理由|
 |---|---|
@@ -27,6 +27,6 @@
 
 今回QEMUのsocket作成失敗は観測していない。AF_INET socketのEPERMをホストOS全体の禁止とは判断しない。ホスト保護設定と実機の不可逆設定は変更していない。
 
-Phase 6ではホスト116件と12 ELF、QEMU A3/B1補助1/B2 8 PASSを再確認。runtime/boot検査とIRQ/DMA timing adapterを追加したが実機は全NOT_RUN。全BLOCKED理由と性能制約は [Phase 6報告](phase6_progress.md)。
+Phase 6ではホスト116件と12 ELF、QEMU A3/B1補助1/B2 8 PASSを再確認。runtime/boot検査とIRQ/DMA timing adapterを追加したが実機は全NOT_RUN。全BLOCKED理由と性能制約は Phase 6報告（別途生成・用意: `phase6_progress.md`）。
 
-最新Phase 7ではhost fresh workspaceから2回の再構築を確認したがPodman内のclean OS検証はBLOCKED。TEE反復は512 iterationの範囲でのみPASS。未完了・機構の区別は [Phase 7](phase7_progress.md)。
+最新Phase 7ではhost fresh workspaceから2回の再構築を確認したがPodman内のclean OS検証はBLOCKED。TEE反復は512 iterationの範囲でのみPASS。未完了・機構の区別は Phase 7（別途生成・用意: `phase7_progress.md`）。

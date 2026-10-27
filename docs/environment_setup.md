@@ -30,7 +30,7 @@ QEMU実装調査基準はupstream v9.2.0。利用実行ファイルの版は未�
 `virt-9.2`が無い場合は黙って別machineへ変更せず、対応版とメモリマップを再調査する。
 
 次フェーズでソケット作成がEPERMとなることを確認した。ホストDNS設定は変更していない。
-詳細とapt取得実ログは [次フェーズ結果](phase2_progress.md) を参照。
+詳細とapt取得実ログは 次フェーズ結果（別途生成・用意: `phase2_progress.md`） を参照。
 
 ## Phase 4の更新（上の初期状態より優先）
 
@@ -38,4 +38,4 @@ QEMU10.2.1は `/usr/bin/qemu-system-aarch64` に存在し実行成功。今回�
 
 実使用：Clang/LLD/LLVM tools21.1.8、host GCC、GNU Make、Python3＋cryptography、vendored pyelftools0.32、固定compiler-rtの128-bit除算実装。外部buildではGNU AArch64 GCCを必要としないClang構成を実行した。dtc依存を必要としない構成でOP-TEEをbuildした。Vitis/Bootgen/実機は依然未確認。
 
-再現コマンドと実ログは [Phase 4](phase4_progress.md) と `results/phase4`。
+再現コマンドと実ログは Phase 4（別途生成・用意: `phase4_progress.md`） と `results/phase4`。

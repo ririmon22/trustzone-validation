@@ -34,9 +34,21 @@ class BootPlanTests(unittest.TestCase):
         self.assertTrue(range_issues([dict(name='bad', base=4097, end=8192, alignment=4096)]))
 
     def test_bss_is_included_in_inventory(self):
-        image = elf_inventory(ROOT / 'build/zcu106/nonsecure.elf')
-        self.assertTrue(any(segment['zero_fill_bytes'] > 0 for segment in image['loads']))
-        self.assertTrue(all(segment['runtime_bytes'] >= segment['file_bytes'] for segment in image['loads']))
+        # 過去の生成物へ依存せず、ELF64のBSS範囲を直接検査する。
+        data = bytearray(124)
+        data[:6] = b'\x7fELF\x02\x01'
+        struct.pack_into('<H', data, 18, 183)
+        struct.pack_into('<QQ', data, 24, 0x1000, 64)
+        struct.pack_into('<HH', data, 54, 56, 1)
+        struct.pack_into('<IIQQQQQQ', data, 64, 1, 5, 120, 0x1000, 0x1000, 4, 4096, 1)
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'fixture.elf'
+            path.write_bytes(data)
+            image = elf_inventory(path)
+        self.assertEqual(image['loads'][0]['file_bytes'], 4)
+        self.assertEqual(image['loads'][0]['runtime_bytes'], 4096)
+        self.assertEqual(image['loads'][0]['zero_fill_bytes'], 4092)
+        self.assertEqual(image['loads'][0]['end'], 0x2000)
 
     def test_forged_confirmation_cannot_remove_legacy_gate(self):
         plan = json.loads((ROOT / 'platform/zcu106/boot_plan.json').read_text())

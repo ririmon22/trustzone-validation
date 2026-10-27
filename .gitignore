@@ -10,16 +10,8 @@ third_party/compiler-rt/
 
 # 生成物と大量の実行証跡はローカルに保持する。
 results/**
-!results/status.json
-!results/report.md
-!results/artifacts.sha256.json
-!results/zcu106/
 results/zcu106/*
-!results/zcu106/status.json
-!results/phase8/
 results/phase8/*
-!results/phase8/summary.json
-!results/manual-validation-summary.json
 *.elf
 *.bin
 *.o
@@ -46,3 +38,9 @@ credentials.json
 secrets/
 
 # 新たな実行結果・集計は登録せず、ローカルに保持する。
+
+# 移送用ブランチでは実行結果をすべて除外する。
+results/
+# 元の進捗報告はローカルに保持し、移送しない。
+docs/phase*_progress.md
+container/toolchain.lock.json

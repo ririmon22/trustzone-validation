@@ -1,6 +1,6 @@
 # 継続作業
 
-Phase 4でQEMU A/B1/B2実行、ZynqMP BL31、OP-TEE QEMU Core/SDK/Early TAのbuildは完了した。実ログは [報告](phase4_progress.md)。再現は `bash scripts/run_phase4.sh`。
+Phase 4でQEMU A/B1/B2実行、ZynqMP BL31、OP-TEE QEMU Core/SDK/Early TAのbuildは完了した。実ログは 報告（別途生成・用意: `phase4_progress.md`）。再現は `bash scripts/run_phase4.sh`。
 
 次の優先順：
 
@@ -13,4 +13,4 @@ Phase 4でQEMU A/B1/B2実行、ZynqMP BL31、OP-TEE QEMU Core/SDK/Early TAのbui
 
 での作業が実機設定と最終評価だけで済む段階にはまだ達していない。eFUSEや不可逆設定は自動変更しない。
 
-Phase 5でTA/Core fixture分離、TA identity、共有memory、key exportの実行検証は追加済み。最新再現は `scripts/run_phase5.sh`。次はNormal要求者認証、鍵memory抽出、通常TA runtimeロード/RPC、storage、実機資料照合。[詳細](phase5_progress.md)。
+Phase 5でTA/Core fixture分離、TA identity、共有memory、key exportの実行検証は追加済み。最新再現は `scripts/run_phase5.sh`。次はNormal要求者認証、鍵memory抽出、通常TA runtimeロード/RPC、storage、実機資料照合。詳細（別途生成・用意: `phase5_progress.md`）。

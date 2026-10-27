@@ -15,6 +15,6 @@
 |source provenance|third_party/dependencies.lock.json、results/phase4/provenance|固定commit build subset、blob/mode検証|
 |個別結果／制約|results/status.json、report.md、docs/known_limitations.md|未実行・未完成を区別|
 
-HARDWAREは全NOT_RUN。最終要求の全機能完成ではない。詳細は [Phase 4報告](phase4_progress.md)。
+HARDWAREは全NOT_RUN。最終要求の全機能完成ではない。詳細は Phase 4報告（別途生成・用意: `phase4_progress.md`）。
 
-最新Phase 5ではホスト105件、B2 8 PASS/0 FAIL/7 BLOCKED。Core canary PTAの明示的なbuild overlay、TA identity、TMEM input、鍵export policy、TA/Core memory probe、ホスト署名検査を追加した。[Phase 5報告](phase5_progress.md)と `results/phase5` を参照。
+最新Phase 5ではホスト105件、B2 8 PASS/0 FAIL/7 BLOCKED。Core canary PTAの明示的なbuild overlay、TA identity、TMEM input、鍵export policy、TA/Core memory probe、ホスト署名検査を追加した。Phase 5報告（別途生成・用意: `phase5_progress.md`）と `results/phase5` を参照。

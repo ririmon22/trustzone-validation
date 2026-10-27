@@ -34,12 +34,12 @@ SDK：`build/external/optee/export-ta_arm64`。Core：`build/external/optee/core
 
 TAの署名済み`.ta`ファイルはdevelopment keyでbuildされるが、実際の起動は `.stripped.elf` のEarly TA組込み。[OP-TEE 4.5.0 Trusted Applications / TA locations](https://optee.readthedocs.io/en/4.5.0/architecture/trusted_applications.html#ta-locations)で説明される別経路であり、署名検証やSecure BootにPASSを付けない。
 
-Secure Core UARTに構成警告と意図したTA panicを保存する。Normal UARTのFATALやEND欠落は実行失敗。ログと未完成項目は [Phase 4報告](phase4_progress.md)。
+Secure Core UARTに構成警告と意図したTA panicを保存する。Normal UARTのFATALやEND欠落は実行失敗。ログと未完成項目は Phase 4報告（別途生成・用意: `phase4_progress.md`）。
 
 ## Phase 5
 
 最新の再現は `bash scripts/run_phase5.sh`。追加TA source `security.c` をSDKでビルドし、従来と同じ2 UUIDをEarly TAへ組み込む。clientは静的SHMのTMEM_INPUTにも対応し、通知された範囲とmetadata領域の重複を検査する。任意pointer送信API、秘密値アドレス公開、TA間/Core probeは検証専用。
 
-新しいログは `results/phase5/qemu` に分離する。`run_qemu.sh optee` は補助ID欠落とSecure FAR/ESR不一致も実行失敗とする。第三者ソースの変更や保護ゲートの無効化は行わない。詳細は [Phase 5](phase5_progress.md)。
+新しいログは `results/phase5/qemu` に分離する。`run_qemu.sh optee` は補助ID欠落とSecure FAR/ESR不一致も実行失敗とする。第三者ソースの変更や保護ゲートの無効化は行わない。詳細は Phase 5（別途生成・用意: `phase5_progress.md`）。
 
 Core canaryを用いる最終Phase 5 buildは `build_external.py optee --validation-pta`。原本検証後、`build/source/optee-validation`へ明示的なoverlayを適用してbuildし、変更内容とhashをログへ保存する。CoreのpointerをPTAから取得し、ASLR後の実virtual addressを使用する。
