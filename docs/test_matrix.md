@@ -71,3 +71,7 @@ Phase 6の特性・拒否機構・非改変・対象範囲・source・証跡は 
 Phase 7のTEE-STRESS-01はoptee_standalone/tests/stress_tests.c、clientのdead-session CLOSE、TAのkey cycle、明示的なPTA statsを使用。最新結果はresults/phase7/latest-report.md。TZ-SYS-03はcheck_tz_audit.pyでMMU-off External Abortを要求しTranslation Faultを合格にしない。
 
 Phase 8では同じ機能試験をlocal Git source受領先からfresh buildして再実行した。IDごとの期待値・実値・ticks・UARTとbuild証跡は [Phase 8結果表](../results/phase8/results.json)、範囲と制約は [報告](phase8_progress.md)。QEMU A 3 PASS、B1 1 PASS、B2 9 PASSであり、既存BLOCKED/SKIPと全実機NOT_RUNを維持する。Vitis/GNU/Ubuntu24.04のbuildはNOT_RUN。
+
+## B2統合再検証
+
+TF-A＋OP-TEE＋Standaloneは既存B2そのもの。最新のsource-only再buildとQEMU A3/B1 1/B2 9 PASS、stress512回、host142件の証跡は[統合集計](../results/b2-integration-summary.json)、接続と未完了範囲は[統合手順](b2_integration.md)。既存TEEのBLOCKED項目と全実機NOT_RUNを維持する。Core canary/統計PTAはQEMU検証overlayに限定し、通常ZCU106 Coreの試験済みとしない。GPIO/DMAは保留。

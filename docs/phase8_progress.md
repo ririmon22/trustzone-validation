@@ -40,8 +40,8 @@ QEMU FIP用native C/libcrypto依存と実機BL31だけのbuildを分けた。TF-
 
 実hostはUbuntu26.04.1、Clang/LLD21.1.8、QEMU10.2.1、Python3.14.4。追加でPython3.12.14のstdlib baremetalだけを試験した。toolの実path/versionは[environment](../results/phase8/git-trial-results/environment.json)。制限PATHは[一覧](../results/phase8/minimal-path.json)。既存OSのlibrary/headerは共有しており、最小OS/containerでの試験ではない。
 
-local Git試験は固定upstream blobを検証したsubsetを一時mirror commitへ入れてcloneしたもの。原本commitのfull checkoutを試験したふりをせず、両commitをreceiptへ記録した。full pinned checkoutが既定であり、subsetを既定で拒否することも[確認](../results/phase8/strict-git-preflight.json)した。会社Gitの到達性・全object/依存取得は現地確認が必要。
+local Git試験は固定upstream blobを検証したsubsetを一時mirror commitへ入れてcloneしたもの。原本commitのfull checkoutを試験したふりをせず、両commitをreceiptへ記録した。full pinned checkoutが既定であり、subsetを既定で拒否することも[確認](../results/phase8/strict-git-preflight.json)した。Gitの到達性・全object/依存取得は現地確認が必要。
 
 build中はGitをfile protocolに限定しlazy fetchを禁止、PATHからdownload/install commandを拒否する試験を行った。通信syscall監査は[ptrace EPERM](../results/phase8/strace-probe.log)で未実施。OSの保護設定は変更していない。第三者任意build scriptの通信を隔離するnetwork sandboxを実装したとは主張しない。
 
-次に会社で、実在するVitis toolchain prefixを検出してcheck_build_environmentを実行し、完全Git checkoutからbaremetal→B1→B2を順にbuildする。VitisのPlatform/BSP/FSBL/PMUFW生成物を保存し、予約領域・XMPU/XPPU master・DMA/GIC経路・起動順とboot planを確定するまで実機load/runしない。署名TA runtime load、Normal要求者認証、storage backend、鍵memory抽出耐性、DMA/Secure IRQの実機性能は既存の未完了状態を維持する。
+次にで、実在するVitis toolchain prefixを検出してcheck_build_environmentを実行し、完全Git checkoutからbaremetal→B1→B2を順にbuildする。VitisのPlatform/BSP/FSBL/PMUFW生成物を保存し、予約領域・XMPU/XPPU master・DMA/GIC経路・起動順とboot planを確定するまで実機load/runしない。署名TA runtime load、Normal要求者認証、storage backend、鍵memory抽出耐性、DMA/Secure IRQの実機性能は既存の未完了状態を維持する。

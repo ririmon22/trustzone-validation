@@ -27,6 +27,16 @@ COMMON := common/memory.c common/arch.c common/result_report/console.c platform/
 EL1 := common/el1_vectors.S common/el1_fault.c common/probe.S
 RUNNER := common/test_runner/runner.c
 HEADERS := $(wildcard common/include/*.h) platform/$(PLATFORM)/memory_map.h optee_standalone/client/client.h optee_standalone/ta/validation_ta.h optee_standalone/pta/validation_canary.h
+OPTEE_LINKER := platform/$(PLATFORM)/linker_nonsecure.ld
+OPTEE_INCLUDES := $(INCLUDES)
+OPTEE_FLAGS :=
+OPTEE_PLATFORM_SOURCES :=
+ifeq ($(PLATFORM),zcu106)
+OPTEE_LINKER := platform/zcu106/b2/linker_bl33.ld
+OPTEE_INCLUDES := -Iplatform/zcu106/b2 $(INCLUDES)
+OPTEE_FLAGS := -DTEE_SHARED_CACHED=1
+OPTEE_PLATFORM_SOURCES := platform/zcu106/b2/client_mmu.c platform/zcu106/b2/client_mmu.h platform/zcu106/b2/memory_map.h platform/zcu106/b2/memory_map.json
+endif
 .PHONY: all check-map host-test run clean zcu106-prepare optee-client-check ta external
 all: check-map $(BUILD)/el3.elf $(BUILD)/secure.elf $(BUILD)/nonsecure.elf $(BUILD)/tfa_bl33.elf $(BUILD)/optee_bl33.elf
 	$(PYTHON) scripts/check_memory_map.py --platform $(PLATFORM) --elf $(BUILD)/el3.elf --elf $(BUILD)/secure.elf --elf $(BUILD)/nonsecure.elf
@@ -44,8 +54,8 @@ $(BUILD)/nonsecure.elf: baremetal/nonsecure_app/start.S baremetal/nonsecure_app/
 	$(CC) $(TARGET_FLAGS) $(CFLAGS) $(INCLUDES) $(LDFLAGS) -Wl,-T,platform/$(PLATFORM)/linker_nonsecure.ld -Wl,-Map,$@.map $(filter %.c %.S,$^) -o $@
 $(BUILD)/tfa_bl33.elf: tfa_standalone/integration/start.S tfa_standalone/integration/main.c $(COMMON) $(EL1) $(RUNNER) $(HEADERS) platform/$(PLATFORM)/linker_nonsecure.ld | $(BUILD)
 	$(CC) $(TARGET_FLAGS) $(CFLAGS) $(INCLUDES) $(LDFLAGS) -Wl,-T,platform/$(PLATFORM)/linker_nonsecure.ld -Wl,-Map,$@.map $(filter %.c %.S,$^) -o $@
-$(BUILD)/optee_bl33.elf: tfa_standalone/integration/start.S optee_standalone/tests/main.c optee_standalone/tests/security_tests.c optee_standalone/tests/stress_tests.c optee_standalone/client/client.c common/benchmark/benchmark.c $(COMMON) $(EL1) $(RUNNER) $(HEADERS) optee_standalone/client/client.h platform/$(PLATFORM)/linker_nonsecure.ld | $(BUILD)
-	$(CC) $(TARGET_FLAGS) $(CFLAGS) $(INCLUDES) $(LDFLAGS) -Wl,-T,platform/$(PLATFORM)/linker_nonsecure.ld -Wl,-Map,$@.map $(filter %.c %.S,$^) -o $@
+$(BUILD)/optee_bl33.elf: tfa_standalone/integration/start.S optee_standalone/tests/main.c optee_standalone/tests/security_tests.c optee_standalone/tests/stress_tests.c optee_standalone/client/client.c common/benchmark/benchmark.c $(COMMON) $(EL1) $(RUNNER) $(HEADERS) $(OPTEE_PLATFORM_SOURCES) $(OPTEE_LINKER) | $(BUILD)
+	$(CC) $(TARGET_FLAGS) $(CFLAGS) $(OPTEE_INCLUDES) $(OPTEE_FLAGS) $(LDFLAGS) -Wl,-T,$(OPTEE_LINKER) -Wl,-Map,$@.map $(filter %.c %.S,$^) -o $@
 host-test:
 	$(PYTHON) -m unittest discover -s tests -v
 run: all
@@ -124,6 +134,9 @@ build/toolchain-runtime/libbuiltins.a: third_party/compiler-rt/compiler-rt/lib/b
 .PHONY: baremetal standalone-tfa standalone-optee
 baremetal: check-map $(BUILD)/el3.elf $(BUILD)/secure.elf $(BUILD)/nonsecure.elf
 	$(PYTHON) scripts/check_memory_map.py --platform $(PLATFORM) --elf $(BUILD)/el3.elf --elf $(BUILD)/secure.elf --elf $(BUILD)/nonsecure.elf
+ifeq ($(PLATFORM),zcu106)
+	$(PYTHON) scripts/check_zcu106_a.py --build-dir $(BUILD) --output results/phase8/a-static-report.json
+endif
 standalone-tfa: check-map $(BUILD)/tfa_bl33.elf
 	$(PYTHON) scripts/check_memory_map.py --platform $(PLATFORM) --elf $(BUILD)/tfa_bl33.elf
 standalone-optee: check-map $(BUILD)/optee_bl33.elf

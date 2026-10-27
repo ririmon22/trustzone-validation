@@ -1,0 +1,155 @@
+{
+    "schema_version": 1,
+    "provenance": {
+        "kind": "user-reported Vitis 2025.1 observations",
+        "source": "current development instruction",
+        "original_xsa_available": false,
+        "original_launch_json_available": false,
+        "original_firmware_elfs_available": false,
+        "verified_on_this_host": false
+    },
+    "processor": {
+        "name": "psu_cortexa53_0",
+        "architecture": "Cortex-A53 AArch64",
+        "os": "standalone"
+    },
+    "memory_banks": [
+        {
+            "name": "DDR0",
+            "base": 0,
+            "size": 2146435072,
+            "end": 2146435072,
+            "use_for_a_static_layout": true,
+            "status": "REPORTED",
+            "runtime_verified": false
+        },
+        {
+            "name": "DDR1",
+            "base": 2147483648,
+            "size": 2147483648,
+            "end": 4294967296,
+            "use_for_a_static_layout": false,
+            "status": "REQUIRES_RECONCILIATION",
+            "runtime_verified": false,
+            "reason": "Reported range includes OCM/peripheral apertures; do not treat as confirmed DDR or silently change to 0x800000000"
+        },
+        {
+            "name": "OCM",
+            "base": 4294705152,
+            "size": 262144,
+            "end": 4294967296,
+            "use_for_a_static_layout": false,
+            "status": "REPORTED",
+            "runtime_verified": false
+        }
+    ],
+    "firmware": {
+        "FSBL": {
+            "entry": 4294705152,
+            "segments": [
+                {
+                    "physical": 4294705152,
+                    "mem_size": 146240,
+                    "end": 4294851392
+                },
+                {
+                    "physical": 4294851392,
+                    "mem_size": 3792,
+                    "end": 4294855184
+                },
+                {
+                    "physical": 4294876672,
+                    "mem_size": 136,
+                    "end": 4294876808
+                },
+                {
+                    "physical": 4294901824,
+                    "mem_size": 64512,
+                    "end": 4294966336
+                }
+            ],
+            "address_view": "reported PhysAddr; live system view/aliases not verified",
+            "runtime_reservations_complete": false,
+            "elf_sha256": null
+        },
+        "PMUFW": {
+            "entry": 4292672180,
+            "segments": [
+                {
+                    "physical": 4292608000,
+                    "mem_size": 109664,
+                    "end": 4292717664
+                },
+                {
+                    "physical": 4292717664,
+                    "mem_size": 6440,
+                    "end": 4292724104
+                },
+                {
+                    "physical": 4292736736,
+                    "mem_size": 1024,
+                    "end": 4292737760
+                }
+            ],
+            "address_view": "reported PhysAddr; live system view/aliases not verified",
+            "runtime_reservations_complete": false,
+            "elf_sha256": null
+        }
+    },
+    "jtag": {
+        "transport": "Local",
+        "fsbl_selected": true,
+        "reset_entire_system": true,
+        "reset_apu_rpu": false,
+        "pmufw_selected": null,
+        "initial_currentel": null,
+        "initial_sctlr_el3": null,
+        "handoff_to_custom_el3": null,
+        "status": "REPORTED_SETTINGS_ONLY"
+    },
+    "xmpu": {
+        "xmpu0_base": 4244635648,
+        "generated_init_functions": [
+            {
+                "bank": 0,
+                "reported_body": "return 1;",
+                "register_writes_proven": false
+            },
+            {
+                "bank": 1,
+                "reported_body": "return 1;",
+                "register_writes_proven": false
+            },
+            {
+                "bank": 2,
+                "reported_body": "return 1;",
+                "register_writes_proven": false
+            },
+            {
+                "bank": 3,
+                "reported_body": "return 1;",
+                "register_writes_proven": false
+            },
+            {
+                "bank": 4,
+                "reported_body": "return 1;",
+                "register_writes_proven": false
+            },
+            {
+                "bank": 5,
+                "reported_body": "return 1;",
+                "register_writes_proven": false
+            }
+        ],
+        "live_configuration": null,
+        "lock_state": null,
+        "master_route": null,
+        "security_policy_verified": false
+    },
+    "deferred_tests": [
+        "GPIO/peripheral protection integration",
+        "DMA functional and performance integration"
+    ],
+    "load_authorized": false,
+    "hardware_execution": "NOT_RUN"
+}

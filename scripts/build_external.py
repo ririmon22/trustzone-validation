@@ -68,7 +68,13 @@ def configured_plan(args):
         if args.platform == "zynqmp":
             command += ["RESET_TO_BL31=1", "bl31"]
             if args.configuration == "b2":
-                command += ["SPD=opteed"]
+                from zcu106_b2_layout import load_layout
+                proposal, regions = load_layout(ROOT)
+                bl33_entry = regions['bl33_code']['base']
+                # JTAG用の既定入口を自作BL33の配置定義と合わせる。実機の引渡しは別途確認する。
+                command += ["SPD=opteed", "PRELOADED_BL33_BASE=" + hex(bl33_entry)]
+                for prefix, region in (('ZYNQMP_ATF_MEM', regions['bl31_reserved']), ('ZYNQMP_BL32_MEM', regions['bl32_reserved'])):
+                    command += [prefix + '_BASE=' + hex(region['base']), prefix + '_SIZE=' + hex(region['size'])]
         else:
             bl33 = ROOT / "build/qemu/external" / ("tfa_bl33.bin" if args.configuration == "b1" else "optee_bl33.bin")
             command += ["BL33=" + str(bl33), "TRANSFER_LIST=0", "bl1", "bl2", "bl31", "fip"]
@@ -80,6 +86,12 @@ def configured_plan(args):
         command += (["CFG_TEE_CORE_NB_CORE=1"] if args.platform == "qemu" else []) + ["CFG_DT_DRIVER_EMBEDDED_TEST=n", "CFG_CORE_ASYNC_NOTIF=n",
                     "CFG_REE_FS=n", "CFG_RPMB_FS=n", "CFG_REE_FS_TA=n", "CFG_PKCS11_TA=n",
                     "CFG_BUILD_IN_TREE_TA=n", "CFG_EARLY_TA=y", "CFG_WITH_SOFTWARE_PRNG=y"]
+        if args.platform == 'zynqmp':
+            from zcu106_b2_layout import load_layout
+            proposal, regions = load_layout(ROOT)
+            for prefix, region in (('CFG_TZDRAM', regions['bl32_reserved']), ('CFG_SHMEM', regions['shared_memory'])):
+                command += [prefix + '_START=' + hex(region['base']), prefix + '_SIZE=' + hex(region['size'])]
+            command += ['CFG_DDR_SIZE=' + hex(proposal['reported_ddr0']['end'] - proposal['reported_ddr0']['base'])]
     if args.compiler == "clang":
         llvm = args.llvm_dir.resolve()
         if args.component == "tfa":

@@ -16,7 +16,7 @@ sudo apt-get install build-essential gcc-aarch64-linux-gnu binutils-aarch64-linu
 
 このaptコマンドは当環境では未実行。ディストリビューションの実パッケージとQEMU機能を確認する。
 TF-A/OP-TEEの固定版に追加のPython依存があれば、その版の公式requirementsに従う。
-VitisのUbuntu 26.04対応は確認していない。会社では2025.1のサポートOS上で作業する。
+VitisのUbuntu 26.04対応は確認していない。では2025.1のサポートOS上で作業する。
 
 ```sh
 python3 scripts/environment_report.py

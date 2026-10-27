@@ -75,7 +75,7 @@
             "translation_evidence": null
         },
         "bl31": {
-            "path": "build/external/tfa-zynqmp/zynqmp/release/bl31/bl31.elf",
+            "path": "build/external/tfa-zynqmp-b2/zynqmp/release/bl31/bl31.elf",
             "sha256": null,
             "entry": null,
             "translation_verified": false,
@@ -100,7 +100,7 @@
             "translation_evidence": null
         },
         "bl32": {
-            "path": null,
+            "path": "build/external/optee-zynqmp/core/tee.elf",
             "sha256": null,
             "entry": null,
             "translation_verified": false,
@@ -125,7 +125,7 @@
             "translation_evidence": null
         },
         "bl33": {
-            "path": null,
+            "path": "build/zcu106/optee_bl33.elf",
             "sha256": null,
             "entry": null,
             "translation_verified": false,
@@ -150,7 +150,74 @@
             "translation_evidence": null
         }
     },
-    "allocations": [],
+    "allocations": [
+        {
+            "name": "bl31_reserved",
+            "base": 4096,
+            "end": 524288,
+            "size": 520192,
+            "alignment": 4096,
+            "owner": "bl31",
+            "security": "secure",
+            "purpose": "runtime including stack/BSS",
+            "memory_type": "secure-core-managed"
+        },
+        {
+            "name": "bl32_reserved",
+            "base": 1610612736,
+            "end": 1879048192,
+            "size": 268435456,
+            "alignment": 4096,
+            "owner": "bl32",
+            "security": "secure",
+            "purpose": "Core plus TA RAM, heap, stacks and dynamic pools",
+            "memory_type": "secure-core-managed"
+        },
+        {
+            "name": "bl33_code",
+            "base": 270532608,
+            "end": 271581184,
+            "size": 1048576,
+            "alignment": 4096,
+            "owner": "bl33",
+            "security": "nonsecure",
+            "purpose": "code",
+            "memory_type": "normal-wb-inner-shareable"
+        },
+        {
+            "name": "bl33_data",
+            "base": 271581184,
+            "end": 272629760,
+            "size": 1048576,
+            "alignment": 4096,
+            "owner": "bl33",
+            "security": "nonsecure",
+            "purpose": "data/BSS/vectors/page tables",
+            "memory_type": "normal-wb-inner-shareable"
+        },
+        {
+            "name": "bl33_stack",
+            "base": 272629760,
+            "end": 273678336,
+            "size": 1048576,
+            "alignment": 4096,
+            "owner": "bl33",
+            "security": "nonsecure",
+            "purpose": "stack",
+            "memory_type": "normal-wb-inner-shareable"
+        },
+        {
+            "name": "shared_memory",
+            "base": 273678336,
+            "end": 274726912,
+            "size": 1048576,
+            "alignment": 4096,
+            "owner": "client",
+            "security": "nonsecure",
+            "purpose": "shared",
+            "memory_type": "normal-wb-inner-shareable"
+        }
+    ],
     "reviews": {
         "jtag_boot_mode": {
             "verified": false,
@@ -195,5 +262,15 @@
         "dma": null,
         "nonsecure_verified": false,
         "evidence": null
-    }
+    },
+    "integration": {
+        "configuration": "B2",
+        "required_spd": "opteed",
+        "artifact_paths_status": "build output locations only; not verified load addresses",
+        "shared_memory_status": "STATIC_PROPOSAL_UNVERIFIED_HARDWARE",
+        "hardware_load_authorized": false,
+        "runtime_ready": false,
+        "cache_contract": "normal-wb-inner-shareable; VA=PA; MMU/cache incoming state unverified"
+    },
+    "software_memory_plan": "platform/zcu106/b2/memory_map.json"
 }

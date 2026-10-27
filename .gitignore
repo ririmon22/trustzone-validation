@@ -44,3 +44,5 @@ results/phase8/*
 .ssh/
 credentials.json
 secrets/
+
+# 新たな実行結果・集計は登録せず、ローカルに保持する。

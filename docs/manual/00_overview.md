@@ -2,15 +2,15 @@
 
 ## 目的
 
-会社のoffline Ubuntu 24.04＋Vitis Unified IDE 2025.1でsourceから再構築し、将来のZCU106 JTAG試験へ進むための入口。PetaLinux/Linux targetは使用しない。
+のoffline Ubuntu 24.04＋Vitis Unified IDE 2025.1でsourceから再構築し、将来のZCU106 JTAG試験へ進むための入口。PetaLinux/Linux targetは使用しない。
 
 ## 前提条件・事前確認事項
 
-[全体手順](00_overview.md)で`TZ_ROOT`、`TZ_LOG_DIR`、必要時`TZ_CROSS`を設定し、各shellを`bash`で開く。前章の入力を確認し、出力directoryを作ってから進む。会社Ubuntu 24.04/Vitis 2025.1の実操作と全ZCU106実行はNOT_RUN。外部ネットワークを必要とする取得処理はbuildに含めない。実機のload/run/resetは[安全検査](14_hardware_safety_check.md)の対象であり、現在BLOCKED。
+[全体手順](00_overview.md)で`TZ_ROOT`、`TZ_LOG_DIR`、必要時`TZ_CROSS`を設定し、各shellを`bash`で開く。前章の入力を確認し、出力directoryを作ってから進む。Ubuntu 24.04/Vitis 2025.1の実操作と全ZCU106実行はNOT_RUN。外部ネットワークを必要とする取得処理はbuildに含めない。実機のload/run/resetは[安全検査](14_hardware_safety_check.md)の対象であり、現在BLOCKED。
 
 ## 必要なファイル・入力ファイル
 
-本repo、third_party/dependencies.lock.json、会社で取得済みの固定Git source。必要host toolは01章。
+本repo、third_party/dependencies.lock.json、で取得済みの固定Git source。必要host toolは01章。
 
 ## GUIのメニュー名
 
@@ -18,7 +18,7 @@
 
 ## 操作手順・実行コマンド
 
-1. まず15章で会社Gitからsourceを取得する。以下は取得済みrepo内の端末で実行する。環境依存値は`read`の質問に実pathを入力する。山括弧を残したcommandを実行する必要はない。
+1. まず15章でGitからsourceを取得する。以下は取得済みrepo内の端末で実行する。環境依存値は`read`の質問に実pathを入力する。山括弧を残したcommandを実行する必要はない。
 
 ```bash
 bash
@@ -49,7 +49,7 @@ environment.txt、Git/source commit記録、構成別build receipt、将来の�
 
 ## 正常時の確認方法
 
-Phase 8の12自作ELF・host120件・QEMU A3/B1 1/B2 9 PASSは開発hostの過去実績。今回の追加作業ではhashとlogを再照合し、host試験と安全ゲートを再確認する。会社側のUbuntu/Vitis結果は別runに残す。
+Phase 8の12自作ELF・host120件・QEMU A3/B1 1/B2 9 PASSは開発hostの過去実績。今回の追加作業ではhashとlogを再照合し、host試験と安全ゲートを再確認する。側のUbuntu/Vitis結果は別runに残す。
 
 ## エラー時の対応
 
@@ -57,7 +57,7 @@ Phase 8の12自作ELF・host120件・QEMU A3/B1 1/B2 9 PASSは開発hostの過�
 
 ## PASS／FAIL／BLOCKED／NOT_RUN判定・実環境での確認状況
 
-実行して期待値に一致した工程だけPASS、不一致はFAIL。入力・tool・初期化・安全条件不足はBLOCKED。未実行はNOT_RUN。試験対象外はSKIP。BUILD PASS、QEMU PASS、HARDWARE PASSを分ける。本章の会社環境操作・GUI・実機はNOT_RUNで、ロード準備はBLOCKED。開発hostで確認済みの範囲は[Phase 8報告](../phase8_progress.md)と[追加作業の確認記録](../../results/manual-validation-summary.json)を参照する。
+実行して期待値に一致した工程だけPASS、不一致はFAIL。入力・tool・初期化・安全条件不足はBLOCKED。未実行はNOT_RUN。試験対象外はSKIP。BUILD PASS、QEMU PASS、HARDWARE PASSを分ける。本章の環境操作・GUI・実機はNOT_RUNで、ロード準備はBLOCKED。開発hostで確認済みの範囲は[Phase 8報告](../phase8_progress.md)と[追加作業の確認記録](../../results/manual-validation-summary.json)を参照する。
 
 ## マニュアル一覧
 
@@ -96,7 +96,7 @@ Phase 8の12自作ELF・host120件・QEMU A3/B1 1/B2 9 PASSは開発hostの過�
 |公式boot仕様|UG1137のboot段階、TF-A §7.45/7.45.5のBL31とFSBL handoff、UG1283の別工程としてのBootgen|資料照合済み、実機NOT_RUN|
 |固定source|embeddedsw boot.Sの入口ELとBSP設定の一致条件、OP-TEE ZCU106 portのcompile defaults|source照合済み、生成BSP/実機との一致は未確認|
 |開発host|既存Phase8 artifact hash、UART解析/保護監査、host120試験|確認記録参照。今回QEMU新規起動は未実施|
-|会社で必要|Vitis同梱toolとGNU build、内蔵ZCU106定義、生成XSA/BSP/FSBL/PMUFW、UART/DDR/OCMと予約|NOT_RUN|
-|会社で必要|初期EL/security、XMPU/XPPU master/経路、DMA/GIC/vector統合、handoff、起動/復旧順|NOT_RUN、load BLOCKED|
+|で必要|Vitis同梱toolとGNU build、内蔵ZCU106定義、生成XSA/BSP/FSBL/PMUFW、UART/DDR/OCMと予約|NOT_RUN|
+|で必要|初期EL/security、XMPU/XPPU master/経路、DMA/GIC/vector統合、handoff、起動/復旧順|NOT_RUN、load BLOCKED|
 
 [UG1137 2025.1 FSBL Build Process](https://docs.amd.com/r/2025.1-English/ug1137-zynq-ultrascale-mpsoc-swdev/FSBL-Build-Process)も参照する。UG1701はembedded/accelerated flowの位置付けの参考であり、EL3 startupやZCU106特有設定の直接根拠として使用しない。UG1209の他board/Linux例から配線やPetaLinux手順を取り込まない。

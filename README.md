@@ -4,6 +4,24 @@ ZCU106（Zynq UltraScale+ MPSoC / Cortex-A53）のTrustZone分離、TEE機能、
 
 **ZCU106実機の検証結果は未取得です。全実機試験NOT_RUN、ロード禁止ゲートBLOCKEDを維持しています。** Ubuntu 24.04、Vitis GUI、Vitis付属GNU toolchainでのビルドもNOT_RUNです。
 
+## での実機確認に向けた準備
+
+[取得手順](docs/b2_hardware_readiness.md)、[23項目のチェックリスト](docs/b2_hardware_checklist.md)、[記入用JSON](docs/b2_hardware_checklist.json)を用意しました。原本・live snapshot・将来のhandoff停止点を分けて記録します。チェック票の検査はload許可を出さず、B2_RUNTIME_READY=0とBLOCKEDを維持します。[ローカル再照合結果](results/b2-hardware-prep-summary.json)も参照してください。
+
+## ZCU106 B2のsoftware整合化
+
+[B2専用の暫定配置・SHM/cache修正](docs/b2_zcu106_alignment.md)を追加しました。Core/BL33 SHMを0x10500000..0x10600000へ統一し、TF-A/Coreの予約をB2専用planで設定します。BL33はcached通信と範囲限定MMU準備を持ちますが、B2_RUNTIME_READY=0と全実機loadゲートを維持します。値はソフトウェア配置案であり実機設定済みではありません。[今回の結果と実log](results/b2-alignment-summary.json)を参照してください。
+
+## TF-A＋OP-TEE統合構成（B2）の継続検証
+
+既存B2を統合環境として再利用し、BL31のSPD=opteed、linked dispatcher、Core内Early TA-A/Bと今回生成したTAのbyte一致、BL33/SHM/cache/FIP接続を自動監査するようにしました。ZCU106 boot_planのBL31参照をB2用へ直し、BL32/BL33の出力pathを指定しています。QEMUでA 3／B1 1／B2 9 PASS、反復512回、host142試験を再確認しました。ZCU106はBUILD PASSでもSHM/cache/予約領域が不一致でintegration BLOCKED、実機NOT_RUNです。
+
+[統合ビルド・起動・試験手順](docs/b2_integration.md)／[今回の実績・証跡](results/b2-integration-summary.json)。A/B1は比較・回帰用に保持し、GPIO/DMAの実機検証は保留します。
+
+## A環境の実機情報反映（既存変更を保持）
+
+今回提示されたVitisのDDR0/OCM、FSBL/PMUFW LOAD、JTAG設定を報告値として取り込みました。[差分・配置案・開始条件](docs/zcu106_a_vitis_update.md)を参照してください。Aの入口アドレスは維持し、全stackをELF NOLOAD予約へ追加しました。ZCU106のEL3入口はEL3/MMU・cache条件不一致でSP/BSS初期化前に停止します。GPIO/DMA検証は保留。DDR1、XMPU実値/lock、FSBL handoff等は未確定で、**改修版の実機実行はNOT_RUN、loadはBLOCKED**です。Aの3 ELFとB1/B2 BL33のビルド、ホスト133試験が成功しました（Clang使用、実行試験ではありません）。再ビルドと静的検査の証跡は[A移植確認記録](results/zcu106-a-summary.json)。過去QEMU結果は今回の改修版の実行結果ではありません。
+
 ## 検証構成と現在の状態
 
 |構成|内容|開発hostでの確認|
@@ -30,7 +48,7 @@ ZCU106（Zynq UltraScale+ MPSoC / Cortex-A53）のTrustZone分離、TEE機能、
 
 ## 最小ビルド
 
-source取得はbuild前に会社Gitで完了します。完全baremetalはPython stdlib、GNU Make、bash/coreutils、実在するAArch64 toolchainで生成でき、追加Python package不要です。B2の公式暗号/署名処理はcryptographyを使用し、pyelftoolsは固定Git sourceから読み込みます。[構成別依存](docs/minimum_dependencies.md)と[全source一覧](docs/source_only_transfer.md)を参照してください。
+source取得はbuild前にGitで完了します。完全baremetalはPython stdlib、GNU Make、bash/coreutils、実在するAArch64 toolchainで生成でき、追加Python package不要です。B2の公式暗号/署名処理はcryptographyを使用し、pyelftoolsは固定Git sourceから読み込みます。[構成別依存](docs/minimum_dependencies.md)と[全source一覧](docs/source_only_transfer.md)を参照してください。
 
 以下は取得済みrepoのbash端末で実行します。実toolchain prefixを入力してください。Vitis付属pathは仮定しません。
 
@@ -61,7 +79,7 @@ Normal要求者認証、鍵memory抽出耐性、通常署名TAのruntime load、
 
 ## Git登録と証跡
 
-source、手順、固定依存lock、コンパクトな結果/hashを登録対象とします。build生成物、外部source checkout、秘密情報、大量の実行logは除外し、既存logはローカルで保持します。過去の報告にあるlogリンクの一部はsource-only cloneでは再生成が必要です。[追加作業確認記録](results/manual-validation-summary.json)に現在の再検査結果とGit登録状況を記録します。外部sourceは会社の許可Gitへ別途mirrorし、固定commitとlicenseを保持してください。
+source、手順、固定依存lock、コンパクトな結果/hashを登録対象とします。build生成物、外部source checkout、秘密情報、大量の実行logは除外し、既存logはローカルで保持します。過去の報告にあるlogリンクの一部はsource-only cloneでは再生成が必要です。[追加作業確認記録](results/manual-validation-summary.json)に現在の再検査結果とGit登録状況を記録します。外部sourceはの許可Gitへ別途mirrorし、固定commitとlicenseを保持してください。
 # trustzone-validation
 # trustzone-validation
 # trustzone-validation

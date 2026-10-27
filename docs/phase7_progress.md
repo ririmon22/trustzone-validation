@@ -42,4 +42,4 @@
 - Normal要求者認証、鍵memory抽出/消去耐性、通常署名TA runtimeロード、storage/Secure Bootは引き続き未完了。TA identity、export API拒否、object lifecycle、host signature verifyと混同しない。
 - TEE耐久は記録した512 iterationとwarmup・既存benchmarkの範囲。時間単位のovernight耐久、SMP、RPC、動的SHM/fuzzingは未実施。
 
-本フェーズで安全ゲート・eFUSE・host security policyを変更していない。会社の実機では生成hardware/live設定の収集と配置照合から始め、未確定値を推測で埋めない。
+本フェーズで安全ゲート・eFUSE・host security policyを変更していない。の実機では生成hardware/live設定の収集と配置照合から始め、未確定値を推測で埋めない。

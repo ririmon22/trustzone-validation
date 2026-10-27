@@ -26,7 +26,7 @@ TA SDK生成だけなら署名はまだ実行しない場合があるが、本he
 |Ubuntu配布：python3|自作検査と公式gen script|24.04の3.12系を候補とし、選択した実Pythonで確認。pyenv/pipは必須ではない|
 |Ubuntu配布：git|取得（build前）とfixed commit/clean tree検査|build中のGit remote取得は禁止。source stagingはlocal file transportのみ|
 |Vitis候補：AArch64 GNU toolchain一式|C、ASM、link、archive、objcopy/dump/nm/readelf|名前・path・版を実検出しELF64生成probeを行う。付属済みとは記載しない|
-|不足時の外部候補：gcc-aarch64-linux-gnu、binutils-aarch64-linux-gnu|Vitisのtarget toolが利用できない場合の代替候補|会社の許可された配布経路で事前準備。build scriptはinstallしない。今回GNU routeは未実行|
+|不足時の外部候補：gcc-aarch64-linux-gnu、binutils-aarch64-linux-gnu|Vitisのtarget toolが利用できない場合の代替候補|の許可された配布経路で事前準備。build scriptはinstallしない。今回GNU routeは未実行|
 |別route：clang/lld/llvmの対応版|今回検証したClang route|/usr/lib/llvm-21固定依存をMakeから除去。別版の互換性は実buildまで未確認|
 |不足時：python3-cryptography|公式TA公開鍵生成・TA署名・host署名検査|既存Pythonでimportできれば追加不要。選択Pythonとshebangの実行先を統一。独自暗号に置き換えない|
 |Git source：pyelftools v0.32|Core ELF解析|PYTHONPATHで固定sourceを使用。pip、python3-pyelftoolsのAPT追加は不要|

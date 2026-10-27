@@ -134,6 +134,10 @@ def run_build(args, preflight):
             external('tfa',['--configuration','b1'])
         if cfg in ('optee','all'):
             external('tfa',['--configuration','b2'])
+            # 接続済み実体とメモリ契約を調べる。実機の未確定事項は許可に変換しない。
+            execute([sys.executable,'scripts/check_b2_integration.py','--platform',
+                     'qemu' if args.platform=='qemu' else 'zynqmp','--output',str(logdir/'b2-integration.json')],
+                    'b2-integration-audit.log')
     if args.host_tests:
         execute([sys.executable,'-S','-m','unittest','discover','-s','tests','-v'],'host-tests.log')
     if args.qemu:

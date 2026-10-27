@@ -1,12 +1,16 @@
 # 09 B2 TF-A＋OP-TEE＋StandaloneのJTAG起動準備
 
+実機条件の証跡取得は[確認準備](../b2_hardware_readiness.md)と[チェックリスト](../b2_hardware_checklist.md)を使用する。現段階ではdownload/runせず、動的停止点はNOT_RUNのまま残す。
+
+最新の統合構成・再build結果・接続監査は [B2統合手順](../b2_integration.md) を参照する。ZCU106 boot planはB2用BL31を指すが、共有memory/cache/予約の不一致によりloadはBLOCKEDのまま。
+
 ## 目的
 
 構成ごとにboot所有者と初期化条件を分離する。現在のload順序は未確定で、実行はBLOCKED。
 
 ## 前提条件・事前確認事項
 
-[全体手順](00_overview.md)で`TZ_ROOT`、`TZ_LOG_DIR`、必要時`TZ_CROSS`を設定し、各shellを`bash`で開く。前章の入力を確認し、出力directoryを作ってから進む。会社Ubuntu 24.04/Vitis 2025.1の実操作と全ZCU106実行はNOT_RUN。外部ネットワークを必要とする取得処理はbuildに含めない。実機のload/run/resetは[安全検査](14_hardware_safety_check.md)の対象であり、現在BLOCKED。
+[全体手順](00_overview.md)で`TZ_ROOT`、`TZ_LOG_DIR`、必要時`TZ_CROSS`を設定し、各shellを`bash`で開く。前章の入力を確認し、出力directoryを作ってから進む。Ubuntu 24.04/Vitis 2025.1の実操作と全ZCU106実行はNOT_RUN。外部ネットワークを必要とする取得処理はbuildに含めない。実機のload/run/resetは[安全検査](14_hardware_safety_check.md)の対象であり、現在BLOCKED。
 
 ## 必要なファイル・入力ファイル
 
@@ -19,7 +23,7 @@ Target Connections、Launch Configuration、Debug view、register/memory view。
 ## 操作手順・実行コマンド
 
 1. 電源OFFでboard revisionとUG1244を照合し、正規電源、JTAG cable、USB-UART cableを確認する。board固有boot modeを確認して記録する。switch番号/方向を別boardの例から転記しない。
-2. 会社のUSB権限とケーブルdriver、実在hw_server/XSDBを確認する。VitisのTarget Connectionを作り、対象server/cableを選ぶ。現在はread-onlyのtarget一覧収集までとし、自動download/resetを伴うlaunchは使わない。CPU名に加えMPIDR/core indexでA53 #0、PMUを識別する。
+2. のUSB権限とケーブルdriver、実在hw_server/XSDBを確認する。VitisのTarget Connectionを作り、対象server/cableを選ぶ。現在はread-onlyのtarget一覧収集までとし、自動download/resetを伴うlaunchは使わない。CPU名に加えMPIDR/core indexでA53 #0、PMUを識別する。
 3. PSU clock/DDR/MIO/UART初期化と必要なPMUFW/FSBL、停止breakpointをXSA/生成scriptと照合する。固定sleepを初期化完了判定にしない。resetがdebug状態や保護設定を変えるのでreset前後を別runとして保存する。
 4. 実際のPMUFW/FSBL初期化とhandoff停止点を確認する。BL32とBL33を各確定先へloadし、BL31が参照するSecure/NS entry/引数を準備する設計候補。EL3 BL31→OP-TEE初期化→BL31→NS BL33の順でhandoffさせ、BL32/BL33を独立conしない。ELF load方式とtee header/pager/pageable bin分割方式を混ぜない。
 5. 上記は設計候補であり、現在のboot plan/保護予約/handoff不一致が解決するまではdownloadもconも禁止。load address/entryは04〜06章の実ELF inventoryから取り、未確定値を手入力で補わない。確認registerは`CurrentEL、SCR_EL3、SPSR_EL3、ELR_EL3、VBAR_EL3/EL1、SCTLR/TTBR/TCR/MAIR、opteed BL32 entry/context、SHM PA/cache属性、handoff PC/SPSR/security`。Secure状態でのみ意味のあるregisterの読み方と非banked状態保存をreviewする。
@@ -56,11 +60,11 @@ Target Connections、Launch Configuration、Debug view、register/memory view。
 
 ## PASS／FAIL／BLOCKED／NOT_RUN判定・実環境での確認状況
 
-実行して期待値に一致した工程だけPASS、不一致はFAIL。入力・tool・初期化・安全条件不足はBLOCKED。未実行はNOT_RUN。試験対象外はSKIP。BUILD PASS、QEMU PASS、HARDWARE PASSを分ける。本章の会社環境操作・GUI・実機はNOT_RUNで、ロード準備はBLOCKED。開発hostで確認済みの範囲は[Phase 8報告](../phase8_progress.md)と[追加作業の確認記録](../../results/manual-validation-summary.json)を参照する。
+実行して期待値に一致した工程だけPASS、不一致はFAIL。入力・tool・初期化・安全条件不足はBLOCKED。未実行はNOT_RUN。試験対象外はSKIP。BUILD PASS、QEMU PASS、HARDWARE PASSを分ける。本章の環境操作・GUI・実機はNOT_RUNで、ロード準備はBLOCKED。開発hostで確認済みの範囲は[Phase 8報告](../phase8_progress.md)と[追加作業の確認記録](../../results/manual-validation-summary.json)を参照する。
 
 ## JTAGとBootgenを分ける
 
-JTAGのELF downloadはBOOT.bin生成でもSecure Boot認証でもない。BootgenはBIFにpartition/CPU/EL/securityを記述してboot imageを生成する別工程。会社のFSBL/PMUFW/BL31/BL32/BL33と予約が確定し、BIFをreviewした後にだけ実施する。現時点ではBIF未確定でBLOCKED。書込み/flash programmingは本手順に含めない。
+JTAGのELF downloadはBOOT.bin生成でもSecure Boot認証でもない。BootgenはBIFにpartition/CPU/EL/securityを記述してboot imageを生成する別工程。のFSBL/PMUFW/BL31/BL32/BL33と予約が確定し、BIFをreviewした後にだけ実施する。現時点ではBIF未確定でBLOCKED。書込み/flash programmingは本手順に含めない。
 
 ```bash
 (

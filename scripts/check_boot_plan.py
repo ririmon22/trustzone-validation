@@ -8,6 +8,23 @@ from check_memory_map import validate
 
 ROOT = Path(__file__).resolve().parents[1]
 LIMIT = 1 << 64
+B2_ARTIFACT_PATHS = {
+    'bl31': 'build/external/tfa-zynqmp-b2/zynqmp/release/bl31/bl31.elf',
+    'bl32': 'build/external/optee-zynqmp/core/tee.elf',
+    'bl33': 'build/zcu106/optee_bl33.elf',
+}
+
+
+def b2_binding_issues(plan):
+    if plan.get('configuration') != 'B2':
+        return []
+    issues = []
+    for role, expected in B2_ARTIFACT_PATHS.items():
+        if plan.get('images', {}).get(role, {}).get('path') != expected:
+            issues.append('B2 artifact path differs from integrated build output: ' + role)
+    if plan.get('integration', {}).get('required_spd') != 'opteed':
+        issues.append('B2 requires explicit SPD=opteed build binding')
+    return issues
 
 
 def elf_inventory(path):
@@ -59,7 +76,7 @@ def range_issues(regions):
 
 
 def check_plan(plan, root=ROOT):
-    issues = []
+    issues = b2_binding_issues(plan)
     if plan.get('platform') != 'zcu106' or plan.get('configuration') not in ('A', 'B1', 'B2'):
         issues.append('platform/configuration is unresolved')
     verified_evidence = set()
@@ -126,9 +143,18 @@ def check_plan(plan, root=ROOT):
     except ValueError as error:
         issues.append(str(error))
     aliases = {'bl31':'tfa_reserved', 'bl32':'optee_reserved', 'bl33':'nonsecure'}
+    b2_regions = None
+    if plan.get('configuration') == 'B2':
+        from zcu106_b2_layout import load_layout
+        proposal, b2_regions = load_layout(root)
+        if proposal.get('hardware_confirmed') is not True:
+            issues.append('B2-specific reservations are a software proposal, not verified hardware reservations')
     for image in inventory:
         role = image['role']
-        expected = [r for r in mapping['regions'] if r.get('name') == aliases.get(role) or r.get('owner') == aliases.get(role, role)]
+        if b2_regions is not None:
+            expected = [r for r in b2_regions.values() if r.get('owner') == role]
+        else:
+            expected = [r for r in mapping['regions'] if r.get('name') == aliases.get(role) or r.get('owner') == aliases.get(role, role)]
         if role not in ('fsbl', 'pmufw'):
             bias = plan['images'][role].get('system_address_bias')
             if type(bias) is int and any(not any(r['base'] <= segment['base'] + bias and segment['end'] + bias <= r['end'] for r in expected) for segment in image['loads']):

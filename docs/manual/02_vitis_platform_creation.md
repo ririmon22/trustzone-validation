@@ -6,11 +6,11 @@
 
 ## 前提条件・事前確認事項
 
-[全体手順](00_overview.md)で`TZ_ROOT`、`TZ_LOG_DIR`、必要時`TZ_CROSS`を設定し、各shellを`bash`で開く。前章の入力を確認し、出力directoryを作ってから進む。会社Ubuntu 24.04/Vitis 2025.1の実操作と全ZCU106実行はNOT_RUN。外部ネットワークを必要とする取得処理はbuildに含めない。実機のload/run/resetは[安全検査](14_hardware_safety_check.md)の対象であり、現在BLOCKED。
+[全体手順](00_overview.md)で`TZ_ROOT`、`TZ_LOG_DIR`、必要時`TZ_CROSS`を設定し、各shellを`bash`で開く。前章の入力を確認し、出力directoryを作ってから進む。Ubuntu 24.04/Vitis 2025.1の実操作と全ZCU106実行はNOT_RUN。外部ネットワークを必要とする取得処理はbuildに含めない。実機のload/run/resetは[安全検査](14_hardware_safety_check.md)の対象であり、現在BLOCKED。
 
 ## 必要なファイル・入力ファイル
 
-Vitis 2025.1、内蔵ZCU106 hardware定義または会社承認済みXSA、01章のworkspace。
+Vitis 2025.1、内蔵ZCU106 hardware定義または承認済みXSA、01章のworkspace。
 
 ## GUIのメニュー名
 
@@ -30,7 +30,7 @@ cat "$TZ_LOG_DIR/platform-files.txt"
 ```
 
 6. 生成された`bspconfig.h`、startup `boot.S`とcompile commandを読み、`EL3`/`EL1_NONSECURE`の実定義、`CurrentEL`の比較、`error`分岐、MMU有効化を記録する。BSPは常にEL3とは仮定しない。
-7. 固定embeddedswのARMv8/64bit/gcc/boot.Sを調査したところ、入口EL3＋EL3 build、または入口EL1＋EL1_NONSECURE buildを受理し、それ以外はerror loopになる。NS属性自体はCurrentELだけで判定できない。会社の実生成物で同じ実装か再確認する。これらのstartupはMMU/cacheとSCR等も設定するため、自作monitorへ混ぜない。
+7. 固定embeddedswのARMv8/64bit/gcc/boot.Sを調査したところ、入口EL3＋EL3 build、または入口EL1＋EL1_NONSECURE buildを受理し、それ以外はerror loopになる。NS属性自体はCurrentELだけで判定できない。の実生成物で同じ実装か再確認する。これらのstartupはMMU/cacheとSCR等も設定するため、自作monitorへ混ぜない。
 
 ## 出力ファイル・実行ログの保存先
 
@@ -46,11 +46,11 @@ cat "$TZ_LOG_DIR/platform-files.txt"
 
 ## PASS／FAIL／BLOCKED／NOT_RUN判定・実環境での確認状況
 
-実行して期待値に一致した工程だけPASS、不一致はFAIL。入力・tool・初期化・安全条件不足はBLOCKED。未実行はNOT_RUN。試験対象外はSKIP。BUILD PASS、QEMU PASS、HARDWARE PASSを分ける。本章の会社環境操作・GUI・実機はNOT_RUNで、ロード準備はBLOCKED。開発hostで確認済みの範囲は[Phase 8報告](../phase8_progress.md)と[追加作業の確認記録](../../results/manual-validation-summary.json)を参照する。
+実行して期待値に一致した工程だけPASS、不一致はFAIL。入力・tool・初期化・安全条件不足はBLOCKED。未実行はNOT_RUN。試験対象外はSKIP。BUILD PASS、QEMU PASS、HARDWARE PASSを分ける。本章の環境操作・GUI・実機はNOT_RUNで、ロード準備はBLOCKED。開発hostで確認済みの範囲は[Phase 8報告](../phase8_progress.md)と[追加作業の確認記録](../../results/manual-validation-summary.json)を参照する。
 
 ## startupのソース根拠
 
-[Xilinx embeddedsw固定commit boot.S](https://github.com/Xilinx/embeddedsw/blob/c0aed2eff7a30f307238ec853fa8fbc45dcabdda/lib/bsp/standalone/src/arm/ARMv8/64bit/gcc/boot.S)、Git blob `19b4210ad81b0aec6bca3bc2afcd97ccaa2eb62d`の`OKToRun`、`InitEL3`、`InitEL1`を参照した。会社で生成したBSPの実測ではない。
+[Xilinx embeddedsw固定commit boot.S](https://github.com/Xilinx/embeddedsw/blob/c0aed2eff7a30f307238ec853fa8fbc45dcabdda/lib/bsp/standalone/src/arm/ARMv8/64bit/gcc/boot.S)、Git blob `19b4210ad81b0aec6bca3bc2afcd97ccaa2eb62d`の`OKToRun`、`InitEL3`、`InitEL1`を参照した。で生成したBSPの実測ではない。
 
 ## 公式資料の文書番号と章節
 

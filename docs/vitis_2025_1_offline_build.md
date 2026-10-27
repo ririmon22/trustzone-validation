@@ -1,5 +1,7 @@
 # Vitis 2025.1・オフラインsource build
 
+B2の現在のsource設定は[B2整合化手順](b2_zcu106_alignment.md)を優先する。B2専用header/include、cached MMU準備、専用linkerを用い、runtime ready=0を維持する。
+
 Ubuntu 24.04、Vitis 2025.1、Vitis付属GNU toolchain、IDE実操作は本環境ではNOT_RUN。本手順は公式2025.1資料と固定sourceを照合した移植手順であり、同環境でのBUILD PASSを表さない。ZCU106実機もNOT_RUNで、既存load禁止gateは維持する。
 
 ## 事前確認とコマンドラインbuild
@@ -15,7 +17,7 @@ PYTHON=python3 bash scripts/build_vitis_offline.sh --configuration tfa --platfor
 PYTHON=python3 bash scripts/build_vitis_offline.sh --configuration optee --platform zcu106 --compiler gcc --cross-compile /actual/tool/bin/aarch64-none-elf-
 ```
 
-`early-ta`はSDK＋TA-A/Bだけ、`all`はA/B1/B2をまとめる。既定は実機向けzcu106。毎回新しい`build/offline-<UTC>/`へsourceを配置し、以前のELF/BIN/SDKはコピーしない。結果は`results/phase8/runs/<UTC>/`と`latest-<構成>-<platform>.json`へ出す。BLOCKEDなら不足tool/sourceを補った後に再実行する。`--allow-snapshots`は開発subsetの明示許可であり、会社の完全Git checkoutでは使用しない。
+`early-ta`はSDK＋TA-A/Bだけ、`all`はA/B1/B2をまとめる。既定は実機向けzcu106。毎回新しい`build/offline-<UTC>/`へsourceを配置し、以前のELF/BIN/SDKはコピーしない。結果は`results/phase8/runs/<UTC>/`と`latest-<構成>-<platform>.json`へ出す。BLOCKEDなら不足tool/sourceを補った後に再実行する。`--allow-snapshots`は開発subsetの明示許可であり、の完全Git checkoutでは使用しない。
 
 QEMUを事前に用意できた場合は`--platform qemu --qemu`を追加する。B1/B2のQEMU用FIPだけはnative C compiler/OpenSSL開発fileが追加で必要。`--host-tests`は任意でnative Clang fixtureを使用する。実機ELF生成の必須依存とは別にする。性能log解析は`python3 scripts/check_build_environment.py --configuration performance`でstdlib要件を確認する。
 
@@ -27,7 +29,7 @@ QEMUを事前に用意できた場合は`--platform qemu --qemu`を追加する�
 2. hardware選択に内蔵ZCU106定義がある場合はそれを選ぶ。無い場合はインストールcomponentsと提供XSAを確認しBLOCKEDとする。内蔵定義の利用だけのためにVivadoでXSAを新規設計しない。
 3. processor `psu_cortexa53_0`、OS `standalone`、AArch64のdomainを選び、Platformをbuildする。別CPUやLinux domainで代用しない。
 4. XSA/hash、SDT、BSP、生成linker、UART instance/stdin/stdout、clock、cache/MMU/startup設定を保存する。boot artifacts生成を使用した場合はFSBL/PMUFWのELF/mapも保存する。
-5. [Phase 6 FSBL/PMUFW手順](vitis_2025_1_phase6.md)に従い、生成した実際の使用領域をboot planへ照合する。追加sourceが必要なら固定embeddedswを会社Gitから事前取得する。本helperはFSBL/PMUFWを生成しない。
+5. [Phase 6 FSBL/PMUFW手順](vitis_2025_1_phase6.md)に従い、生成した実際の使用領域をboot planへ照合する。追加sourceが必要なら固定embeddedswをGitから事前取得する。本helperはFSBL/PMUFWを生成しない。
 
 ## Application Componentと取り込むsource
 
@@ -62,7 +64,7 @@ SDK・署名TA・Coreはその場でsourceから生成する。公式開発用TA
 
 ## load/run前の必須照合
 
-固定upstream ZCU106 OP-TEEのTZDRAM/SHMEM既定値を、会社の実予約範囲とみなさない。B1とB2ではTF-AのBL31既定配置も異なる。ELF PT_LOAD/entryに加えBSS、stack、heap、動的TA領域、共有領域、FSBL/PMUFW継続領域を照合する。
+固定upstream ZCU106 OP-TEEのTZDRAM/SHMEM既定値を、の実予約範囲とみなさない。B1とB2ではTF-AのBL31既定配置も異なる。ELF PT_LOAD/entryに加えBSS、stack、heap、動的TA領域、共有領域、FSBL/PMUFW継続領域を照合する。
 
 ```sh
 python3 scripts/check_memory_map.py --platform zcu106 --require-protection

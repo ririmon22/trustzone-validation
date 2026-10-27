@@ -6,7 +6,7 @@
 
 ## 前提条件・事前確認事項
 
-[全体手順](00_overview.md)で`TZ_ROOT`、`TZ_LOG_DIR`、必要時`TZ_CROSS`を設定し、各shellを`bash`で開く。前章の入力を確認し、出力directoryを作ってから進む。会社Ubuntu 24.04/Vitis 2025.1の実操作と全ZCU106実行はNOT_RUN。外部ネットワークを必要とする取得処理はbuildに含めない。実機のload/run/resetは[安全検査](14_hardware_safety_check.md)の対象であり、現在BLOCKED。
+[全体手順](00_overview.md)で`TZ_ROOT`、`TZ_LOG_DIR`、必要時`TZ_CROSS`を設定し、各shellを`bash`で開く。前章の入力を確認し、出力directoryを作ってから進む。Ubuntu 24.04/Vitis 2025.1の実操作と全ZCU106実行はNOT_RUN。外部ネットワークを必要とする取得処理はbuildに含めない。実機のload/run/resetは[安全検査](14_hardware_safety_check.md)の対象であり、現在BLOCKED。
 
 ## 必要なファイル・入力ファイル
 
@@ -32,7 +32,7 @@
 |link失敗|map、undefined symbol、startup二重定義、linker MEMORY、libgcc/実runtime|ELF entry/PT_LOAD、stack/vector alignment。空library不可|
 |JTAG未検出|電源、USB/cable、権限、hw_server log、server/cable選択、board boot mode|target一覧/MPIDR。未検出ならdownloadしない|
 |ELF load失敗|実ELF PT_LOAD、DDR初期化、FSBL/PMUFW予約、gate log|PC、EL、SCTLR/TTBR/TCR、memory map、debug権限|
-|UART無出力|UART instance/MIO/clock/baud、platform uart.c、TF-A console、OP-TEE conf|PC到達、UART status/baud/clock readback（catalog/公式定義を確認後）。polled wait箇所|
+|UART無出力|UART instance/MIO/clock/baud、platform uart.c、TF-A console、OP-TEE conf|PC到達、UART status/baud/clock readback（catalog/公式定義を確認後）。Aがentry_state_blockedならCurrentEL/SCTLR_EL3条件不一致でUART前に停止する仕様|
 |EL3遷移失敗|monitor/start.S、contexts、vector alignment、PLATFORM_PROTECTION_CONFIRMED|CurrentEL、SCR_EL3.NS/RW、SPSR/ELR_EL3、SP、VBAR、ESR/FAR_EL3|
 |SMCが戻らない|FID、service state、context frame、TF-A runtime/opteed log|ESR_EL3.EC、ELR/SPSR、SCR、x0-x7、stack破壊。AのFIDをB1へ送らない|
 |OP-TEE起動不可|SPD=opteed、BL32 ELF/bin parts、FSBL handoff、effective conf、予約重複|BL31/BL32 PC、EL、SCR、MMU、共有memory、Secure UART|
@@ -58,7 +58,7 @@ diagnosis.md、register snapshot、原因と再試験run参照。 `TZ_LOG_DIR`�
 
 ## PASS／FAIL／BLOCKED／NOT_RUN判定・実環境での確認状況
 
-実行して期待値に一致した工程だけPASS、不一致はFAIL。入力・tool・初期化・安全条件不足はBLOCKED。未実行はNOT_RUN。試験対象外はSKIP。BUILD PASS、QEMU PASS、HARDWARE PASSを分ける。本章の会社環境操作・GUI・実機はNOT_RUNで、ロード準備はBLOCKED。開発hostで確認済みの範囲は[Phase 8報告](../phase8_progress.md)と[追加作業の確認記録](../../results/manual-validation-summary.json)を参照する。
+実行して期待値に一致した工程だけPASS、不一致はFAIL。入力・tool・初期化・安全条件不足はBLOCKED。未実行はNOT_RUN。試験対象外はSKIP。BUILD PASS、QEMU PASS、HARDWARE PASSを分ける。本章の環境操作・GUI・実機はNOT_RUNで、ロード準備はBLOCKED。開発hostで確認済みの範囲は[Phase 8報告](../phase8_progress.md)と[追加作業の確認記録](../../results/manual-validation-summary.json)を参照する。
 
 
 

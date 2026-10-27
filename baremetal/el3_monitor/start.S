@@ -3,12 +3,33 @@
 .global _start
 _start:
     msr daifset, #15
+#if PLATFORM_REQUIRE_EL3_ENTRY_GUARD
+    /* 未確認のELや有効な変換・キャッシュのままスタックとBSSへ触れない。 */
+    .equ EL3_CURRENTEL_ENCODING, (3 << 2)
+    .equ SCTLR_TRANSLATION_CACHE_MASK, ((1 << 0) | (1 << 2) | (1 << 12))
+    mrs x0, CurrentEL
+    cmp x0, #EL3_CURRENTEL_ENCODING
+    b.ne entry_state_blocked
+    mrs x1, sctlr_el3
+    ldr x2, =SCTLR_TRANSLATION_CACHE_MASK
+    tst x1, x2
+    b.ne entry_state_blocked
+    msr spsel, #1
+    isb
+#endif
     ldr x0, =__stack_top
     mov sp, x0
     bl clear_bss
     bl monitor_main
 1:  wfe
     b 1b
+#if PLATFORM_REQUIRE_EL3_ENTRY_GUARD
+    /* UARTを使わず停止し、x0に入口EL、EL3時だけx1にSCTLRを残す。 */
+.global entry_state_blocked
+entry_state_blocked:
+    wfe
+    b entry_state_blocked
+#endif
 .global enter_world
 enter_world:
     mov sp, x0

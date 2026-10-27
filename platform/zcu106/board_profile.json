@@ -15,5 +15,6 @@
     "xppu_master_profiles": [],
     "gic_routing_verified": false,
     "status": "BLOCKED",
-    "reason": "No generated hardware/BSP, route mapping or live register snapshots available"
+    "reason": "Vitis numeric DDR0/OCM and firmware LOADs reported; original artifacts, live XMPU locks/routes and entry state remain unverified",
+    "reported_observations": "vitis_observations.json"
 }

@@ -1,0 +1,18 @@
+#ifndef ZCU106_B2_MEMORY_MAP_H
+#define ZCU106_B2_MEMORY_MAP_H
+#include "../memory_map.h"
+/* 構成Aとは別の暫定予約を使い、実機の設定済み領域とみなさない。 */
+#define B2_BL31_BASE 0x1000
+#define B2_BL31_END 0x80000
+#define B2_BL32_BASE 0x60000000
+#define B2_BL32_END 0x70000000
+#undef SHARED_MEMORY_BASE
+#undef SHARED_MEMORY_SIZE
+#undef SHARED_MEMORY_END
+#define SHARED_MEMORY_BASE 0x10500000
+#define SHARED_MEMORY_SIZE 0x100000
+#define SHARED_MEMORY_END 0x10600000
+#define B2_UART_BASE 0xff000000
+#define B2_UART_END 0xff001000
+#define B2_RUNTIME_READY 0
+#endif

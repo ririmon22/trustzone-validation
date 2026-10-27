@@ -1,0 +1,52 @@
+{
+    "configuration": "A",
+    "status": "BLOCKED",
+    "load_authorized": false,
+    "hardware_execution": "NOT_RUN",
+    "observations": "vitis_observations.json",
+    "images": {
+        "el3": {
+            "elf": "build/zcu106/el3.elf",
+            "proposed_entry": 1610612736,
+            "source_elf_hash_verified": false
+        },
+        "secure": {
+            "elf": "build/zcu106/secure.elf",
+            "proposed_entry": 1610743808,
+            "source_elf_hash_verified": false
+        },
+        "nonsecure": {
+            "elf": "build/zcu106/nonsecure.elf",
+            "proposed_entry": 270532608,
+            "source_elf_hash_verified": false
+        }
+    },
+    "entry_contract": {
+        "exception_level": 3,
+        "spsel": 1,
+        "sctlr_el3_m": false,
+        "sctlr_el3_c": false,
+        "sctlr_el3_i": false
+    },
+    "jtag_settings_reference": "vitis_observations.json:jtag",
+    "fsbl_handoff_to_custom_el3_verified": false,
+    "pmufw_initialization_and_lifetime_verified": false,
+    "cpu_release_order_verified": false,
+    "load_order_verified": false,
+    "proposed_load_order": [
+        "after reviewed PSU/DDR/PMUFW/FSBL initialization: hold A53 cores",
+        "load Secure EL1 and Non-secure EL1 while halted at reviewed addresses",
+        "load Custom EL3 last and verify entry contract",
+        "start only Custom EL3; EL3 selects Secure then Normal"
+    ],
+    "reset_policy": "reported Reset Entire System ON, Reset APU/RPU OFF; no reset is executed by this plan",
+    "excluded_images": [
+        "TF-A BL31",
+        "OP-TEE BL32"
+    ],
+    "deferred_tests": [
+        "GPIO",
+        "DMA"
+    ],
+    "execution_script": null
+}

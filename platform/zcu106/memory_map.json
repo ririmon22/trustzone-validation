@@ -184,13 +184,15 @@
             "owner": "FSBL",
             "confirmed": false,
             "base": null,
-            "end": null
+            "end": null,
+            "reported_loads_reference": "vitis_observations.json:firmware/FSBL"
         },
         {
             "owner": "PMUFW",
             "confirmed": false,
             "base": null,
-            "end": null
+            "end": null,
+            "reported_loads_reference": "vitis_observations.json:firmware/PMUFW"
         },
         {
             "owner": "generated-BSP",
@@ -198,5 +200,28 @@
             "base": null,
             "end": null
         }
-    ]
+    ],
+    "hardware_observations": "vitis_observations.json",
+    "configuration_plans": {
+        "A": {
+            "status": "STATIC_PROPOSAL",
+            "active_owners": [
+                "el3",
+                "secure",
+                "nonsecure",
+                "client"
+            ],
+            "firmware_not_loaded": [
+                "tfa",
+                "optee"
+            ],
+            "allocation_bank": "DDR0",
+            "unknown_runtime_reservations_block_load": true,
+            "deferred": [
+                "GPIO",
+                "DMA"
+            ]
+        }
+    },
+    "runtime_stack_policy": "elf-noload"
 }

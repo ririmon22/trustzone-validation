@@ -6,7 +6,7 @@
 
 ## 前提条件・事前確認事項
 
-[全体手順](00_overview.md)で`TZ_ROOT`、`TZ_LOG_DIR`、必要時`TZ_CROSS`を設定し、各shellを`bash`で開く。前章の入力を確認し、出力directoryを作ってから進む。会社Ubuntu 24.04/Vitis 2025.1の実操作と全ZCU106実行はNOT_RUN。外部ネットワークを必要とする取得処理はbuildに含めない。実機のload/run/resetは[安全検査](14_hardware_safety_check.md)の対象であり、現在BLOCKED。
+[全体手順](00_overview.md)で`TZ_ROOT`、`TZ_LOG_DIR`、必要時`TZ_CROSS`を設定し、各shellを`bash`で開く。前章の入力を確認し、出力directoryを作ってから進む。Ubuntu 24.04/Vitis 2025.1の実操作と全ZCU106実行はNOT_RUN。外部ネットワークを必要とする取得処理はbuildに含めない。実機のload/run/resetは[安全検査](14_hardware_safety_check.md)の対象であり、現在BLOCKED。
 
 ## 必要なファイル・入力ファイル
 
@@ -41,7 +41,7 @@ export TZ_CROSS
 python3 -S scripts/check_build_environment.py --configuration baremetal --compiler gcc --cross-compile "$TZ_CROSS" --output "$TZ_LOG_DIR/preflight-A.json" | tee "$TZ_LOG_DIR/preflight-A.log"
 ```
 
-3. B1は`--configuration tfa`、B2/TAは`optee`で同じcheckerを再実行する。不足する名前・用途をJSONから確認し、会社の許可された配布手段で事前準備する。build中のAPT/pip installは禁止。
+3. B1は`--configuration tfa`、B2/TAは`optee`で同じcheckerを再実行する。不足する名前・用途をJSONから確認し、の許可された配布手段で事前準備する。build中のAPT/pip installは禁止。
 4. baremetalはPython stdlib、make/bash/coreutils、target C/ASM/linkerで生成可能。B1に固定TF-A/Git、B2に固定OP-TEE/pyelftools GitとPython cryptographyが追加。pyelftoolsはPYTHONPATHで固定sourceを使いpip不要。GNUはlibgcc、Clangのときだけcompiler-rt sourceが必要。QEMUは実機ELF生成に不要で、QEMU用FIPに限りnative C/libcrypto開発fileが追加。
 5. 選択したPythonで`python3 -c 'import cryptography; print(cryptography.__version__)'`を確認する。B2で不足ならBLOCKED。独自暗号や空runtimeで代用しない。BSP生成に使うCMake/Ninja/SDTgen等も実IDEで確認する。
 
@@ -59,7 +59,7 @@ environment.txt、tool-versions.txt、preflight-*.json、IDE起動log。 `TZ_LOG
 
 ## PASS／FAIL／BLOCKED／NOT_RUN判定・実環境での確認状況
 
-実行して期待値に一致した工程だけPASS、不一致はFAIL。入力・tool・初期化・安全条件不足はBLOCKED。未実行はNOT_RUN。試験対象外はSKIP。BUILD PASS、QEMU PASS、HARDWARE PASSを分ける。本章の会社環境操作・GUI・実機はNOT_RUNで、ロード準備はBLOCKED。開発hostで確認済みの範囲は[Phase 8報告](../phase8_progress.md)と[追加作業の確認記録](../../results/manual-validation-summary.json)を参照する。
+実行して期待値に一致した工程だけPASS、不一致はFAIL。入力・tool・初期化・安全条件不足はBLOCKED。未実行はNOT_RUN。試験対象外はSKIP。BUILD PASS、QEMU PASS、HARDWARE PASSを分ける。本章の環境操作・GUI・実機はNOT_RUNで、ロード準備はBLOCKED。開発hostで確認済みの範囲は[Phase 8報告](../phase8_progress.md)と[追加作業の確認記録](../../results/manual-validation-summary.json)を参照する。
 
 
 

@@ -11,6 +11,6 @@ Phase 4でQEMU A/B1/B2実行、ZynqMP BL31、OP-TEE QEMU Core/SDK/Early TAのbui
 5. trusted requester認証、TA間/Coreアクセス攻撃、鍵取得/削除、署名付き通常TA改ざん拒否、永続storage/RPCを実装する。
 6. PERF-03/04/07を実経路へ接続し、Vitis2025.1実IDEの手順と実機試験を確認する。
 
-会社での作業が実機設定と最終評価だけで済む段階にはまだ達していない。eFUSEや不可逆設定は自動変更しない。
+での作業が実機設定と最終評価だけで済む段階にはまだ達していない。eFUSEや不可逆設定は自動変更しない。
 
 Phase 5でTA/Core fixture分離、TA identity、共有memory、key exportの実行検証は追加済み。最新再現は `scripts/run_phase5.sh`。次はNormal要求者認証、鍵memory抽出、通常TA runtimeロード/RPC、storage、実機資料照合。[詳細](phase5_progress.md)。

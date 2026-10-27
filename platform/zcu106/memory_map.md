@@ -25,3 +25,9 @@ Secureコード・データ・stack、TF-A/OP-TEEの暫定予約とは重なら�
 windowは独立した保護範囲で、regionsの別allocationと重ねて使用しない。
 FSBL/PMUFW/BSPの生成使用範囲とDDR容量は未照合。未知の領域と競合しないとは判断しない。
 経路・master ID・既存XMPU policyも未確定なのでBLOCKEDを維持する。
+
+## Vitis報告値に基づく構成Aの見直し
+
+[構成A更新資料](../../docs/zcu106_a_vitis_update.md)とvitis_observations.json/jtag_a_plan.jsonを参照する。DDR0報告範囲0..0x7ff00000内で既存Aアドレスを維持し、FSBL4・PMUFW3の報告LOADと全A予約/保護窓を数値比較する。DDR1は有効範囲不明のため使用しない。元ELF/address view/firmware runtime予約は未取得でconfirmed=false、external_reservations_complete=falseを維持する。
+
+各linkerはstack全体を独立RW非実行NOLOAD PT_LOADとして予約し、check_memory_map.pyがp_memszとheader/JSONのstack範囲一致を検査する。heapは0 size。旧TF-A/OP-TEE予約はB構成との互換性用で、Aの起動対象に含めない。GPIO/DMA保留は安全ゲート解除の根拠にしない。
