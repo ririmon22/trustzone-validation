@@ -1,6 +1,16 @@
-# オフライン移送用ブランチ
+# 次回オフライン作業の入口
 
-移送・依存確認・再ビルドは[専用手順](docs/offline_transfer.md)を最初に読む。外部ソース・ツール・過去の結果は配布しない。実機ロードはBLOCKED。
+[短い呼出し手順](docs/next_offline_session.md)から始める。ZIP展開物は専用modeで新規copyへbuildし、来歴未確認とbuild/static/QEMU結果を分ける。実機操作はBLOCKED。
+
+この作業ツリーの更新は未コミット。`git archive offline-transfer`は未コミット変更を含まないため、移送物の再生成は`python3 scripts/export_offline_transfer.py --output <新しい出力directory>`を使う。
+
+## 実機作業の入口とB2棚卸し
+
+[A単一ELFの実行順手順書](docs/a_unified_field_runbook.md)、[B2全試験ID](docs/b2_test_inventory.md)、[UARTなしログ回収範囲](docs/uartless_log_matrix.md)を参照。実機操作はBLOCKEDのまま。
+
+## 単一ELFとJTAGのみの調査
+
+[A単一ELF・RAMログ・例外採取](docs/a_unified_jtag.md)、[B2起動準備と試験範囲](docs/b2_jtag_test_plan.md)を参照。実機ロードは引き続きBLOCKED。
 
 # ZCU106 TrustZone / TEE validation
 

@@ -42,8 +42,8 @@ void report_memory_state(const char *world)
 {
     uint64_t sctlr, ttbr0, tcr;
     __asm__ volatile("mrs %0, sctlr_el1; mrs %1, ttbr0_el1; mrs %2, tcr_el1" : "=r"(sctlr), "=r"(ttbr0), "=r"(tcr));
-    console_write("MEM_STATE world="); console_write(world);
-    console_write(" sctlr="); console_hex(sctlr); console_write(" ttbr0="); console_hex(ttbr0);
-    console_write(" tcr="); console_hex(tcr); console_write(" base="); console_hex(PROTECTED_BUFFER_BASE);
-    console_write(" end="); console_hex(PROTECTED_BUFFER_END); console_write("\n");
+    (void)log_printf("%s", "MEM_STATE world="); (void)log_printf("%s", world);
+    (void)log_printf("%s", " sctlr="); (void)log_printf("0x%016llx", (unsigned long long)(sctlr)); (void)log_printf("%s", " ttbr0="); (void)log_printf("0x%016llx", (unsigned long long)(ttbr0));
+    (void)log_printf("%s", " tcr="); (void)log_printf("0x%016llx", (unsigned long long)(tcr)); (void)log_printf("%s", " base="); (void)log_printf("0x%016llx", (unsigned long long)(PROTECTED_BUFFER_BASE));
+    (void)log_printf("%s", " end="); (void)log_printf("0x%016llx", (unsigned long long)(PROTECTED_BUFFER_END)); (void)log_printf("%s", "\n");
 }

@@ -4,6 +4,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include "memory_map.h"
+#include "debug_log.h"
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 #define SMC_RUN_SERVICE 0xc2000100UL
 #define SMC_SERVICE_RETURN 0xc2000101UL
@@ -24,6 +25,7 @@
 #define VECTOR_ALIGNMENT 2048U
 struct smc_result { uint64_t x0; uint64_t x1; uint64_t x2; uint64_t x3; };
 void console_putc(char value);
+void platform_uart_putc(char value);
 void console_write(const char *text);
 void console_hex(uint64_t value);
 void console_uint(uint64_t value);

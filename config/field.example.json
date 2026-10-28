@@ -1,0 +1,30 @@
+{
+    "source_mode": "zip",
+    "platform": "zcu106",
+    "compiler": "gcc",
+    "cross_compile": "aarch64-none-elf-",
+    "llvm_dir": null,
+    "qemu": false,
+    "host_tests": false,
+    "run_id": "0x20261029",
+    "a_export": "../build/vitis-a-next",
+    "b2_elf": null,
+    "sources": {
+        "tfa-amd": {
+            "directory": "/path/to/arm-trusted-firmware-expanded",
+            "archive": null,
+            "declared_version": "2.12"
+        },
+        "optee": {
+            "directory": "/path/to/optee_os-expanded",
+            "archive": null,
+            "declared_version": "4.5.0"
+        },
+        "pyelftools": {
+            "directory": "/path/to/pyelftools-expanded",
+            "archive": null,
+            "declared_version": "0.32"
+        }
+    },
+    "b2_inputs": null
+}

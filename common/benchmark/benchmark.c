@@ -13,26 +13,26 @@ void benchmark_run_scoped(const char *id, void (*prepare)(void), void (*operatio
         uint64_t start = counter_read();
         baseline();
         uint64_t ticks = counter_read() - start;
-        console_write("OVERHEAD "); console_write(id); console_write(" "); console_uint(i);
-        console_write(" "); console_uint(ticks); console_write("\n");
+        (void)log_printf("%s", "OVERHEAD "); (void)log_printf("%s", id); (void)log_printf("%s", " "); (void)log_printf("%llu", (unsigned long long)(i));
+        (void)log_printf("%s", " "); (void)log_printf("%llu", (unsigned long long)(ticks)); (void)log_printf("%s", "\n");
     }
     for (unsigned int i = 0U; i < BENCH_WARMUP; ++i) {
         if (prepare != NULL) { prepare(); }
         operation();
         if (cleanup != NULL) { cleanup(); }
     }
-    console_write("BENCH_META "); console_write(id);
-    console_write(" counter=CNTPCT_EL0 timer_hz="); console_uint(counter_frequency());
-    console_write(" cpu_hz=unknown " BENCH_MEMORY_STATE " irq=masked interval=");
-    console_write(interval); console_write(" warmup="); console_uint(BENCH_WARMUP); console_write("\n");
+    (void)log_printf("%s", "BENCH_META "); (void)log_printf("%s", id);
+    (void)log_printf("%s", " counter=CNTPCT_EL0 timer_hz="); (void)log_printf("%llu", (unsigned long long)(counter_frequency()));
+    (void)log_printf("%s", " cpu_hz=unknown " BENCH_MEMORY_STATE " irq=masked interval=");
+    (void)log_printf("%s", interval); (void)log_printf("%s", " warmup="); (void)log_printf("%llu", (unsigned long long)(BENCH_WARMUP)); (void)log_printf("%s", "\n");
     for (unsigned int i = 0U; i < BENCH_SAMPLES; ++i) {
         if (prepare != NULL) { prepare(); }
         uint64_t start = counter_read();
         operation();
         uint64_t ticks = counter_read() - start;
         if (cleanup != NULL) { cleanup(); }
-        console_write("SAMPLE "); console_write(id); console_write(" ");
-        console_uint(i); console_write(" "); console_uint(ticks); console_write("\n");
+        (void)log_printf("%s", "SAMPLE "); (void)log_printf("%s", id); (void)log_printf("%s", " ");
+        (void)log_printf("%llu", (unsigned long long)(i)); (void)log_printf("%s", " "); (void)log_printf("%llu", (unsigned long long)(ticks)); (void)log_printf("%s", "\n");
     }
 }
 

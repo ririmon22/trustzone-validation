@@ -1,3 +1,5 @@
+> この文書の生成ELF範囲表は前回の固定runを記録したもの。RAMログ・例外record追加後のBSS/vector位置は再ビルドで変わるため、現在のELFは[a_unified_jtag.md](a_unified_jtag.md)と[b2_jtag_test_plan.md](b2_jtag_test_plan.md)、最新の静的検査結果で確認する。予約領域そのものは変更していない。
+
 # ZCU106 B2：配置・SHM・キャッシュ契約の整合化
 
 今回解消したのはソースと生成物の不一致であり、実機予約・保護設定の確認ではない。B2専用の**暫定software配置案**を新設し、A/B1は変更せず保持した。全実機NOT_RUN、hardware load BLOCKED、GPIO/DMA保留。commit/pushなし。

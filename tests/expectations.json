@@ -103,5 +103,26 @@
     },
     "TEE-STRESS-01": {
         "expected_result": "512 measured cycles after 32 warmup with A/B sessions, commands, panic recovery, invalid SHM and key lifecycle; no resource growth or allocation failures"
+    },
+    "TEE-SESSION-01": {
+        "expected_result": "four sessions open/close; duplicate, over-limit and closed-handle operations rejected without leaked sessions"
+    },
+    "TEE-ABI-01": {
+        "expected_result": "malformed attributes rejected by Core; invalid command rejected by TA; echo preserves zero and UINT32_MAX; service continues"
+    },
+    "TEE-BOUNDARY-01": {
+        "expected_result": "last valid negotiated SHM byte accepted; one-byte overflow, empty and message-overlap rejected; contents unchanged"
+    },
+    "B2-SMCCC-01": {
+        "expected_result": "integrated BL31 returns supported SMCCC and PSCI version values"
+    },
+    "TEE-SESSION-CORE-01": {
+        "expected_result": "Core rejects a raw closed session ID; other TA continues; reopened session does not inherit authorization"
+    },
+    "TEE-PARAM-01": {
+        "expected_result": "TA rejects valid transport with wrong parameter type or malformed content; rejected buffer unchanged and restored request succeeds"
+    },
+    "TEE-KEY-ATTR-01": {
+        "expected_result": "Core allows extractable control key attribute and rejects nonextractable key attribute; rejected buffer unchanged and private key remains usable; no key bytes returned to Normal"
     }
 }

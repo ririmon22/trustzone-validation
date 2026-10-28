@@ -1,4 +1,8 @@
+現在のZIP展開物向け入口は[次回手順](next_offline_session.md)と[ZIP専用build](zip_offline_build.md)。以下のGit checkout向け手順は別モードであり、ZIPにGit検査を要求したり、build中にcloneするものではない。
+
 # オフライン移送ブランチ
+
+未コミット更新の移送にはmanifest exporterを使う。Git bundleはcommit済み履歴のみで、今回の未コミット更新は含まれない。
 
 このブランチは自作ソース・設定・テスト・構築と確認の手順を移送する。外部ソース、ツールチェーン、ELF/BIN/SDK、過去のログ・結果ファイルを含めない。文書中の既存実績は参考情報であり、移送先での成功を示さない。`results/`への文字列は再生成先であり、配布ファイルではない。Git履歴には元ブランチの過去結果が含まれるため、履歴まで持ち込まない場合は後述のarchiveを使う。
 
@@ -10,17 +14,14 @@
 2. ネットワークを使わず現在のツリーだけ移す場合、送出側repo rootで実行する。
 
 ```bash
-mkdir -p ../offline-transfer-export
-git archive --format=tar --output=../offline-transfer-export/trustzone-validation.tar offline-transfer
-sha256sum ../offline-transfer-export/trustzone-validation.tar > ../offline-transfer-export/trustzone-validation.tar.sha256
+python3 scripts/export_offline_transfer.py --output ../offline-transfer-export/new-run
 ```
 
 3. 承認された媒体で2ファイルを移送し、受入側で実行する。
 
 ```bash
 sha256sum -c trustzone-validation.tar.sha256
-mkdir -p trustzone-validation
-tar -xf trustzone-validation.tar -C trustzone-validation
+tar -xf trustzone-validation.tar
 cd trustzone-validation
 ```
 

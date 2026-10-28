@@ -1,3 +1,5 @@
+現在のZIP展開物向け入口は[次回手順](next_offline_session.md)と[ZIP専用build](zip_offline_build.md)。以下のGit checkout向け手順は別モードであり、ZIPにGit検査を要求したり、build中にcloneするものではない。
+
 # Git sourceだけで受け渡す手順
 
 外部networkが使える場所で取得し、の許可Gitへmirrorする工程と、でのbuildを分ける。build中にはclone from remote、submodule取得、APT、pip、wget/curlを実行しない。`build_vitis_offline.sh` は既存local sourceからfresh workspaceを作り、古いELF/BIN/SDK/コンテナimageを入力にしない。

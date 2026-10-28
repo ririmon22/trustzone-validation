@@ -23,9 +23,9 @@ uint64_t handle_el1_sync(uint64_t esr, uint64_t pc)
     bool denied = dfsc == DFSC_SYNC_EXTERNAL || (dfsc >= DFSC_PERMISSION_BASE && dfsc <= DFSC_PERMISSION_LAST);
     if (expected_fault == 0UL || !data_abort || !denied) { return 0UL; }
     last_fault_esr = esr;
-    console_write("MEM_ABORT address="); console_hex(expected_fault_address);
-    console_write(" far="); console_hex(far); console_write(" esr="); console_hex(esr);
-    console_write(" pc="); console_hex(pc); console_write(" sctlr="); console_hex(sctlr); console_write("\n");
+    (void)log_printf("%s", "MEM_ABORT address="); (void)log_printf("0x%016llx", (unsigned long long)(expected_fault_address));
+    (void)log_printf("%s", " far="); (void)log_printf("0x%016llx", (unsigned long long)(far)); (void)log_printf("%s", " esr="); (void)log_printf("0x%016llx", (unsigned long long)(esr));
+    (void)log_printf("%s", " pc="); (void)log_printf("0x%016llx", (unsigned long long)(pc)); (void)log_printf("%s", " sctlr="); (void)log_printf("0x%016llx", (unsigned long long)(sctlr)); (void)log_printf("%s", "\n");
     if (expected_fault == 1UL && pc == (uint64_t)probe_read_fault && (esr & ESR_WRITE_BIT) == 0UL) {
         fault_count++; return (uint64_t)probe_read_resume;
     }

@@ -1,3 +1,5 @@
+現在のZIP展開物向け入口は[次回手順](../docs/next_offline_session.md)と[ZIP専用build](../docs/zip_offline_build.md)。以下のGit checkout向け手順は別モードであり、ZIPにGit検査を要求したり、build中にcloneするものではない。
+
 # 固定外部ソース
 
 `dependencies.lock.json` にrepository/full commit/releaseを記録する。AMD TF-Aとupstream OP-TEEを区別し、Vitis/ZCU106互換性を未確認のまま確認済みとはしない。

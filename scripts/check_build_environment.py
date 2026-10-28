@@ -44,7 +44,10 @@ def choose_toolchain(compiler, prefix, llvm_dir):
                 llvm_dir=str(directory) if directory else None, tools=tools)
 
 
-def inspect(configuration, compiler='auto', prefix=None, llvm_dir=None, qemu=False, allow_snapshots=False):
+def inspect(configuration, compiler='auto', prefix=None, llvm_dir=None, qemu=False, allow_snapshots=False, source_mode='locked', source_directories=None):
+    if source_mode not in ('locked','zip') or (source_mode == 'zip' and allow_snapshots):
+        raise ValueError('ZIP mode is separate from --allow-snapshots')
+    source_directories = source_directories or {}
     selection = choose_toolchain(compiler, prefix, llvm_dir)
     if configuration == 'performance':
         selection = dict(compiler='not-required',tools={},llvm_dir=None,cross_compile=None)
@@ -53,7 +56,7 @@ def inspect(configuration, compiler='auto', prefix=None, llvm_dir=None, qemu=Fal
                              vitis=shutil.which('vitis'), vitis_root_environment=os.environ.get('XILINX_VITIS'), vitis_status='NOT_RUN; tool presence is not a Vitis build result'))
     if sys.version_info < (3, 9):
         issues.append('Python >= 3.9 required by source/path validation; Ubuntu 24.04 Python 3.12 is a candidate, not tested here')
-    base_tools = () if configuration == 'performance' else ('make', 'bash', 'echo', 'mkdir', 'rm') + (() if configuration == 'baremetal' else ('git',))
+    base_tools = () if configuration == 'performance' else ('make', 'bash', 'echo', 'mkdir', 'rm') + (() if configuration == 'baremetal' or source_mode == 'zip' else ('git',))
     if configuration in ('optee','early-ta','all'):
         base_tools += ('cmp',)
     for name in base_tools:
@@ -106,19 +109,21 @@ def inspect(configuration, compiler='auto', prefix=None, llvm_dir=None, qemu=Fal
             issues.append('Missing Python cryptography for official TA signing: ' + str(error))
     lock = json.loads((ROOT/'third_party/dependencies.lock.json').read_text())
     for name in dependencies:
-        source = ROOT/'third_party'/name
+        source = Path(source_directories.get(name, ROOT/'third_party'/name))
         try:
-            proof = verify_source(source, lock[name])
+            proof = verify_source(source, lock[name], source_mode)
             observations.append(dict(source=name, **proof))
-            if proof['source_mode'] != 'git-checkout' and not allow_snapshots:
+            if source_mode == 'locked' and proof['source_mode'] != 'git-checkout' and not allow_snapshots:
                 issues.append(name + ': full pinned Git checkout required; verified snapshot only allowed for explicitly labeled development tests')
         except (OSError, ValueError, subprocess.CalledProcessError) as error:
             issues.append('Source unavailable/unverified: ' + name + ': ' + str(error))
-    if configuration in ('optee','early-ta','all') and (ROOT/'third_party/pyelftools/elftools/__init__.py').is_file():
+    elf_source = Path(source_directories.get('pyelftools', ROOT/'third_party/pyelftools'))
+    if configuration in ('optee','early-ta','all') and (elf_source/'elftools/__init__.py').is_file():
         environment = os.environ.copy()
-        environment['PYTHONPATH'] = str(ROOT/'third_party/pyelftools')
+        environment['PYTHONPATH'] = str(elf_source)
+        environment['PYTHONDONTWRITEBYTECODE'] = '1'
         checked = subprocess.run([sys.executable,'-c','from elftools.elf.elffile import ELFFile'],env=environment,capture_output=True,text=True)
-        observations.append(dict(python_module='elftools',exit_code=checked.returncode,purpose='official OP-TEE ELF processing from fixed Git source, no pip install'))
+        observations.append(dict(python_module='elftools',exit_code=checked.returncode,purpose='official OP-TEE ELF processing from selected source, no pip install'))
         if checked.returncode: issues.append('Fixed pyelftools source is not importable')
     if qemu and configuration in ('tfa','optee','all'):
         openssl = Path('/usr/bin/openssl')
@@ -143,7 +148,7 @@ def inspect(configuration, compiler='auto', prefix=None, llvm_dir=None, qemu=Fal
     return dict(status='BLOCKED' if issues else 'READY', configuration=configuration, selected=selection,
                 observations=observations, issues=issues, network_operations_performed=False,
                 ubuntu_24_04_validation='NOT_RUN' if 'VERSION_ID="24.04"' not in Path('/etc/os-release').read_text() else 'host OS only; Vitis NOT_RUN',
-                hardware_execution='NOT_RUN', source_policy='verified snapshots explicitly allowed' if allow_snapshots else 'pinned clean Git checkout')
+                hardware_execution='NOT_RUN', source_policy='ZIP_UNVERIFIED; structural compatibility only' if source_mode == 'zip' else 'verified snapshots explicitly allowed' if allow_snapshots else 'pinned clean Git checkout')
 
 
 def main():

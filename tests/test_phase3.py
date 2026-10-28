@@ -1,6 +1,7 @@
 import hashlib
 import importlib.util
 import json
+import shutil
 import subprocess
 import tempfile
 import unittest
@@ -74,6 +75,7 @@ class QemuDiagnosticTests(unittest.TestCase):
         self.assertIn("CFG_USER_TA_TARGETS=ta_arm64", command)
 
 
+@unittest.skipUnless(shutil.which("git"), "local Git bundle fixture requires git; ZIP builds do not")
 class OfflineBundleTests(unittest.TestCase):
     def test_bundle_import_and_wrong_digest(self):
         with tempfile.TemporaryDirectory() as directory:

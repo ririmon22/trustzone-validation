@@ -1,4 +1,5 @@
 #include "memory_map.h"
+#include "exception_capture.inc"
 .section .text.boot,"ax"
 .global _start
 _start:
@@ -38,16 +39,23 @@ enter_world:
 .balign 2048
 .global exception_vectors
 exception_vectors:
-.rept 8
-    b unexpected_vector
-    .balign 128
-.endr
+    FATAL_VECTOR 3, 0
+    FATAL_VECTOR 3, 1
+    FATAL_VECTOR 3, 2
+    FATAL_VECTOR 3, 3
+    FATAL_VECTOR 3, 4
+    FATAL_VECTOR 3, 5
+    FATAL_VECTOR 3, 6
+    FATAL_VECTOR 3, 7
     b lower_sync
     .balign 128
-.rept 7
-    b unexpected_vector
-    .balign 128
-.endr
+    FATAL_VECTOR 3, 9
+    FATAL_VECTOR 3, 10
+    FATAL_VECTOR 3, 11
+    FATAL_VECTOR 3, 12
+    FATAL_VECTOR 3, 13
+    FATAL_VECTOR 3, 14
+    FATAL_VECTOR 3, 15
 .section .text,"ax"
 /* SPを16バイト境界に保ちながら全整数レジスタを保存する。 */
 lower_sync:
@@ -73,6 +81,7 @@ lower_sync:
     mrs x3, sp_el1
     stp x1, x2, [sp, #248]
     str x3, [sp, #264]
+    CAPTURE_SYNC 3
     mov x0, sp
     bl monitor_dispatch
 restore_frame:
@@ -99,8 +108,7 @@ restore_frame:
     ldr x30, [sp, #240]
     add sp, sp, #272
     eret
+/* 互換シンボル。個々のvectorは種別を保存する専用入口へ分岐する。 */
+.global unexpected_vector
 unexpected_vector:
-    mrs x0, esr_el3
-    mrs x1, far_el3
-    mrs x2, elr_el3
-    bl fatal_exception
+    CAPTURE_FATAL 3, 255

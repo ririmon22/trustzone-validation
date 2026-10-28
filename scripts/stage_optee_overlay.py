@@ -12,6 +12,8 @@ def stage(root):
     shutil.copytree(original, destination, symlinks=True, ignore=shutil.ignore_patterns('__pycache__', '.git'))
     if (destination / '.source_manifest.json').exists():
         (destination / '.source_manifest.json').rename(destination / '.base_source_manifest.json')
+    if (destination / '.zip_input.json').exists():
+        (destination / '.zip_input.json').rename(destination / '.base_zip_input.json')
     changes = []
     for name in ('validation_canary.c', 'validation_canary.h'):
         source = root / 'optee_standalone/pta' / name
@@ -26,5 +28,8 @@ def stage(root):
                         sha256=hashlib.sha256(makefile.read_bytes()).hexdigest()))
     manifest = dict(mode='explicit-validation-overlay-on-build-copy', base_commit=json.loads((original / '.source_manifest.json').read_text())['commit'] if (original / '.source_manifest.json').exists() else json.loads((root / 'third_party/dependencies.lock.json').read_text())['optee']['commit'],
                     original_source_unchanged=True, changes=changes)
+    if (original / '.zip_input.json').exists():
+        manifest['base_commit'] = None
+        manifest['source_provenance'] = 'ZIP_UNVERIFIED'
     (destination / 'validation-overlay.json').write_text(json.dumps(manifest, indent=4) + '\n')
     return destination, manifest

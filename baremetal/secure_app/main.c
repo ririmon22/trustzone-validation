@@ -4,10 +4,10 @@ void secure_main(void)
 {
     volatile uint64_t *protected = (volatile uint64_t *)PROTECTED_BUFFER_BASE;
     volatile uint64_t *boundary = (volatile uint64_t *)(PROTECTED_BUFFER_END - sizeof(uint64_t));
-    if (read_current_el() != EXPECTED_EL1) { console_write("FATAL secure expected EL1\n"); platform_halt(); }
+    if (read_current_el() != EXPECTED_EL1) { (void)log_printf("%s", "FATAL secure expected EL1\n"); platform_halt(); }
     *protected = TEST_SENTINEL;
     *boundary = TEST_SENTINEL;
-    console_write("BOOT Secure EL1\n");
+    (void)log_printf("%s", "BOOT Secure EL1\n");
     report_memory_state("secure");
     struct smc_result request = smc_call(SMC_SECURE_READY, 0UL, 0UL, 0UL);
     for (;;) {
@@ -19,7 +19,7 @@ void secure_main(void)
             result = secure_counter;
         } else if (request.x0 == SERVICE_CHECK_BUFFER) {
             result = (*protected == TEST_SENTINEL && *boundary == TEST_SENTINEL) ? 1UL : 0UL;
-            console_write("MEM_RECHECK intact="); console_uint(result); console_write("\n");
+            (void)log_printf("%s", "MEM_RECHECK intact="); (void)log_printf("%llu", (unsigned long long)(result)); (void)log_printf("%s", "\n");
         } else if (request.x0 == SERVICE_GET_EL) {
             result = read_current_el();
         }

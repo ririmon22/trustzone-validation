@@ -7,7 +7,12 @@ from pathlib import Path
 SOURCE_SUFFIXES = {'.c', '.h', '.S', '.s', '.mk', '.py', '.ld', '.lds', '.dts', '.dtsi'}
 
 
-def verify_source(root, entry):
+def verify_source(root, entry, source_mode="locked"):
+    if source_mode == "zip":
+        from zip_sources import verify_zip_source
+        return verify_zip_source(root, entry)
+    if source_mode != "locked":
+        raise ValueError("Unknown source mode")
     root = Path(root)
     manifest_path = root / '.source_manifest.json'
     if not manifest_path.exists():
@@ -56,13 +61,14 @@ def verify_source(root, entry):
 def main():
     import argparse
     parser = argparse.ArgumentParser()
+    parser.add_argument('--source-mode', choices=('locked','zip'), default='locked')
     parser.add_argument('components', nargs='+')
     parser.add_argument('--output', type=Path)
     args = parser.parse_args()
     root = Path(__file__).resolve().parents[1]
     lock = json.loads((root / 'third_party/dependencies.lock.json').read_text())
     try:
-        results = {name: verify_source(root / 'third_party' / name, lock[name]) for name in args.components}
+        results = {name: verify_source(root / 'third_party' / name, lock[name], args.source_mode) for name in args.components}
     except (ValueError, OSError, KeyError, subprocess.CalledProcessError) as error:
         parser.exit(1, 'SOURCE VERIFICATION FAIL: ' + str(error) + '\n')
     content = json.dumps(results, indent=4) + '\n'

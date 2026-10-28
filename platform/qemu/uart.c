@@ -4,7 +4,7 @@
 #define UART_FLAGS_OFFSET 0x18UL
 #define UART_TX_FULL (1U << 5)
 #define UART_SPIN_LIMIT 1000000U
-void console_putc(char value)
+void platform_uart_putc(char value)
 {
     volatile uint32_t *flags = (volatile uint32_t *)(UART_BASE + UART_FLAGS_OFFSET);
     unsigned int spins = UART_SPIN_LIMIT;

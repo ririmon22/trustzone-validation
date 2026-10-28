@@ -75,3 +75,11 @@ Phase 8では同じ機能試験をlocal Git source受領先からfresh buildし�
 ## B2統合再検証
 
 TF-A＋OP-TEE＋Standaloneは既存B2そのもの。最新のsource-only再buildとQEMU A3/B1 1/B2 9 PASS、stress512回、host142件の証跡は統合集計（別途生成・用意: `../results/b2-integration-summary.json`）、接続と未完了範囲は[統合手順](b2_integration.md)。既存TEEのBLOCKED項目と全実機NOT_RUNを維持する。Core canary/統計PTAはQEMU検証overlayに限定し、通常ZCU106 Coreの試験済みとしない。GPIO/DMAは保留。
+
+## JTAGのみの調査とB2追加試験
+
+Aは比較用3 ELFを保持し、単一ELFの同じTZ-SYS-01/02/03を別runとして検証する。[単一ELF・RAMログ](a_unified_jtag.md)を参照。QEMUのundefined-instruction診断採取とUARTなしRAMログ回収はTrustZone機能試験とは別の検証。
+
+B2へTEE-SESSION-01/TEE-ABI-01/TEE-BOUNDARY-01を追加した。前提・期待値・拒否元・非改変確認・不足backendは[B2試験計画](b2_jtag_test_plan.md)とtests/expectations.jsonを参照。実測はrun別resultsへ保存し、全ZCU106実行はNOT_RUN。GPIO/DMA保留、runtime gateとロードBLOCKEDを維持する。
+
+B2の全42 ID分類と追加4機能/2測定は[b2_test_inventory.md](b2_test_inventory.md)、機械検査入力はtests/b2_inventory.json。

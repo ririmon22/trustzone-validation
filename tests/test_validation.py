@@ -134,6 +134,9 @@ class CRunnerTests(unittest.TestCase):
 #include <stdlib.h>
 void console_write(const char *text) { fputs(text, stdout); }
 void console_uint(uint64_t value) { printf("%llu", (unsigned long long)value); }
+int log_printf(const char *format, ...) { va_list args; va_start(args, format); int result = vprintf(format, args); va_end(args); return result; }
+void log_set_state(uint32_t state) { (void)state; }
+void debug_stage(uint64_t stage, uint64_t reason) { (void)stage; (void)reason; }
 _Noreturn void platform_halt(void) { exit(9); }
 int main(int argc, char **argv) {
     (void)argv;

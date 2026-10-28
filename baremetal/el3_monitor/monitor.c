@@ -67,16 +67,17 @@ void monitor_dispatch(struct world_context *frame)
 }
 _Noreturn void monitor_main(void)
 {
-    if (read_current_el() != EXPECTED_EL3) { console_write("FATAL expected EL3\n"); platform_halt(); }
-    console_write("BOOT EL3\n");
-    if (PLATFORM_PROTECTION_CONFIRMED == 0) { console_write("BLOCKED unconfirmed platform protection\n"); platform_halt(); }
+    if (read_current_el() != EXPECTED_EL3) { (void)log_printf("%s", "FATAL expected EL3\n"); platform_halt(); }
+    (void)log_printf("%s", "BOOT EL3\n");
+    debug_stage(20U, 0U);
+    if (PLATFORM_PROTECTION_CONFIRMED == 0) { debug_stage(20U, 1U); (void)log_printf("%s", "BLOCKED unconfirmed platform protection\n"); platform_halt(); }
     __asm__ volatile("msr vbar_el3, %0; msr cptr_el3, xzr; isb" :: "r"(exception_vectors) : "memory");
     /* 両EL1はMMUとキャッシュを無効化した既知状態で開始する。 */
     for (unsigned int world = 0U; world < 2U; ++world) {
         select_world(world);
         uint64_t scr;
         __asm__ volatile("mrs %0, scr_el3" : "=r"(scr));
-        console_write("MEM_WORLD world="); console_write(world == SECURE_CONTEXT ? "secure" : "nonsecure"); console_write(" scr="); console_hex(scr); console_write("\n");
+        (void)log_printf("%s", "MEM_WORLD world="); (void)log_printf("%s", world == SECURE_CONTEXT ? "secure" : "nonsecure"); (void)log_printf("%s", " scr="); (void)log_printf("0x%016llx", (unsigned long long)(scr)); (void)log_printf("%s", "\n");
         __asm__ volatile("msr sctlr_el1, %0; msr cntkctl_el1, %1; isb" :: "r"(SCTLR_EL1_RES1), "r"(1UL) : "memory");
         contexts[world].pc = world == SECURE_CONTEXT ? SECURE_CODE_BASE : NONSECURE_CODE_BASE;
         contexts[world].sp = world == SECURE_CONTEXT ? SECURE_STACK_END : NONSECURE_STACK_END;
@@ -87,9 +88,10 @@ _Noreturn void monitor_main(void)
     __asm__ volatile("msr hcr_el2, %0; msr cnthctl_el2, %1; msr cntvoff_el2, xzr; isb" :: "r"(1UL << 31U), "r"(3UL) : "memory");
     uint64_t hcr;
     __asm__ volatile("mrs %0, hcr_el2" : "=r"(hcr));
-    console_write("MEM_HCR value="); console_hex(hcr); console_write("\n");
+    (void)log_printf("%s", "MEM_HCR value="); (void)log_printf("0x%016llx", (unsigned long long)(hcr)); (void)log_printf("%s", "\n");
     select_world(SECURE_CONTEXT);
     struct world_context *frame = (struct world_context *)(EL3_STACK_END - sizeof(struct world_context));
     copy_context(frame, &contexts[SECURE_CONTEXT]);
+    debug_stage(30U, 0U);
     enter_world(frame);
 }

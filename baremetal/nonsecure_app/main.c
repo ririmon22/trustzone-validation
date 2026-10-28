@@ -72,7 +72,11 @@ static void run_boolean(const char *id, bool (*operation)(void), const char *det
 }
 void nonsecure_main(void)
 {
-    console_write("BOOT Non-secure EL1\n");
+    (void)log_printf("%s", "BOOT Non-secure EL1\n");
+#ifdef TZ_FAULT_INJECTION
+    /* QEMU専用のsnapshot検査。通常buildと実機向けでは定義しない。 */
+    __asm__ volatile("mov x0, #0x1234; mov x1, #0x5678; udf #0" ::: "x0", "x1", "memory");
+#endif
     test_begin("baremetal");
     run_boolean("TZ-SYS-01", test_separation, "independent-counters");
     run_boolean("TZ-SYS-02", test_switching, "repeated-world-roundtrip");

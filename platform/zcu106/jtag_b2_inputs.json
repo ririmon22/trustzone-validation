@@ -1,0 +1,20 @@
+{
+    "schema_version": 1,
+    "hardware_execution": "NOT_RUN",
+    "hardware_load_authorized": false,
+    "xsa": {"path": null, "sha256": null},
+    "firmware_xsa_bindings": {"fsbl_xsa_sha256": null, "pmufw_xsa_sha256": null, "review_evidence": null},
+    "images": {
+        "fsbl": {"path": null, "sha256": null, "expected_entry": null},
+        "pmufw": {"path": null, "sha256": null, "expected_entry": null},
+        "bl31": {"path": "build/external/tfa-zynqmp-b2/zynqmp/release/bl31/bl31.elf", "sha256": null, "expected_entry": 4096},
+        "bl32": {"path": "build/external/optee-zynqmp/core/tee.elf", "sha256": null, "expected_entry": 1610612736},
+        "bl33": {"path": "build/zcu106/optee_bl33.elf", "sha256": null, "expected_entry": 270532608}
+    },
+    "targets": {"apu_filter": null, "pmu_filter": null},
+    "source_provenance": {"tfa_fixed_commit_verified": false, "optee_fixed_commit_verified": false, "zip_build_reported": true, "evidence": null},
+    "stops": {"fsbl_exit_address": null, "optee_init_address": null, "bl33_main_address": null},
+    "pmu_ready": {"address": null, "mask": null, "expected": null, "evidence": null},
+    "reset_initialization_reviewed": false,
+    "timeout_ms": 30000
+}

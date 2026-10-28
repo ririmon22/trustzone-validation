@@ -17,12 +17,12 @@ def build_plan(component, prefix, output):
             command += ["CFG_EARLY_TA=y", "ta_dev_kit"]
         return command
     sdk = ROOT / "build/external/optee/export-ta_arm64"
-    return ["make", "-C", str(ROOT / "optee_standalone/ta"), f"TA_DEV_KIT_DIR={sdk}", f"CROSS_COMPILE={prefix}", f"O={output}", f"TA_VARIANT={component[-1]}"]
+    return ["make", "-C", str(ROOT / "optee_standalone/ta"), f"TA_DEV_KIT_DIR={sdk}", f"CROSS_COMPILE={prefix}", f"CROSS_COMPILE64={prefix}", f"CROSS_COMPILE_ta_arm64={prefix}", f"O={output}", f"TA_VARIANT={component[-1]}"]
 
 
-def preflight(component, prefix, compiler="gcc"):
+def preflight(component, prefix, compiler="gcc", source_mode="locked"):
     issues = []
-    tools = ("make", "git")
+    tools = ("make", "git") if source_mode == "locked" else ("make",)
     if compiler == "clang":
         tools += ("clang", "ld.lld")
     else:
@@ -38,11 +38,11 @@ def preflight(component, prefix, compiler="gcc"):
         from source_snapshot import verify_source
         try:
             entry = json.loads((ROOT / "third_party/dependencies.lock.json").read_text())[key]
-            verify_source(source, entry)
+            verify_source(source, entry, source_mode)
             if compiler == "clang" and component != "tfa":
                 lock = json.loads((ROOT / "third_party/dependencies.lock.json").read_text())
                 for dependency in ("compiler-rt", "pyelftools"):
-                    verify_source(ROOT / "third_party" / dependency, lock[dependency])
+                    verify_source(ROOT / "third_party" / dependency, lock[dependency], source_mode)
         except (ValueError, OSError, subprocess.CalledProcessError) as error:
             issues.append("Source provenance failed: " + str(error))
     if component.startswith("ta-") and not (ROOT / "build/external/optee/export-ta_arm64/mk/ta_dev_kit.mk").is_file():
@@ -64,9 +64,11 @@ def configured_plan(args):
         command = ["TA_DEV_KIT_DIR=" + str(args.ta_sdk.resolve()) if item.startswith("TA_DEV_KIT_DIR=") else item for item in command]
     if args.component == "tfa":
         command = ["make", "-C", str(ROOT / "third_party/tfa-amd"), "PLAT=" + args.platform,
-                   f"BUILD_BASE={output}", "BUILD_STRING=dd3512287a17eea866d5c82fa7b86ad58de59163"]
+                   f"BUILD_BASE={output}", ("BUILD_STRING=ZIP-UNVERIFIED" if getattr(args, "source_mode", "locked") == "zip" else "BUILD_STRING=dd3512287a17eea866d5c82fa7b86ad58de59163")]
         if args.platform == "zynqmp":
             command += ["RESET_TO_BL31=1", "bl31"]
+            if getattr(args, "tfa_console", None):
+                command += ["ZYNQMP_CONSOLE=" + args.tfa_console]
             if args.configuration == "b2":
                 from zcu106_b2_layout import load_layout
                 proposal, regions = load_layout(ROOT)
@@ -107,6 +109,8 @@ def configured_plan(args):
         command.append("PYTHON3=" + sys.executable)
     if args.component == "tfa" and args.platform == "qemu" and getattr(args, "host_cc", None):
         command.append("host-cc=" + args.host_cc)
+    if getattr(args, "source_mode", "locked") == "zip" and args.component != "tfa":
+        command.append("TEE_IMPL_VERSION=ZIP-UNVERIFIED")
     if args.early_ta:
         command.append("EARLY_TA_PATHS=" + " ".join(str(path.resolve()) for path in args.early_ta))
     command.append("-j" + str(args.jobs))
@@ -116,6 +120,7 @@ def configured_plan(args):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("component", choices=("tfa", "optee", "optee-sdk", "ta-a", "ta-b"))
+    parser.add_argument("--source-mode", choices=("locked", "zip"), default="locked")
     parser.add_argument("--cross-compile", default="aarch64-linux-gnu-")
     parser.add_argument("--compiler", choices=("clang", "gcc"), default="clang")
     parser.add_argument("--ta-sdk", type=Path)
@@ -123,11 +128,14 @@ def main():
     parser.add_argument("--llvm-dir", type=Path, default=Path(shutil.which("clang") or "/usr/bin/clang").resolve().parent)
     parser.add_argument("--platform", choices=("qemu", "zynqmp"), default="qemu")
     parser.add_argument("--configuration", choices=("b1", "b2"), default="b1")
+    parser.add_argument("--tfa-console", choices=("cadence", "cadence0", "cadence1", "dcc", "none"))
     parser.add_argument("--jobs", type=int, default=4)
     parser.add_argument("--validation-pta", action="store_true")
     parser.add_argument("--early-ta", type=Path, action="append", default=[])
     parser.add_argument("--log-dir", type=Path, default=ROOT / "results/phase4")
     args = parser.parse_args()
+    if args.tfa_console and (args.component != "tfa" or args.platform != "zynqmp"):
+        parser.error("TF-A console selection requires tfa --platform zynqmp")
     if args.validation_pta and args.component != "optee":
         parser.error("validation PTA is an OP-TEE Core option")
     if args.jobs < 1 or (args.early_ta and args.component != "optee"):
@@ -140,7 +148,7 @@ def main():
     if args.component == "tfa" and args.platform == "zynqmp" and args.configuration == "b2":
         suffix += "-b2"
     log_path = args.log_dir / ("external-" + args.component + suffix + ".log")
-    issues = preflight(args.component, args.cross_compile, args.compiler)
+    issues = preflight(args.component, args.cross_compile, args.compiler, args.source_mode)
     if args.component.startswith("ta-") and args.ta_sdk:
         issues = [item for item in issues if item != "Generated OP-TEE ARM64 TA SDK is unavailable"]
         if not (args.ta_sdk / "mk/ta_dev_kit.mk").is_file():

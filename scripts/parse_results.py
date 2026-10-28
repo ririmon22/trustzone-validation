@@ -53,7 +53,7 @@ def main():
     if args.require_security:
         if args.configuration != "optee":
             parser.error("security tests require optee")
-        required += ["TEE-AUTH-TA", "TEE-AUTH-NS", "TEE-SHM-01", "TEE-KEY-API", "TEE-KEY-MEM", "TEE-ISO-TA", "TEE-ISO-CORE", "TEE-STRESS-01"]
+        required += ["TEE-AUTH-TA", "TEE-AUTH-NS", "TEE-SHM-01", "TEE-KEY-API", "TEE-KEY-MEM", "TEE-ISO-TA", "TEE-ISO-CORE", "TEE-STRESS-01", "TEE-SESSION-01", "TEE-ABI-01", "TEE-BOUNDARY-01", "B2-SMCCC-01", "TEE-SESSION-CORE-01", "TEE-PARAM-01", "TEE-KEY-ATTR-01"]
     if args.configuration == "tfa":
         required.append("B1-SMCCC-01")
     try:
