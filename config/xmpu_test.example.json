@@ -1,0 +1,58 @@
+{
+  "schema": 1,
+  "master_id": null,
+  "master_mask": null,
+  "banks": [],
+  "reviews": {
+    "route": {
+      "confirmed": false,
+      "path": null,
+      "sha256": null
+    },
+    "master": {
+      "confirmed": false,
+      "path": null,
+      "sha256": null
+    },
+    "lock": {
+      "confirmed": false,
+      "path": null,
+      "sha256": null
+    },
+    "boundary": {
+      "confirmed": false,
+      "path": null,
+      "sha256": null
+    },
+    "runtime_reservations": {
+      "confirmed": false,
+      "path": null,
+      "sha256": null
+    },
+    "poison": {
+      "confirmed": false,
+      "path": null,
+      "sha256": null
+    },
+    "priority": {
+      "confirmed": false,
+      "path": null,
+      "sha256": null
+    },
+    "other_masters": {
+      "confirmed": false,
+      "path": null,
+      "sha256": null
+    },
+    "secure_mmio": {
+      "confirmed": false,
+      "path": null,
+      "sha256": null
+    },
+    "recovery": {
+      "confirmed": false,
+      "path": null,
+      "sha256": null
+    }
+  }
+}

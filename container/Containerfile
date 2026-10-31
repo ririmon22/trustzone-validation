@@ -1,8 +1,0 @@
-ARG BASE_IMAGE
-FROM ${BASE_IMAGE}
-ENV DEBIAN_FRONTEND=noninteractive
-COPY packages.lock /opt/tz/packages.lock
-RUN apt-get update && xargs -r apt-get install -y --no-install-recommends < /opt/tz/packages.lock && dpkg-query -W > /opt/tz/installed-packages.txt && rm -rf /var/lib/apt/lists/*
-ENV PATH=/usr/lib/llvm-21/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-WORKDIR /workspace
-CMD ["bash", "scripts/run_phase7.sh"]

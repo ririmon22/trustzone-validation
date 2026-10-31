@@ -1,4 +1,7 @@
 #include "client.h"
+#ifdef B2_SIGNED_TA_PROFILE
+#include "signed_rpc.h"
+#endif
 #define OPTEE_SMC_GET_SHM_CONFIG 0xb2000007UL
 #define OPTEE_SMC_EXCHANGE_CAPABILITIES 0xb2000009UL
 #define OPTEE_SMC_CALL_WITH_ARG 0x32000004UL
@@ -57,7 +60,13 @@ static struct tee_reply transport_call(void)
 {
     uint64_t address = (uint64_t)message;
     synchronize_message();
-    struct smc_result result = smc_call(OPTEE_SMC_CALL_WITH_ARG, address >> ADDRESS_HIGH_SHIFT, address & UINT32_MAX, 0UL);
+    struct smc_result result;
+#if defined(B2_SIGNED_TA_PROFILE) && B2_SIGNED_TA_PROFILE
+    if (signed_rpc_enabled()) {
+        if (!signed_rpc_call(address,&result)) { transport_poisoned=true;return (struct tee_reply){TEE_CLIENT_RPC_REQUIRED,0U,0U,0U}; }
+    } else
+#endif
+    { result = smc_call(OPTEE_SMC_CALL_WITH_ARG, address >> ADDRESS_HIGH_SHIFT, address & UINT32_MAX, 0UL); }
     synchronize_message();
     if (result.x0 != OPTEE_SMC_RETURN_OK) {
         /* 未実装RPCを成功扱いせず、停止中の呼出しを再利用しない。 */
@@ -199,4 +208,68 @@ struct tee_reply tee_probe_identity_open(void)
 unsigned int tee_client_active_sessions(void)
 {
     return active_sessions;
+}
+
+bool tee_client_shared_range(uint64_t *base, uint64_t *end)
+{
+    if (message == NULL || base == NULL || end == NULL || transport_poisoned) { return false; }
+    *base = shared_base;
+    *end = shared_end;
+    return true;
+}
+/* ABI攻撃試験だけで使用する。不正属性をCoreへ送り拒否後の継続性を確認する。 */
+struct tee_reply tee_probe_attribute(struct tee_session *session, uint64_t attr)
+{
+    if (message == NULL || transport_poisoned || session == NULL || !session->open) {
+        return (struct tee_reply){ TEE_CLIENT_BAD_STATE, 0U, 0U, 0U };
+    }
+    reset_message();
+    message->command = OPTEE_MSG_INVOKE_COMMAND;
+    message->session = session->id;
+    message->function = TA_COMMAND_ECHO;
+    message->count = 1U;
+    message->parameters[0].attr = attr;
+    return transport_call();
+}
+
+/* 閉じたIDをCoreへ直接送る試験用。通常APIのlocal状態検査とは区別する。 */
+struct tee_reply tee_probe_session_id(uint32_t session_id)
+{
+    if (message == NULL || transport_poisoned) {
+        return (struct tee_reply){ TEE_CLIENT_BAD_STATE, 0U, 0U, 0U };
+    }
+    reset_message();
+    message->command = OPTEE_MSG_INVOKE_COMMAND;
+    message->session = session_id;
+    message->function = TA_COMMAND_ECHO;
+    message->count = 1U;
+    message->parameters[0].attr = OPTEE_MSG_ATTR_VALUE_INOUT;
+    return transport_call();
+}
+
+/* TAを経由しないSecure Coreとのfast SMC往復を検査する。 */
+bool tee_client_probe_configuration(void)
+{
+    if (message == NULL || transport_poisoned) { return false; }
+    struct smc_result config = smc_call(OPTEE_SMC_GET_SHM_CONFIG, 0UL, 0UL, 0UL);
+#ifdef TEE_SHARED_CACHED
+    const uint64_t cached = 1UL;
+#else
+    const uint64_t cached = 0UL;
+#endif
+    return config.x0 == OPTEE_SMC_RETURN_OK && config.x1 == shared_base &&
+        config.x2 == shared_end - shared_base && config.x3 == cached;
+}
+
+/* 読出し専用検証PTAの固定長snapshotだけに使う汎用output memref。 */
+struct tee_reply tee_invoke_output(struct tee_session *session,uint32_t command,uint64_t address,uint64_t bytes)
+{
+    if (message==NULL || transport_poisoned || session==NULL || !session->open || bytes==0UL ||
+        address<shared_base+sizeof(*message) || address>=shared_end || bytes>shared_end-address) {
+        return (struct tee_reply){TEE_CLIENT_SHM_UNAVAILABLE,0U,0U,0U};
+    }
+    reset_message();message->command=OPTEE_MSG_INVOKE_COMMAND;message->session=session->id;
+    message->function=command;message->count=1U;
+    message->parameters[0].attr=10UL;message->parameters[0].a=address;message->parameters[0].b=bytes;
+    return transport_call();
 }

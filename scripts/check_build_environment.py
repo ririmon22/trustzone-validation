@@ -125,26 +125,7 @@ def inspect(configuration, compiler='auto', prefix=None, llvm_dir=None, qemu=Fal
         checked = subprocess.run([sys.executable,'-c','from elftools.elf.elffile import ELFFile'],env=environment,capture_output=True,text=True)
         observations.append(dict(python_module='elftools',exit_code=checked.returncode,purpose='official OP-TEE ELF processing from selected source, no pip install'))
         if checked.returncode: issues.append('Fixed pyelftools source is not importable')
-    if qemu and configuration in ('tfa','optee','all'):
-        openssl = Path('/usr/bin/openssl')
-        if not openssl.is_file():
-            issues.append('Official fiptool default requires /usr/bin/openssl (OpenSSL version detection)')
-        else:
-            observations.append(probe([str(openssl),'version'],'official fiptool OpenSSL API selection'))
-        host_cc = shutil.which('cc') or shutil.which('gcc') or shutil.which('clang')
-        if not host_cc:
-            issues.append('QEMU FIP requires native C compiler')
-        else:
-            with tempfile.TemporaryDirectory() as directory:
-                source, output = Path(directory)/'crypto.c',Path(directory)/'crypto'
-                source.write_text('#include <openssl/evp.h>\nint main(void) { return EVP_sha256() == 0; }\n')
-                result = probe([host_cc,str(source),'-lcrypto','-o',str(output)],'TF-A official fiptool OpenSSL headers and libcrypto (libssl-dev if missing)')
-                observations.append(result)
-                if result['exit_code']: issues.append('Native fiptool requires OpenSSL development headers/library')
-    if qemu:
-        path = shutil.which(os.environ.get('QEMU_SYSTEM_AARCH64','qemu-system-aarch64'))
-        if not path: issues.append('QEMU execution requested; qemu-system-aarch64 is missing')
-        else: observations.append(probe([path,'--version'],'QEMU functional validation only; not required to build hardware ELF'))
+    if qemu:issues.append('QEMU is not part of the ZCU106 runtime environment')
     return dict(status='BLOCKED' if issues else 'READY', configuration=configuration, selected=selection,
                 observations=observations, issues=issues, network_operations_performed=False,
                 ubuntu_24_04_validation='NOT_RUN' if 'VERSION_ID="24.04"' not in Path('/etc/os-release').read_text() else 'host OS only; Vitis NOT_RUN',
@@ -153,16 +134,15 @@ def inspect(configuration, compiler='auto', prefix=None, llvm_dir=None, qemu=Fal
 
 def main():
     parser=argparse.ArgumentParser()
-    parser.add_argument('--configuration',choices=('baremetal','tfa','optee','early-ta','performance','all'),default='baremetal')
+    parser.add_argument('--configuration',choices=('optee','early-ta'),default='optee')
     parser.add_argument('--compiler',choices=('auto','gcc','clang'),default='auto')
     parser.add_argument('--cross-compile')
     parser.add_argument('--llvm-dir')
-    parser.add_argument('--qemu',action='store_true')
     parser.add_argument('--allow-snapshots',action='store_true')
     parser.add_argument('--output',type=Path,default=ROOT/'results/phase8/environment.json')
     args=parser.parse_args()
     try:
-        result=inspect(args.configuration,args.compiler,args.cross_compile,args.llvm_dir,args.qemu,args.allow_snapshots)
+        result=inspect(args.configuration,args.compiler,args.cross_compile,args.llvm_dir,False,args.allow_snapshots)
     except (OSError,ValueError,subprocess.CalledProcessError) as error:
         result=dict(status='BLOCKED',issues=[str(error)],hardware_execution='NOT_RUN')
     args.output.parent.mkdir(parents=True,exist_ok=True)

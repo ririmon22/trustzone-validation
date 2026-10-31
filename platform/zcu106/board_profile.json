@@ -8,13 +8,13 @@
     "protected_start": null,
     "protected_end": null,
     "apu_master_id": null,
-    "dma_master_id": null,
-    "dma_channel": null,
-    "peripheral_base": null,
-    "xppu_aperture": null,
-    "xppu_master_profiles": [],
     "gic_routing_verified": false,
     "status": "BLOCKED",
     "reason": "Vitis numeric DDR0/OCM and firmware LOADs reported; original artifacts, live XMPU locks/routes and entry state remain unverified",
-    "reported_observations": "vitis_observations.json"
+    "reported_observations": "vitis_observations.json",
+    "xmpu_lock_verified": false,
+    "xmpu_poison_verified": false,
+    "ddr_pa_aliases_verified": false,
+    "firmware_runtime_reserved_verified": false,
+    "apu_master_mask": null
 }

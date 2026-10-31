@@ -86,7 +86,8 @@ def check_contract(core_shm, client_shm, cached_client):
 
 
 def inspect_b2(root, platform, log_dir):
-    board = platform == 'zynqmp'
+    require(platform == 'zynqmp', 'ZCU106-only integration checker')
+    board = True
     core_dir = root / 'build/external' / ('optee-zynqmp' if board else 'optee')
     release = root / 'build/external' / ('tfa-zynqmp-b2/zynqmp/release' if board else 'tfa-qemu-b2/qemu/release')
     bl31 = release / 'bl31/bl31.elf'
@@ -145,7 +146,12 @@ def inspect_b2(root, platform, log_dir):
         require(all(name in client_image[2] for name in ('platform_prepare_tee_client','zcu106_b2_build_page_tables','client_tables','__b2_vectors_start','__b2_vectors_end')), 'BL33 lacks B2 MMU or vector reservation')
         require(symbol_payload(client_image,'zcu106_b2_runtime_ready') == bytes(4), 'B2 runtime gate must remain blocked before hardware review')
         table = client_image[2]['client_tables']
-        require(table['address'] % 4096 == 0 and table['size'] == 6 * 4096 and reservations['bl33_data']['base'] <= table['address'] < table['address']+table['size'] <= reservations['bl33_data']['end'], 'BL33 page tables escape data reservation')
+        signed_profile = 'b2_signed_profile' in client_image[2] and symbol_payload(client_image,'b2_signed_profile') == bytes([1,0,0,0])
+        if signed_profile:
+            require(config.get('CFG_REE_FS_TA')=='y' and config.get('CFG_PREALLOC_RPC_CACHE')=='n', 'signed BL33 requires matching runtime-loader Core profile')
+            from check_signed_layout import check as check_signed_layout
+            check_signed_layout(root,'zcu106',bl33)
+        require(table['address'] % 4096 == 0 and table['size'] == (7 if signed_profile else 6) * 4096 and reservations['bl33_data']['base'] <= table['address'] < table['address']+table['size'] <= reservations['bl33_data']['end'], 'BL33 page tables escape data reservation')
         vector_base = client_image[2]['__b2_vectors_start']['address']
         vector_end = client_image[2]['__b2_vectors_end']['address']
         require(vector_base % 4096 == 0 and vector_end > vector_base and vector_end % 4096 == 0 and any(load['base'] == vector_base and load['end'] == vector_end and load['flags'] == 5 for load in images['bl33']['loads']), 'BL33 vectors must have isolated RX pages')
@@ -162,14 +168,10 @@ def inspect_b2(root, platform, log_dir):
                               'Live boot mode, EL2/stage2 and incoming EL1 MMU/cache/dirty state unverified',
                               'UART clock/MIO and GIC/other-core state unverified',
                               'B2_RUNTIME_READY remains 0; hardware load gates remain blocked']
-    else:
-        from prepare_qemu_firmware import prepare
-        require(root.resolve() == ROOT.resolve(), 'QEMU FIP validation must run in its source workspace')
-        prepare('optee')
     require(not issues, '; '.join(issues))
     return dict(configuration='B2', platform=platform, artifact_status='PASS',
                 software_contract_status='PASS', integration_status='BLOCKED' if hardware_blockers else 'PASS', hardware_load_status='BLOCKED', hardware_execution='NOT_RUN',
-                qemu_execution='NOT_RUN; checked separately by run_qemu.sh',
+                qemu_execution='NOT_APPLICABLE_TO_THIS_PACKAGE',
                 linked_dispatcher='opteed', linked_early_tas=embedded, images=images,
                 core_reserved_shm=list(shm), client_allowed_shm=list(client), client_cached_transport=cached_client,
                 tfa_command=tfa_command, core_command=core_command, software_issues=issues, hardware_blockers=hardware_blockers, integration_issues=hardware_blockers,
@@ -180,14 +182,14 @@ def inspect_b2(root, platform, log_dir):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--platform', choices=('qemu', 'zynqmp'), required=True)
+    parser.add_argument('--platform', choices=('zynqmp',), required=True)
     parser.add_argument('--root', type=Path, default=ROOT)
     parser.add_argument('--log-dir', type=Path)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--require-integrated', action='store_true')
     args = parser.parse_args()
     try:
-        report = inspect_b2(args.root, args.platform, args.log_dir or args.root / 'results/phase8')
+        report = inspect_b2(args.root, args.platform, args.log_dir or args.root / 'results/build')
     except FileNotFoundError as error:
         report = dict(configuration='B2', artifact_status='BLOCKED', integration_status='BLOCKED', hardware_load_status='BLOCKED', hardware_execution='NOT_RUN', error=str(error))
     except (ValueError, KeyError, TypeError, IndexError, UnicodeError, struct.error, zlib.error, OSError) as error:

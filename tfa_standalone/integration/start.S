@@ -2,6 +2,10 @@
 .section .text.boot,"ax"
 .global _start
 _start:
+    mov x19, #0
+    mov x20, #0
+    mov x21, #0
+    mov x22, #0
     msr daifset, #15
     mrs x0, CurrentEL
     cmp x0, #8
@@ -13,6 +17,10 @@ _start:
 from_el2:
     mov x0, #(1 << 31)
     msr hcr_el2, x0
+    mov x19, #1
+    mrs x20, hcr_el2
+    mrs x21, vttbr_el2
+    mrs x22, vtcr_el2
     mov x0, #3
     msr cnthctl_el2, x0
     msr cntvoff_el2, xzr
@@ -32,6 +40,10 @@ start_el1:
     ldr x0, =__stack_top
     mov sp, x0
     bl clear_bss
+    adrp x0, debug_handoff
+    add x0, x0, :lo12:debug_handoff
+    stp x19, x20, [x0]
+    stp x21, x22, [x0, #16]
     ldr x0, =exception_vectors
     msr vbar_el1, x0
     isb

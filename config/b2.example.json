@@ -1,0 +1,32 @@
+{
+    "source_mode": "zip",
+    "platform": "zcu106",
+    "compiler": "gcc",
+    "cross_compile": "aarch64-none-elf-",
+    "llvm_dir": null,
+    "run_id": "0x20261040",
+    "b2_elf": null,
+    "sources": {
+        "tfa-amd": {
+            "directory": "../../external/tfa-amd",
+            "archive": null,
+            "declared_version": "2.12"
+        },
+        "optee": {
+            "directory": "../../external/optee",
+            "archive": null,
+            "declared_version": "4.5.0"
+        },
+        "pyelftools": {
+            "directory": "../../external/pyelftools",
+            "archive": null,
+            "declared_version": "0.32"
+        }
+    },
+    "b2_inputs": null,
+    "signed_ta": true,
+    "review_suite": true,
+    "validation_pta": true,
+    "physical_probe": true,
+    "physical_dedicated": true
+}

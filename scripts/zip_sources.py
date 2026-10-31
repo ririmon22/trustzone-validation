@@ -7,8 +7,8 @@ import zipfile
 from pathlib import Path
 
 REQUIRED = {
-    'tfa-amd': ('Makefile','bl31/bl31_main.c','services/spd/opteed/opteed_main.c','plat/xilinx/zynqmp/platform.mk','plat/xilinx/zynqmp/include/platform_def.h','plat/qemu/qemu/platform.mk'),
-    'optee': ('Makefile','mk/config.mk','ta/mk/ta_dev_kit.mk','core/arch/arm/plat-zynqmp/conf.mk','core/arch/arm/plat-zynqmp/main.c','core/arch/arm/plat-vexpress/conf.mk','lib/libutee/include/utee_syscalls.h','scripts/ts_bin_to_c.py'),
+    'tfa-amd': ('Makefile','bl31/bl31_main.c','services/spd/opteed/opteed_main.c','plat/xilinx/zynqmp/platform.mk','plat/xilinx/zynqmp/include/platform_def.h'),
+    'optee': ('Makefile','mk/config.mk','ta/mk/ta_dev_kit.mk','core/arch/arm/plat-zynqmp/conf.mk','core/arch/arm/plat-zynqmp/main.c','lib/libutee/include/utee_syscalls.h','scripts/ts_bin_to_c.py'),
     'pyelftools': ('elftools/__init__.py','elftools/elf/elffile.py'),
     'compiler-rt': ('compiler-rt/lib/builtins/udivti3.c','compiler-rt/lib/builtins/udivmodti4.c','compiler-rt/lib/builtins/int_lib.h'),
 }

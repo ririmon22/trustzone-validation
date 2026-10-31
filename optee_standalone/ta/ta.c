@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include "validation_ta.h"
 #include "security.h"
-struct session_context { bool authenticated; };
+struct session_context { bool authenticated; uint32_t counter; };
 #define AES_KEY_BITS 128U
 #define AES_BLOCK_BYTES 16U
 /* 生成鍵による往復と、別の既知鍵によるAES既知解を分けて検査する。 */
@@ -80,6 +80,14 @@ TEE_Result TA_InvokeCommandEntryPoint(void *context, uint32_t command, uint32_t 
 {
     struct session_context *session = context;
     if (session == NULL) { return TEE_ERROR_BAD_STATE; }
+    if (command == TA_COMMAND_SESSION_COUNTER) {
+        /* session固有のSecure状態だけを進め、他sessionやNormalの状態とは共有しない。 */
+        if (types != TEE_PARAM_TYPES(TEE_PARAM_TYPE_VALUE_INOUT, TEE_PARAM_TYPE_NONE,
+                                    TEE_PARAM_TYPE_NONE, TEE_PARAM_TYPE_NONE)) { return TEE_ERROR_BAD_PARAMETERS; }
+        if (session->counter == UINT32_MAX) { return TEE_ERROR_OVERFLOW; }
+        params[0].value.a = ++session->counter;
+        return TEE_SUCCESS;
+    }
     if (command >= TA_COMMAND_TRUSTED_READ) { return security_invoke(command, types, params); }
     if (session == NULL || types != TEE_PARAM_TYPES(TEE_PARAM_TYPE_VALUE_INOUT, TEE_PARAM_TYPE_NONE, TEE_PARAM_TYPE_NONE, TEE_PARAM_TYPE_NONE)) { return TEE_ERROR_BAD_PARAMETERS; }
     switch (command) {

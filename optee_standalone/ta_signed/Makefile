@@ -1,0 +1,2 @@
+BINARY=6dc1341c-534f-4642-9138-215876304910
+include $(TA_DEV_KIT_DIR)/mk/ta_dev_kit.mk

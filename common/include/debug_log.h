@@ -21,6 +21,8 @@ struct exception_record {
     uint64_t valid, level, vector, esr, far, elr, spsr, sp, sp_el0, sp_el1;
     uint64_t x[31];
 };
+struct handoff_record { uint64_t el2_known, hcr, vttbr, vtcr; };
+extern volatile struct handoff_record debug_handoff;
 extern volatile struct ram_log_buffer debug_ram_log;
 extern volatile struct boot_debug_state debug_boot;
 extern volatile struct exception_record debug_exception;

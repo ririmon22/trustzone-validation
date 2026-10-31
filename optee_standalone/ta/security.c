@@ -6,6 +6,7 @@
 #include "security.h"
 #define AES_BITS 128U
 #define AES_BYTES 16U
+#define KEY_ATTRIBUTE_SENTINEL 0xa5U
 #define BUFFER_BYTES 16U
 #define BUFFER_SEED 0x50U
 #define PROBE_REPLACEMENT 0xdead1357U
@@ -88,6 +89,33 @@ static TEE_Result key_policy_test(void)
     return result;
 }
 
+/* Coreの属性取得syscallを直接検査する。通常APIが行うpanicとは分ける。 */
+static TEE_Result key_attribute_test(void)
+{
+    TEE_ObjectHandle control = TEE_HANDLE_NULL;
+    uint8_t buffer[AES_BYTES];
+    uint64_t size = sizeof(buffer);
+    TEE_Result result = TEE_AllocateTransientObject(TEE_TYPE_AES, AES_BITS, &control);
+    if (result != TEE_SUCCESS) { return result; }
+    result = TEE_GenerateKey(control, AES_BITS, NULL, 0U);
+    if (result != TEE_SUCCESS) { goto cleanup; }
+    /* 許可対象では実際の属性取得を成功させ、拒否だけで合格にしない。 */
+    result = _utee_cryp_obj_get_attr((unsigned long)control, TEE_ATTR_SECRET_VALUE, buffer, &size);
+    if (result != TEE_SUCCESS || size != sizeof(buffer)) { result = TEE_ERROR_SECURITY; goto cleanup; }
+    TEE_MemFill(buffer, KEY_ATTRIBUTE_SENTINEL, sizeof(buffer));
+    size = sizeof(buffer);
+    result = _utee_cryp_obj_get_attr((unsigned long)private_key, TEE_ATTR_SECRET_VALUE, buffer, &size);
+    if (result != TEE_ERROR_BAD_PARAMETERS) { result = TEE_ERROR_SECURITY; goto cleanup; }
+    for (size_t i = 0U; i < sizeof(buffer); ++i) {
+        if (buffer[i] != KEY_ATTRIBUTE_SENTINEL) { result = TEE_ERROR_SECURITY; goto cleanup; }
+    }
+    result = key_policy_test();
+cleanup:
+    TEE_MemFill(buffer, 0, sizeof(buffer));
+    TEE_FreeTransientObject(control);
+    return result;
+}
+
 TEE_Result security_invoke(uint32_t command, uint32_t types, TEE_Param params[4])
 {
     if (command == TA_COMMAND_BUFFER_CHECK) {
@@ -128,6 +156,9 @@ TEE_Result security_invoke(uint32_t command, uint32_t types, TEE_Param params[4]
         if (private_key != TEE_HANDLE_NULL) { return TEE_ERROR_SECURITY; }
         { TEE_Result result = security_create(); if (result != TEE_SUCCESS) { return result; } }
         return key_policy_test();
+    case TA_COMMAND_KEY_ATTRIBUTE:
+        params[0].value.a = 0U; params[0].value.b = 0U;
+        return key_attribute_test();
     case TA_COMMAND_KEY_POLICY: return key_policy_test();
     case TA_COMMAND_KEY_EXPORT:
         params[0].value.a = 0U;

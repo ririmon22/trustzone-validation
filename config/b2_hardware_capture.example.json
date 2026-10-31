@@ -1,0 +1,10 @@
+{
+    "bl31": null,
+    "bl32": null,
+    "bl33": null,
+    "fsbl": null,
+    "pmufw": null,
+    "xsa": null,
+    "settings": null,
+    "source_archive": null
+}

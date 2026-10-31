@@ -16,6 +16,11 @@
 struct tee_session { uint32_t id; bool open; };
 struct tee_reply { uint32_t transport; uint32_t result; uint32_t origin; uint32_t value; };
 uint32_t tee_client_initialize(void);
+bool tee_client_probe_configuration(void);
+bool tee_client_shared_range(uint64_t *base, uint64_t *end);
+struct tee_reply tee_invoke_output(struct tee_session *session,uint32_t command,uint64_t address,uint64_t bytes);
+struct tee_reply tee_probe_session_id(uint32_t session_id);
+struct tee_reply tee_probe_attribute(struct tee_session *session, uint64_t attr);
 unsigned int tee_client_active_sessions(void);
 struct tee_reply tee_probe_identity_open(void);
 struct tee_reply tee_session_open(struct tee_session *session, const uint8_t uuid[16]);

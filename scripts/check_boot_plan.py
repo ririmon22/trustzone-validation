@@ -4,7 +4,6 @@ import json
 import struct
 from pathlib import Path
 from check_hardware_profile import profile_issues
-from check_memory_map import validate
 
 ROOT = Path(__file__).resolve().parents[1]
 LIMIT = 1 << 64
@@ -77,7 +76,7 @@ def range_issues(regions):
 
 def check_plan(plan, root=ROOT):
     issues = b2_binding_issues(plan)
-    if plan.get('platform') != 'zcu106' or plan.get('configuration') not in ('A', 'B1', 'B2'):
+    if plan.get('platform') != 'zcu106' or plan.get('configuration') != 'B2':
         issues.append('platform/configuration is unresolved')
     verified_evidence = set()
     for name in ('xsa', 'bsp_map', 'live_register_snapshot', 'debug_boot_review'):
@@ -134,19 +133,14 @@ def check_plan(plan, root=ROOT):
         record = plan.get('reviews', {}).get(key, {})
         if record.get('verified') is not True or record.get('evidence') not in verified_evidence:
             issues.append('review unresolved: ' + key)
-    mapping = json.loads((root / 'platform/zcu106/memory_map.json').read_text())
-    try:
-        platform_dir = root / 'platform/zcu106'
-        validate(mapping, (platform_dir / 'memory_map.h').read_text(),
-                 {kind:(platform_dir / ('linker_' + kind + '.ld')).read_text() for kind in ('el3', 'secure', 'nonsecure')},
-                 require_protection=True)
-    except ValueError as error:
-        issues.append(str(error))
-    aliases = {'bl31':'tfa_reserved', 'bl32':'optee_reserved', 'bl33':'nonsecure'}
     b2_regions = None
     if plan.get('configuration') == 'B2':
         from zcu106_b2_layout import load_layout
         proposal, b2_regions = load_layout(root)
+        issues += range_issues(proposal['regions'])
+        for expected_region in proposal['regions']:
+            if not any(all(region.get(key)==expected_region.get(key) for key in ('name','base','end','owner','security')) for region in regions):
+                issues.append('B2 software/runtime reservation mismatch: '+expected_region['name'])
         if proposal.get('hardware_confirmed') is not True:
             issues.append('B2-specific reservations are a software proposal, not verified hardware reservations')
     for image in inventory:
@@ -154,13 +148,14 @@ def check_plan(plan, root=ROOT):
         if b2_regions is not None:
             expected = [r for r in b2_regions.values() if r.get('owner') == role]
         else:
-            expected = [r for r in mapping['regions'] if r.get('name') == aliases.get(role) or r.get('owner') == aliases.get(role, role)]
+            expected = []
+            issues.append('B2 reservations unavailable')
         if role not in ('fsbl', 'pmufw'):
             bias = plan['images'][role].get('system_address_bias')
             if type(bias) is int and any(not any(r['base'] <= segment['base'] + bias and segment['end'] + bias <= r['end'] for r in expected) for segment in image['loads']):
                 issues.append('ELF conflicts with configured map/header reservation: ' + role)
     profile = json.loads((root / 'platform/zcu106/board_profile.json').read_text())
-    issues += profile_issues(profile, mapping)
+    issues += profile_issues(profile, proposal if b2_regions is not None else {})
     catalog = json.loads((root / 'platform/zcu106/mmio_catalog.json').read_text())['blocks']
     if not plan.get('mmio'):
         issues.append('MMIO bindings are missing')
@@ -172,7 +167,7 @@ def check_plan(plan, root=ROOT):
         if binding.get('evidence') not in verified_evidence or binding.get('security') not in ('secure', 'nonsecure'):
             issues.append('MMIO security/snapshot evidence unresolved')
     masters = plan.get('masters', {})
-    for role, key in (('apu', 'apu_master_id'), ('dma', 'dma_master_id')):
+    for role, key in (('apu', 'apu_master_id'),):
         value = masters.get(role)
         if type(value) is not int or not 0 <= value <= 0x3ff or value != profile.get(key):
             issues.append('unresolved/mismatched access master: ' + role)

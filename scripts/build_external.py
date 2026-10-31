@@ -10,13 +10,13 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def build_plan(component, prefix, output):
     if component == "tfa":
-        return ["make", "-C", str(ROOT / "third_party/tfa-amd"), "PLAT=qemu", "ARCH=aarch64", f"CROSS_COMPILE={prefix}", f"BUILD_BASE={output}", "all"]
+        return ["make", "-C", str(ROOT / "third_party/tfa-amd"), "PLAT=zynqmp", "ARCH=aarch64", f"CROSS_COMPILE={prefix}", f"BUILD_BASE={output}", "all"]
     if component in ("optee", "optee-sdk"):
-        command = ["make", "-C", str(ROOT / "third_party/optee"), "PLATFORM=vexpress-qemu_armv8a", "CFG_ARM64_core=y", "CFG_USER_TA_TARGETS=ta_arm64", f"CROSS_COMPILE64={prefix}", f"CROSS_COMPILE_ta_arm64={prefix}", f"O={output}"]
+        command = ["make", "-C", str(ROOT / "third_party/optee"), "PLATFORM=zynqmp-zcu106", "CFG_ARM64_core=y", "CFG_USER_TA_TARGETS=ta_arm64", f"CROSS_COMPILE64={prefix}", f"CROSS_COMPILE_ta_arm64={prefix}", f"O={output}"]
         if component == "optee-sdk":
             command += ["CFG_EARLY_TA=y", "ta_dev_kit"]
         return command
-    sdk = ROOT / "build/external/optee/export-ta_arm64"
+    sdk = ROOT / "build/external/optee-zynqmp/export-ta_arm64"
     return ["make", "-C", str(ROOT / "optee_standalone/ta"), f"TA_DEV_KIT_DIR={sdk}", f"CROSS_COMPILE={prefix}", f"CROSS_COMPILE64={prefix}", f"CROSS_COMPILE_ta_arm64={prefix}", f"O={output}", f"TA_VARIANT={component[-1]}"]
 
 
@@ -45,12 +45,14 @@ def preflight(component, prefix, compiler="gcc", source_mode="locked"):
                     verify_source(ROOT / "third_party" / dependency, lock[dependency], source_mode)
         except (ValueError, OSError, subprocess.CalledProcessError) as error:
             issues.append("Source provenance failed: " + str(error))
-    if component.startswith("ta-") and not (ROOT / "build/external/optee/export-ta_arm64/mk/ta_dev_kit.mk").is_file():
+    if component.startswith("ta-") and not (ROOT / "build/external/optee-zynqmp/export-ta_arm64/mk/ta_dev_kit.mk").is_file():
         issues.append("Generated OP-TEE ARM64 TA SDK is unavailable")
     return issues
 
 
 def configured_plan(args):
+    if args.platform != "zynqmp" or (args.component == "tfa" and args.configuration != "b2"):
+        raise ValueError("ZCU106 B2 is the only installed external build profile")
     output_name = args.component
     if args.component == "tfa":
         output_name = ("tfa-zynqmp-b2" if args.configuration == "b2" else "tfa-zynqmp") if args.platform == "zynqmp" else "tfa-qemu-" + args.configuration
@@ -62,6 +64,10 @@ def configured_plan(args):
         command = ["PLATFORM=zynqmp-zcu106" if item.startswith("PLATFORM=") else item for item in command]
     if args.component.startswith("ta-") and getattr(args, "ta_sdk", None):
         command = ["TA_DEV_KIT_DIR=" + str(args.ta_sdk.resolve()) if item.startswith("TA_DEV_KIT_DIR=") else item for item in command]
+    if args.component == "ta-external":
+        command[2] = str(ROOT / "optee_standalone/ta_signed")
+    if args.component.startswith("ta-") and getattr(args,"ta_sign_key",None):
+        command.append("TA_SIGN_KEY="+str(args.ta_sign_key.resolve()))
     if args.component == "tfa":
         command = ["make", "-C", str(ROOT / "third_party/tfa-amd"), "PLAT=" + args.platform,
                    f"BUILD_BASE={output}", ("BUILD_STRING=ZIP-UNVERIFIED" if getattr(args, "source_mode", "locked") == "zip" else "BUILD_STRING=dd3512287a17eea866d5c82fa7b86ad58de59163")]
@@ -77,17 +83,15 @@ def configured_plan(args):
                 command += ["SPD=opteed", "PRELOADED_BL33_BASE=" + hex(bl33_entry)]
                 for prefix, region in (('ZYNQMP_ATF_MEM', regions['bl31_reserved']), ('ZYNQMP_BL32_MEM', regions['bl32_reserved'])):
                     command += [prefix + '_BASE=' + hex(region['base']), prefix + '_SIZE=' + hex(region['size'])]
-        else:
-            bl33 = ROOT / "build/qemu/external" / ("tfa_bl33.bin" if args.configuration == "b1" else "optee_bl33.bin")
-            command += ["BL33=" + str(bl33), "TRANSFER_LIST=0", "bl1", "bl2", "bl31", "fip"]
-            if args.configuration == "b2":
-                core = ROOT / "build/external/optee/core"
-                command += ["SPD=opteed", "BL32_RAM_LOCATION=tdram", "BL32=" + str(core / "tee-header_v2.bin"),
-                            "BL32_EXTRA1=" + str(core / "tee-pager_v2.bin"), "BL32_EXTRA2=" + str(core / "tee-pageable_v2.bin")]
     elif args.component in ("optee", "optee-sdk"):
         command += (["CFG_TEE_CORE_NB_CORE=1"] if args.platform == "qemu" else []) + ["CFG_DT_DRIVER_EMBEDDED_TEST=n", "CFG_CORE_ASYNC_NOTIF=n",
                     "CFG_REE_FS=n", "CFG_RPMB_FS=n", "CFG_REE_FS_TA=n", "CFG_PKCS11_TA=n",
                     "CFG_BUILD_IN_TREE_TA=n", "CFG_EARLY_TA=y", "CFG_WITH_SOFTWARE_PRNG=y"]
+        if getattr(args,'signed_ta_profile',False):
+            command = [item for item in command if item != 'CFG_REE_FS_TA=n']
+            command += ['CFG_REE_FS_TA=y','CFG_REE_FS_TA_BUFFERED=n','CFG_PREALLOC_RPC_CACHE=n','CFG_TZ_SIGNED_AUDIT_PTA=y']
+            if not args.ta_public_key:raise ValueError('signed profile needs explicit test public key')
+            command += ['TA_PUBLIC_KEY='+str(args.ta_public_key.resolve())]
         if args.platform == 'zynqmp':
             from zcu106_b2_layout import load_layout
             proposal, regions = load_layout(ROOT)
@@ -119,23 +123,30 @@ def configured_plan(args):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("component", choices=("tfa", "optee", "optee-sdk", "ta-a", "ta-b"))
+    parser.add_argument("component", choices=("tfa", "optee", "optee-sdk", "ta-a", "ta-b", "ta-external"))
     parser.add_argument("--source-mode", choices=("locked", "zip"), default="locked")
     parser.add_argument("--cross-compile", default="aarch64-linux-gnu-")
     parser.add_argument("--compiler", choices=("clang", "gcc"), default="clang")
     parser.add_argument("--ta-sdk", type=Path)
     parser.add_argument("--host-cc", default=shutil.which("cc") or shutil.which("gcc") or shutil.which("clang"))
     parser.add_argument("--llvm-dir", type=Path, default=Path(shutil.which("clang") or "/usr/bin/clang").resolve().parent)
-    parser.add_argument("--platform", choices=("qemu", "zynqmp"), default="qemu")
-    parser.add_argument("--configuration", choices=("b1", "b2"), default="b1")
+    parser.add_argument("--platform", choices=("zynqmp",), default="zynqmp")
+    parser.add_argument("--configuration", choices=("b2",), default="b2")
     parser.add_argument("--tfa-console", choices=("cadence", "cadence0", "cadence1", "dcc", "none"))
     parser.add_argument("--jobs", type=int, default=4)
+    parser.add_argument("--signed-ta-profile", action="store_true")
+    parser.add_argument("--ta-sign-key",type=Path)
+    parser.add_argument("--ta-public-key",type=Path)
+    parser.add_argument("--physical-dedicated", action="store_true")
+    parser.add_argument("--physical-pta", action="store_true")
     parser.add_argument("--validation-pta", action="store_true")
     parser.add_argument("--early-ta", type=Path, action="append", default=[])
     parser.add_argument("--log-dir", type=Path, default=ROOT / "results/phase4")
     args = parser.parse_args()
     if args.tfa_console and (args.component != "tfa" or args.platform != "zynqmp"):
         parser.error("TF-A console selection requires tfa --platform zynqmp")
+    if args.physical_dedicated and (not args.physical_pta or args.platform != "zynqmp"):
+        parser.error("dedicated physical probe requires --physical-pta --platform zynqmp")
     if args.validation_pta and args.component != "optee":
         parser.error("validation PTA is an OP-TEE Core option")
     if args.jobs < 1 or (args.early_ta and args.component != "optee"):
@@ -175,11 +186,13 @@ def main():
         if check.returncode:
             log_path.write_text("BUILD BLOCKED: pyelftools unavailable\n")
             return 2
-    if args.validation_pta:
+    if args.validation_pta or args.physical_pta or args.signed_ta_profile:
         from stage_optee_overlay import stage
-        source, overlay = stage(ROOT)
+        source, overlay = stage(ROOT, physical=args.physical_pta, canary=args.validation_pta, signed=args.signed_ta_profile, sgi=False)
         command[2] = str(source)
-        command.append("CFG_TZ_VALIDATION_PTA=y")
+        if args.validation_pta: command.extend(["CFG_TZ_VALIDATION_PTA=y", "CFG_WITH_STATS=y"])
+        if args.physical_dedicated: command.append("CFG_TZ_PHYSICAL_FIXED_BASE=0x10800000")
+        if args.physical_pta: command.append("CFG_TZ_PHYSICAL_PTA=y")
         (args.log_dir / "optee-validation-overlay.json").write_text(json.dumps(overlay, indent=4) + "\n")
     output.mkdir(parents=True, exist_ok=True)
     with log_path.open("w") as log:

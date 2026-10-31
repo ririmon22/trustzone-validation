@@ -1,6 +1,9 @@
 #include "client_mmu.h"
 #include "memory_map.h"
 #include <stddef.h>
+#ifndef B2_SIGNED_TA_PROFILE
+#define B2_SIGNED_TA_PROFILE 0U
+#endif
 #define DESCRIPTOR_PAGE 3UL
 #define DESCRIPTOR_TABLE 3UL
 #define DESCRIPTOR_ACCESS_FLAG (1UL << 10)
@@ -20,7 +23,7 @@
 #define TCR_IDENTITY_39BIT (25UL | (1UL << 8) | (1UL << 10) | (3UL << 12) | (1UL << 23) | (2UL << 32))
 #define MAIR_DEVICE_AND_NORMAL 0xff00UL
 #define EL1_ENCODING (1UL << 2)
-_Static_assert(sizeof(struct zcu106_b2_page_tables) == 6U * B2_PAGE_SIZE, "table layout");
+_Static_assert(sizeof(struct zcu106_b2_page_tables) == (6U + B2_SIGNED_TA_PROFILE) * B2_PAGE_SIZE, "table layout");
 
 static bool map_region(struct zcu106_b2_page_tables *tables, uint64_t base, uint64_t end, uint64_t attributes)
 {
@@ -29,6 +32,9 @@ static bool map_region(struct zcu106_b2_page_tables *tables, uint64_t base, uint
         uint64_t *pages;
         if ((address >> BLOCK_INDEX_SHIFT) == (NONSECURE_CODE_BASE >> BLOCK_INDEX_SHIFT)) { pages = tables->client_first; }
         else if ((address >> BLOCK_INDEX_SHIFT) == (NONSECURE_STACK_BASE >> BLOCK_INDEX_SHIFT)) { pages = tables->client_second; }
+#if B2_SIGNED_TA_PROFILE
+        else if ((address >> BLOCK_INDEX_SHIFT) == (SIGNED_TA_SOURCE_BASE >> BLOCK_INDEX_SHIFT)) { pages = tables->ta_images; }
+#endif
         else if ((address >> BLOCK_INDEX_SHIFT) == (B2_UART_BASE >> BLOCK_INDEX_SHIFT)) { pages = tables->uart; }
         else { return false; }
         unsigned int index = (unsigned int)((address >> PAGE_INDEX_SHIFT) & TABLE_INDEX_MASK);
@@ -58,6 +64,10 @@ bool zcu106_b2_build_page_tables(struct zcu106_b2_page_tables *tables, uint64_t 
         map_region(tables, NONSECURE_STACK_BASE, NONSECURE_STACK_END, writable) &&
         map_region(tables, SHARED_MEMORY_BASE, SHARED_MEMORY_END, writable) &&
         map_region(tables, B2_UART_BASE, B2_UART_END, DESCRIPTOR_ACCESS_FLAG | DESCRIPTOR_USER_XN | DESCRIPTOR_PRIVILEGED_XN);
+#if B2_SIGNED_TA_PROFILE
+    tables->low[(SIGNED_TA_SOURCE_BASE >> BLOCK_INDEX_SHIFT) & TABLE_INDEX_MASK] = (uint64_t)(uintptr_t)tables->ta_images | DESCRIPTOR_TABLE;
+    mapped = mapped && map_region(tables,SIGNED_TA_SOURCE_BASE,SIGNED_TA_SOURCE_END,writable | DESCRIPTOR_READ_ONLY);
+#endif
     if (!mapped) { return false; }
     /* ベクタはBSSと別ページに配置し、そのページだけRO実行可へ変更する。 */
     for (uint64_t address = vector_base; address < vector_end; address += B2_PAGE_SIZE) {

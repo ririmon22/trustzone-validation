@@ -5,14 +5,13 @@ import json
 import subprocess
 import sys
 from pathlib import Path
-from check_build_environment import inspect as environment
 
 ROOT=Path(__file__).resolve().parents[1]
 
 
 def main():
     parser=argparse.ArgumentParser(description='Local build/check/plan/decode only; hardware operations are separate gated Tcl procedures')
-    parser.add_argument('action',choices=('a-export','a-build','a-check','b2-check','b2-build','b2-plan','decode'))
+    parser.add_argument('action',choices=('b2-check','b2-build','b2-plan','decode'))
     parser.add_argument('config',type=Path)
     parser.add_argument('--raw',type=Path)
     args=parser.parse_args()
@@ -30,7 +29,7 @@ def main():
         if result.returncode not in allowed:raise ValueError('Command failed; see '+str(out/'commands.log'))
         return result.returncode
     if args.action.startswith('b2-') and args.action!='b2-plan':
-        code=execute([sys.executable,'scripts/build_zip_b2.py','--config',str(args.config.resolve()),*(['--check'] if args.action=='b2-check' else [])],allowed=(0,2))
+        code=execute([sys.executable,'scripts/build_zcu106.py','--config',str(args.config.resolve()),*(['--check'] if args.action=='b2-check' else [])],allowed=(0,2))
         if code==0:
             print('DEPENDENCIES READY; SOURCE ZIP_UNVERIFIED; HARDWARE BLOCKED' if args.action=='b2-check' else 'BUILD PASS; STATIC PASS; SOURCE ZIP_UNVERIFIED; HARDWARE BLOCKED')
         return code
@@ -38,7 +37,7 @@ def main():
         if config.get('platform','zcu106')!='zcu106':raise ValueError('B2 JTAG planning is ZCU106-only; do not use QEMU addresses')
         input_path=(base/config['b2_inputs']).resolve() if config.get('b2_inputs') else ROOT/'platform/zcu106/jtag_b2_inputs.json'
         inputs=json.loads(input_path.read_text())
-        latest=ROOT/'results/zip-b2'/('latest-'+config.get('platform','zcu106')+'.json')
+        latest=ROOT/'results/zcu106-build'/('latest-'+config.get('platform','zcu106')+'.json')
         bl33=None
         if latest.is_file():
             receipt=json.loads(latest.read_text())
@@ -73,23 +72,7 @@ def main():
         if not statuses:raise ValueError('No named RAM-log/exception dumps found')
         (out/'decode-status.json').write_text(json.dumps(statuses,indent=4)+'\n')
         return 0 if all(value==0 for value in statuses.values()) else 2
-    export=(base/config['a_export']).resolve()
-    if args.action=='a-export':
-        code=execute([sys.executable,'scripts/export_a_vitis.py','--output',str(export)])
-        print('A source export:',export)
-        return code
-    if args.action=='a-build':
-        checked=environment('baremetal',config.get('compiler','gcc'),config.get('cross_compile'),config.get('llvm_dir'))
-        (out/'environment.json').write_text(json.dumps(checked,indent=4)+'\n')
-        if checked['status']!='READY':raise ValueError('Missing compiler/tool: '+ '; '.join(checked['issues']))
-        selected=checked['selected']
-        execute(['cmake','-S',str(export/'src'),'-B',str(export/'cmake-build'),'-DTZ_COMPILER='+selected['compiler'],'-DTZ_CROSS_COMPILE='+selected['cross_compile'],'-DTZ_LLVM_DIR='+(selected['llvm_dir'] or '/usr/bin'),'-DTZ_RUN_ID='+str(config.get('run_id',1))])
-        execute(['cmake','--build',str(export/'cmake-build'),'--verbose'])
-    elf=export/'src/build/zcu106/unified/a_unified.elf'
-    code=execute([sys.executable,'scripts/prepare_a_unified_jtag.py','--elf',str(elf),'--output',str(out/'a-plan.json'),'--emit-tcl',str(out/'a-plan.tcl')],allowed=(2,))
-    (out/'result.json').write_text(json.dumps(dict(build_status='PASS' if args.action=='a-build' else 'NOT_RUN',static_status='PASS',hardware_load='BLOCKED',hardware_execution='NOT_RUN',plan=str(out/'a-plan.tcl')),indent=4)+'\n')
-    print('A STATIC PASS; HARDWARE BLOCKED; plan:',out/'a-plan.tcl')
-    return code
+    raise ValueError('unsupported B2 action')
 
 
 if __name__=='__main__':

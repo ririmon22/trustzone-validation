@@ -15,3 +15,5 @@ void debug_stage(uint64_t stage, uint64_t reason)
     debug_boot.stage = stage;
     debug_boot.stop_reason = reason;
 }
+
+volatile struct handoff_record debug_handoff;

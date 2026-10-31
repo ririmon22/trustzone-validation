@@ -99,5 +99,56 @@
         "bl32": "fixed upstream TZDRAM default retained",
         "bl33_shared": "existing Standalone NS/SHM layout retained; selected Core SHM moved to it",
         "hardware": "no claim that these software reservations are programmed on the board"
+    },
+    "physical_probe": {
+        "static_region_added": false,
+        "secure_page": {
+            "allocator": "phys_mem_ta_alloc; session-owned",
+            "bytes": 4096,
+            "alignment": 4096,
+            "physical_base": "RUNTIME_PTA_RESPONSE",
+            "allowed_reservation": "bl32_reserved",
+            "existing_Core_TA_allocations_reused": false
+        },
+        "normal_alias": {
+            "virtual_base": "0x80000000",
+            "bytes": 4096,
+            "physical_base": "same allocator page",
+            "memory_type": "Normal Non-cacheable",
+            "l1_index": 2,
+            "temporary": true
+        },
+        "xmpu_programming": "NONE; 1 MiB DDR protection window is separate from the 4 KiB allocator page",
+        "hardware_reviewed": false,
+        "dedicated_region": {
+            "base": 276824064,
+            "end": 277872640,
+            "size": 1048576,
+            "alignment": 1048576,
+            "test_buffer_size": 65536,
+            "security": "secure-intended; physical enforcement NOT_CONFIRMED",
+            "status": "STATIC_PROPOSAL",
+            "excludes_all_other_masters": false,
+            "hardware_reserved": false
+        }
+    },
+    "signed_ta_profile": {
+        "ta_input": {
+            "base": 274726912,
+            "end": 275775488,
+            "bytes": 1048576,
+            "security": "nonsecure",
+            "memory_type": "Normal-WB RO-XN in signed profile",
+            "owner": "XSDB preload, immutable while running"
+        },
+        "rpc_arena": {
+            "base": 273743872,
+            "end": 274530304,
+            "slot_bytes": 262144,
+            "slots": 3,
+            "owner": "BL33 RPC; subrange of existing SHM"
+        },
+        "hardware_confirmed": false,
+        "runtime_reservations_complete": false
     }
 }

@@ -259,7 +259,6 @@
     "mmio": [],
     "masters": {
         "apu": null,
-        "dma": null,
         "nonsecure_verified": false,
         "evidence": null
     },

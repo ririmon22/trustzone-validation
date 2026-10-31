@@ -12,10 +12,18 @@ volatile uint64_t expected_fault;
 volatile uint64_t expected_fault_address;
 volatile uint64_t fault_count;
 volatile uint64_t last_fault_esr;
+/* AのWorldを跨ぐGOTを作らず、B2だけが強い定義で上書きする。 */
+__attribute__((weak)) uint64_t b2_handle_phys_fault(uint64_t esr, uint64_t far, uint64_t pc, uint64_t sctlr)
+{
+    (void)esr; (void)far; (void)pc; (void)sctlr; return 0UL;
+}
 uint64_t handle_el1_sync(uint64_t esr, uint64_t pc)
 {
     uint64_t far, sctlr;
     __asm__ volatile("mrs %0, far_el1; mrs %1, sctlr_el1" : "=r"(far), "=r"(sctlr));
+    if (expected_fault == 3UL || expected_fault == 4UL) {
+        return b2_handle_phys_fault(esr, far, pc, sctlr);
+    }
     if ((esr & (1UL << 10)) != 0UL || far != expected_fault_address) { return 0UL; }
     if ((sctlr & 1UL) == 0UL && (esr & ESR_DFSC_MASK) != DFSC_SYNC_EXTERNAL) { return 0UL; }
     uint64_t dfsc = esr & ESR_DFSC_MASK;
