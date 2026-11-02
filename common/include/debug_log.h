@@ -16,12 +16,16 @@ struct ram_log_buffer {
     uint64_t run_id;
     char data[RAM_LOG_CAPACITY];
 };
-struct boot_debug_state { uint64_t version, stage, stop_reason, run_id; };
+struct boot_debug_state {
+    uint64_t version, stage, stop_reason, run_id;
+};
 struct exception_record {
     uint64_t valid, level, vector, esr, far, elr, spsr, sp, sp_el0, sp_el1;
     uint64_t x[31];
 };
-struct handoff_record { uint64_t el2_known, hcr, vttbr, vtcr; };
+struct handoff_record {
+    uint64_t el2_known, hcr, vttbr, vtcr;
+};
 extern volatile struct handoff_record debug_handoff;
 extern volatile struct ram_log_buffer debug_ram_log;
 extern volatile struct boot_debug_state debug_boot;

@@ -9,7 +9,16 @@
 #define B2_ID_BYTES 24U
 #define B2_REASON_BYTES 112U
 #define B2_CHECK_NAME_BYTES 40U
-#define B2_SELECTION_LEGACY 14U
+/* 結果RAMのselection ABI。docs/b2_test_specification.mdの試験選択に対応する。 */
+enum b2_selection {
+    B2_SELECTION_FUNCTIONAL_ALL = 0,
+    B2_SELECTION_LAST_FUNCTIONAL = 13,
+    B2_SELECTION_LEGACY = 14,
+    B2_SELECTION_PHYSICAL = 15,
+    B2_SELECTION_SIGNED = 16,
+    B2_SELECTION_REVIEW = 17,
+    B2_SELECTION_PERFORMANCE = 18
+};
 #ifndef B2_REVIEW_PARENT
 #define B2_REVIEW_PARENT 0U
 #endif
@@ -17,8 +26,7 @@
 #define B2_TEST_INDEX 0U
 #endif
 /* 0は機能一式、1..13は一覧の順、15は物理保護試験、14だけが旧来の性能/PTA込み回帰。 */
-enum b2_phase
-{
+enum b2_phase {
     B2_IDLE,
     B2_PREPARE,
     B2_OPERATE,
@@ -28,26 +36,18 @@ enum b2_phase
     B2_CLEANUP,
     B2_DONE
 };
-enum b2_run_state
-{
-    B2_RUNNING = 1,
-    B2_COMPLETE,
-    B2_ERROR
-};
-struct b2_check
-{
+enum b2_run_state { B2_RUNNING = 1, B2_COMPLETE, B2_ERROR };
+struct b2_check {
     char name[B2_CHECK_NAME_BYTES];
     uint64_t expected, actual;
 };
-struct b2_case_result
-{
+struct b2_case_result {
     char id[B2_ID_BYTES];
     uint32_t selected, status, phase, reported, check_count, overflow;
     char reason[B2_REASON_BYTES];
     struct b2_check checks[B2_CHECK_COUNT];
 };
-struct b2_result_buffer
-{
+struct b2_result_buffer {
     uint32_t magic, version, bytes, state;
     uint64_t run_id;
     uint32_t selection, current_case, phase, cleanup_errors;

@@ -20,12 +20,10 @@
 #ifndef B2_PHYS_REVIEWED
 #define B2_PHYS_REVIEWED 0U
 #endif
-struct b2_physical_attempt
-{
+struct b2_physical_attempt {
     uint64_t va, pa, write, completed, value, esr, far, elr, classification, par_read, par_write;
 };
-struct b2_physical_record
-{
+struct b2_physical_record {
     uint64_t version, run_id, state, page_pa, page_bytes, entry_el, sctlr, tcr, ttbr0, mair;
     uint64_t el2_known, hcr, vttbr, vtcr, alias_va, probe_mair, root_descriptor;
     struct b2_physical_attempt attempts[B2_PHYSICAL_ATTEMPTS];

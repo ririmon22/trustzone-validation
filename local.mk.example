@@ -1,0 +1,10 @@
+# local.mkへコピーする。絶対パスを指定し、空白を含むパスは避ける。
+# TFA_SOURCE := /path/to/arm-trusted-firmware
+# OPTEE_SOURCE := /path/to/optee_os
+# EXTERNAL_CROSS_COMPILE := /path/to/bin/aarch64-linux-gnu-
+# BL33のみClang/GCCを選択可能。外部MakeルートはGCC。
+TOOLCHAIN := clang
+# CROSS_COMPILE := /path/to/bin/aarch64-none-elf-
+# 署名試験専用の鍵。本番鍵を使わない。
+# TA_SIGN_KEY := /path/to/test-private.pem
+# TA_PUBLIC_KEY := /path/to/test-public.pem

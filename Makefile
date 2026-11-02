@@ -1,4 +1,20 @@
-PLATFORM := zcu106
+-include local.mk
+PLATFORM ?= zcu106
+PROFILE ?= basic
+# CoreとBL33の追加機能を同じPROFILEで選ぶ。個別指定は対応するCoreと必ず照合する。
+ifeq ($(PROFILE),signed)
+B2_TEST_INDEX ?= 17
+B2_SIGNED_TA_PROFILE ?= 1
+B2_VALIDATION_PTA ?= 1
+endif
+ifeq ($(PROFILE),physical)
+B2_TEST_INDEX ?= 15
+B2_PHYSICAL_DEDICATED ?= 1
+B2_VALIDATION_PTA ?= 1
+endif
+ifneq ($(filter-out 0,$(B2_SECURE_SGI)),)
+$(error Secure SGI is unsupported on ZCU106)
+endif
 SOURCE_MODE ?= locked
 DEBUG_RUN_ID ?= 1
 B2_REVIEW_PARENT ?= 0
@@ -11,6 +27,12 @@ TOOLCHAIN ?= clang
 CROSS_COMPILE ?= aarch64-none-elf-
 PYTHON ?= python3
 BUILD := build/$(PLATFORM)
+ifneq ($(PROFILE),basic)
+BUILD := build/$(PLATFORM)/$(PROFILE)
+endif
+# 設定変更時の取り違えを防ぐため、毎回コンパイルする。
+.PHONY: FORCE
+FORCE:
 LLVM_DIR ?= $(dir $(realpath $(shell command -v clang)))
 LLVM_AR ?= $(LLVM_DIR)/llvm-ar
 LLVM_OBJCOPY ?= $(LLVM_DIR)/llvm-objcopy
@@ -43,22 +65,26 @@ ifeq ($(PLATFORM),zcu106)
 OPTEE_LINKER := platform/zcu106/b2/linker_bl33.ld
 OPTEE_INCLUDES := -Iplatform/zcu106/b2 $(INCLUDES)
 OPTEE_FLAGS := -DB2_BENCH_RAM=1 -DTEE_SHARED_CACHED=1 -DRAM_LOG_CAPACITY=131072U
-OPTEE_PLATFORM_SOURCES := platform/zcu106/b2/client_mmu.c platform/zcu106/b2/client_mmu.h platform/zcu106/b2/memory_map.h platform/zcu106/b2/memory_map.json
+OPTEE_PLATFORM_SOURCES := platform/zcu106/b2/client_mmu.c platform/zcu106/b2/client_mmu.h platform/zcu106/b2/memory_map.h
 endif
 
-.DEFAULT_GOAL := all
+.DEFAULT_GOAL := bl33
 .PHONY: all standalone-optee llvm-runtime
 all: standalone-optee
 $(BUILD):
 	mkdir -p $@
 standalone-optee: $(BUILD)/optee_bl33.elf
-$(BUILD)/optee_bl33.elf: tfa_standalone/integration/start.S optee_standalone/tests/main.c optee_standalone/tests/security_tests.c optee_standalone/tests/stress_tests.c optee_standalone/tests/boundary_tests.c optee_standalone/tests/extended_tests.c optee_standalone/tests/functional.c optee_standalone/tests/review.c optee_standalone/tests/state_call.S optee_standalone/tests/signed_ta_tests.c optee_standalone/client/signed_rpc.c optee_standalone/tests/physical_memory.c optee_standalone/tests/physical_policy.c optee_standalone/tests/physical_probe.S optee_standalone/client/client.c common/benchmark/benchmark.c $(COMMON) $(EL1) $(RUNNER) $(HEADERS) $(OPTEE_PLATFORM_SOURCES) $(OPTEE_LINKER) | $(BUILD)
+$(BUILD)/optee_bl33.elf: tfa_standalone/integration/start.S optee_standalone/tests/main.c optee_standalone/tests/security_tests.c optee_standalone/tests/stress_tests.c optee_standalone/tests/boundary_tests.c optee_standalone/tests/extended_tests.c optee_standalone/tests/functional.c optee_standalone/tests/review.c optee_standalone/tests/state_call.S optee_standalone/tests/signed_ta_tests.c optee_standalone/client/signed_rpc.c optee_standalone/tests/physical_memory.c optee_standalone/tests/physical_policy.c optee_standalone/tests/physical_probe.S optee_standalone/client/client.c common/benchmark/benchmark.c $(COMMON) $(EL1) $(RUNNER) $(HEADERS) $(OPTEE_PLATFORM_SOURCES) $(OPTEE_LINKER) FORCE | $(BUILD)
 	$(CC) $(TARGET_FLAGS) $(CFLAGS) $(OPTEE_INCLUDES) -DB2_BENCH_RAM=1 $(OPTEE_FLAGS) $(LDFLAGS) -Wl,-T,$(OPTEE_LINKER) -Wl,-Map,$@.map $(filter %.c %.S,$^) -o $@
 llvm-runtime: build/toolchain-runtime/libbuiltins.a
 build/toolchain-runtime/libbuiltins.a: third_party/compiler-rt/compiler-rt/lib/builtins/udivti3.c third_party/compiler-rt/compiler-rt/lib/builtins/udivmodti4.c
-	$(PYTHON) scripts/source_snapshot.py --source-mode $(SOURCE_MODE) compiler-rt
+	test -f third_party/compiler-rt/compiler-rt/lib/builtins/udivti3.c
 	mkdir -p build/toolchain-runtime
 	clang --target=aarch64-none-elf -O2 -ffreestanding -fno-builtin -mgeneral-regs-only -Ithird_party/compiler-rt/compiler-rt/lib/builtins -c $(word 1,$^) -o build/toolchain-runtime/udivti3.o
 	clang --target=aarch64-none-elf -O2 -ffreestanding -fno-builtin -mgeneral-regs-only -Ithird_party/compiler-rt/compiler-rt/lib/builtins -c $(word 2,$^) -o build/toolchain-runtime/udivmodti4.o
 	$(LLVM_AR) rcs $@ build/toolchain-runtime/udivti3.o build/toolchain-runtime/udivmodti4.o
 
+
+.PHONY: bl33
+bl33: standalone-optee
+include build_config/components.mk

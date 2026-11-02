@@ -1,3 +1,7 @@
+/* EL1同期例外入口。CPUが保持するELR/SPSRと、ここで保存する汎用レジスタを区別する。
+ * Cの例外判定が返した安全なPCだけをELRへ設定し、eretでSPSRの状態とともに復帰する。
+ * 保存frameは256バイトで16バイトstack整列を維持する。未知の例外では復帰しない。
+ */
 #include "exception_capture.inc"
 .section .vectors,"ax"
 .balign 2048
@@ -62,6 +66,7 @@ el1_sync:
     ldp x28, x29, [sp, #224]
     ldr x30, [sp, #240]
     add sp, sp, #256
+    /* x0..x30を戻してから、検査済みELR/SPSRへ例外復帰する。 */
     eret
 el1_unhandled:
     /* 同期例外frameの元の整数registerを戻してから固定recordへ保存する。 */

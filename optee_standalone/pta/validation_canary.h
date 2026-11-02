@@ -1,6 +1,7 @@
 #ifndef VALIDATION_CANARY_H
 #define VALIDATION_CANARY_H
-#define VALIDATION_CANARY_UUID { 0x6dc1341a, 0x534f, 0x4642, { 0x91, 0x38, 0x21, 0x58, 0x76, 0x30, 0x49, 0x10 } }
+#define VALIDATION_CANARY_UUID                                                                     \
+    {0x6dc1341a, 0x534f, 0x4642, {0x91, 0x38, 0x21, 0x58, 0x76, 0x30, 0x49, 0x10}}
 #define CANARY_COMMAND_ADDRESS 0U
 #define CANARY_COMMAND_CHECK 1U
 #define CANARY_COMMAND_HEAP 2U

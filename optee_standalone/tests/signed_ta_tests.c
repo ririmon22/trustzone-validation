@@ -12,13 +12,11 @@ static bool success(struct tee_reply reply)
 static void publish_signed(void)
 {
     uintptr_t end = (uintptr_t)&b2_signed_audit + sizeof(b2_signed_audit);
-    for (uintptr_t p = (uintptr_t)&b2_signed_audit; p < end; p += 64UL)
-    {
+    for (uintptr_t p = (uintptr_t)&b2_signed_audit; p < end; p += 64UL) {
         __asm__ volatile("dc cvac, %0" ::"r"(p) : "memory");
     }
     for (uintptr_t p = (uintptr_t)b2_signed_loader_snapshot;
-         p < (uintptr_t)b2_signed_loader_snapshot + sizeof(b2_signed_loader_snapshot); p += 64UL)
-    {
+         p < (uintptr_t)b2_signed_loader_snapshot + sizeof(b2_signed_loader_snapshot); p += 64UL) {
         __asm__ volatile("dc cvac, %0" ::"r"(p) : "memory");
     }
     __asm__ volatile("dc cvac, %0" ::"r"((uintptr_t)&b2_signed_snapshot_status) : "memory");
@@ -28,8 +26,7 @@ void b2_run_signed_ta(void)
 {
     enum test_status status = TEST_BLOCKED;
     const char *reason = "signed-profile-or-RAM-bundle-unavailable";
-    if (!signed_rpc_begin())
-    {
+    if (!signed_rpc_begin()) {
         test_report("TEE-04", status, reason, 0UL);
         return;
     }
@@ -38,17 +35,14 @@ void b2_run_signed_ta(void)
         TEE_SUCCESS,     SECURITY_ERROR,           TEE_SUCCESS, SECURITY_ERROR, TEE_SUCCESS,
         NOT_FOUND_ERROR, TEE_ERROR_BAD_PARAMETERS, TEE_SUCCESS};
     bool passed = true;
-    for (unsigned int i = 0U; i < SIGNED_CASES; ++i)
-    {
+    for (unsigned int i = 0U; i < SIGNED_CASES; ++i) {
         struct tee_session session = {0U, false};
         volatile struct signed_case_record *record = &b2_signed_audit.cases[i];
         uint8_t uuid[16];
-        for (unsigned int n = 0U; n < 16U; ++n)
-        {
+        for (unsigned int n = 0U; n < 16U; ++n) {
             uuid[n] = signed_ta_uuid[n];
         }
-        if (i == 5U)
-        {
+        if (i == 5U) {
             uuid[15] ^= 1U;
         }
         signed_rpc_select(variants[i]);
@@ -68,8 +62,7 @@ void b2_run_signed_ta(void)
         b2_note_reply("runtime-TA-open", opened);
         bool case_ok = opened.transport == TEE_CLIENT_OK && opened.result == expected[i] &&
                        opened.origin == record->expected_origin;
-        if (expected[i] == TEE_SUCCESS && success(opened))
-        {
+        if (expected[i] == TEE_SUCCESS && success(opened)) {
             struct tee_reply echoed = tee_invoke(&session, 0U, EXTERNAL_ECHO);
             record->echoed = echoed;
             record->invokes++;
@@ -78,18 +71,17 @@ void b2_run_signed_ta(void)
             record->invokes++;
             b2_note_reply("runtime-TA-echo", echoed);
             b2_note_reply("fresh-instance-count", queried);
-            case_ok = case_ok && success(echoed) && echoed.value == EXTERNAL_ECHO && success(queried) &&
-                      queried.value == 1U && echoed.origin == 4U && queried.origin == 4U;
+            case_ok = case_ok && success(echoed) && echoed.value == EXTERNAL_ECHO &&
+                      success(queried) && queried.value == 1U && echoed.origin == 4U &&
+                      queried.origin == 4U;
         }
         b2_stage(B2_CLEANUP);
-        if (session.open)
-        {
+        if (session.open) {
             struct tee_reply closed = tee_session_close(&session);
             record->closed = closed;
             case_ok = success(closed) && closed.origin == 3U && case_ok;
         }
-        if (expected[i] != TEE_SUCCESS && record->invokes != 0U)
-        {
+        if (expected[i] != TEE_SUCCESS && record->invokes != 0U) {
             case_ok = false;
         }
         record->rpc_count = b2_signed_audit.rpc_count - before_rpc;
@@ -100,27 +92,24 @@ void b2_run_signed_ta(void)
         record->live = b2_signed_audit.live;
         record->unsupported = b2_signed_audit.unsupported - before_unknown;
         record->local_refusals = b2_signed_audit.local_refusals - before_refused;
-        if (i != 5U && i != 6U)
-        {
+        if (i != 5U && i != 6U) {
             case_ok = case_ok && record->queries >= 1U && record->copies >= 1U;
-        }
-        else
-        {
+        } else {
             case_ok = case_ok && record->local_refusals >= 1U && record->copies == 0U;
         }
         case_ok = case_ok && record->live == 0U && record->allocations == record->frees &&
                   record->unsupported == 0U;
         b2_stage(B2_COMPARE);
-        (void)log_printf("SIGNED_CASE %u expected=0x%08x actual=0x%08x origin=%u invokes=%u queries=%u "
-                         "copies=%u live=%u\n",
-                         i, expected[i], opened.result, opened.origin, record->invokes, record->queries,
-                         record->copies, record->live);
+        (void)log_printf(
+            "SIGNED_CASE %u expected=0x%08x actual=0x%08x origin=%u invokes=%u queries=%u "
+            "copies=%u live=%u\n",
+            i, expected[i], opened.result, opened.origin, record->invokes, record->queries,
+            record->copies, record->live);
         (void)b2_check_value("signed-loader-subcase", 1UL, case_ok);
         passed = case_ok && passed;
         b2_signed_audit.completed++;
         publish_signed();
-        if (b2_signed_audit.poisoned)
-        {
+        if (b2_signed_audit.poisoned) {
             break;
         }
     }
@@ -128,39 +117,35 @@ void b2_run_signed_ta(void)
                                     0x91, 0x38, 0x21, 0x58, 0x76, 0x30, 0x49, 0x10};
     struct tee_session observer = {0U, false};
     bool audit_ok = success(tee_session_open(&observer, audit_uuid));
-    if (audit_ok)
-    {
+    if (audit_ok) {
         uint64_t address = SHARED_MEMORY_END - 8192UL;
         struct tee_reply copied =
             tee_invoke_output(&observer, 0U, address, sizeof(b2_signed_loader_snapshot));
         b2_signed_snapshot_status = copied;
         b2_note_reply("Core-loader-audit", copied);
         audit_ok = success(copied) && copied.origin == 4U;
-        if (audit_ok)
-        {
-            for (unsigned int i = 0U; i < sizeof(b2_signed_loader_snapshot); ++i)
-            {
+        if (audit_ok) {
+            for (unsigned int i = 0U; i < sizeof(b2_signed_loader_snapshot); ++i) {
                 b2_signed_loader_snapshot[i] = ((volatile uint8_t *)address)[i];
             }
         }
     }
-    if (observer.open)
-    {
+    if (observer.open) {
         audit_ok = success(tee_session_close(&observer)) && audit_ok;
     }
     (void)b2_check_value("Core-loader-audit-read", 1UL, audit_ok);
     bool cleaned = signed_rpc_end();
     publish_signed();
     status = passed && cleaned && b2_signed_audit.completed == SIGNED_CASES ? TEST_PASS : TEST_FAIL;
-    if (!audit_ok || b2_signed_audit.poisoned || b2_signed_audit.unsupported)
-    {
+    if (!audit_ok || b2_signed_audit.poisoned || b2_signed_audit.unsupported) {
         status = TEST_BLOCKED;
     }
-    reason = "EXT-TA-V03(T-16):runtime-signed-loader-controls;Core-audit-required-for-signature-attribution";
+    reason = "EXT-TA-V03(T-16):runtime-signed-loader-controls;Core-audit-required-for-signature-"
+             "attribution";
     if (b2_signed_audit.poisoned || b2_signed_audit.unsupported) {
-        reason="required-RPC-unsupported;inspect-function-command;pending-slots-quarantined";
+        reason = "required-RPC-unsupported;inspect-function-command;pending-slots-quarantined";
     } else if (!audit_ok) {
-        reason="Core-loader-audit-unavailable;no-signature-attribution";
+        reason = "Core-loader-audit-unavailable;no-signature-attribution";
     }
     test_report("TEE-04", status, reason, 0UL);
 }

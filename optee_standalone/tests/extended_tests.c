@@ -28,20 +28,18 @@ void b2_run_standard_versions(void)
     (void)b2_check_value("SMCCC-version-in-range", 1UL, smccc >= SMCCC_MIN && smccc <= SMCCC_MAX);
     (void)b2_check_value("PSCI-version-in-range", 1UL, psci >= PSCI_MIN && psci <= PSCI_MAX);
     test_report("B2-SMCCC-01",
-                smccc >= SMCCC_MIN && smccc <= SMCCC_MAX && psci >= PSCI_MIN && psci <= PSCI_MAX ? TEST_PASS
-                                                                                                 : TEST_FAIL,
+                smccc >= SMCCC_MIN && smccc <= SMCCC_MAX && psci >= PSCI_MIN && psci <= PSCI_MAX
+                    ? TEST_PASS
+                    : TEST_FAIL,
                 "integrated-BL31-SMCCC-and-PSCI-version-only", 0UL);
 }
 
 void b2_run_closed_core_session(void)
 {
     struct tee_session a = {0U, false}, b = {0U, false};
-    if (!b2_open_pair(&a, &b))
-    {
+    if (!b2_open_pair(&a, &b)) {
         test_report("TEE-SESSION-CORE-01", TEST_BLOCKED, "session-open-unavailable", 0UL);
-    }
-    else
-    {
+    } else {
         b2_stage(B2_OPERATE);
         uint32_t closed_id = a.id;
         bool closed = success(tee_session_close(&a));
@@ -69,41 +67,34 @@ void b2_run_closed_core_session(void)
 void b2_run_parameter_validation(void)
 {
     struct tee_session a = {0U, false}, b = {0U, false};
-    if (!b2_open_pair(&a, &b))
-    {
+    if (!b2_open_pair(&a, &b)) {
         test_report("TEE-PARAM-01", TEST_BLOCKED, "session-open-unavailable", 0UL);
-    }
-    else
-    {
+    } else {
         b2_stage(B2_OPERATE);
         struct tee_reply wrong_type = tee_probe_attribute(&a, VALUE_INPUT_ATTRIBUTE);
         uint64_t base = 0UL, end = 0UL;
         b2_note_reply("wrong-TA-type", wrong_type);
         bool param_ok = wrong_type.transport == TEE_CLIENT_OK &&
-                        wrong_type.result == TEE_ERROR_BAD_PARAMETERS && wrong_type.origin == ORIGIN_TA &&
-                        tee_client_shared_range(&base, &end) && end - base >= 2UL * BUFFER_SIZE;
-        if (param_ok)
-        {
+                        wrong_type.result == TEE_ERROR_BAD_PARAMETERS &&
+                        wrong_type.origin == ORIGIN_TA && tee_client_shared_range(&base, &end) &&
+                        end - base >= 2UL * BUFFER_SIZE;
+        if (param_ok) {
             uint64_t address = end - BUFFER_SIZE;
             volatile uint8_t *buffer = (volatile uint8_t *)address;
-            for (uint64_t i = 0UL; i < BUFFER_SIZE; ++i)
-            {
+            for (uint64_t i = 0UL; i < BUFFER_SIZE; ++i) {
                 buffer[i] = (uint8_t)(BUFFER_SEED + i);
             }
             buffer[0] ^= 1U;
             struct tee_reply rejected = tee_invoke_buffer(&a, address, BUFFER_SIZE);
             b2_note_reply("malformed-buffer", rejected);
-            param_ok = rejected.transport == TEE_CLIENT_OK && rejected.result == TEE_ERROR_SECURITY_VALUE &&
-                       rejected.origin == ORIGIN_TA;
-            for (uint64_t i = 0UL; i < BUFFER_SIZE; ++i)
-            {
+            param_ok = rejected.transport == TEE_CLIENT_OK &&
+                       rejected.result == TEE_ERROR_SECURITY_VALUE && rejected.origin == ORIGIN_TA;
+            for (uint64_t i = 0UL; i < BUFFER_SIZE; ++i) {
                 uint8_t expected = (uint8_t)(BUFFER_SEED + i);
-                if (i == 0UL)
-                {
+                if (i == 0UL) {
                     expected ^= 1U;
                 }
-                if (buffer[i] != expected)
-                {
+                if (buffer[i] != expected) {
                     param_ok = false;
                 }
             }
@@ -114,7 +105,8 @@ void b2_run_parameter_validation(void)
         b2_stage(B2_COMPARE);
         (void)b2_check_value("parameter_validation-predicates", 1UL, param_ok);
         test_report("TEE-PARAM-01", param_ok ? TEST_PASS : TEST_FAIL,
-                    "valid-Core-attribute-wrong-TA-type+bad-content-rejected+unchanged+restore-and-continue",
+                    "valid-Core-attribute-wrong-TA-type+bad-content-rejected+unchanged+restore-and-"
+                    "continue",
                     0UL);
     }
     b2_stage(B2_CLEANUP);
@@ -125,12 +117,9 @@ void b2_run_parameter_validation(void)
 void b2_run_key_attributes(void)
 {
     struct tee_session a = {0U, false}, b = {0U, false};
-    if (!b2_open_pair(&a, &b))
-    {
+    if (!b2_open_pair(&a, &b)) {
         test_report("TEE-KEY-ATTR-01", TEST_BLOCKED, "session-open-unavailable", 0UL);
-    }
-    else
-    {
+    } else {
         b2_stage(B2_OPERATE);
         struct tee_reply key = tee_invoke(&a, TA_COMMAND_KEY_ATTRIBUTE, 0U);
         b2_note_reply("nonextractable-attribute-test", key);
@@ -139,7 +128,8 @@ void b2_run_key_attributes(void)
         b2_stage(B2_COMPARE);
         (void)b2_check_value("key_attributes-predicates", 1UL, attributes_ok);
         test_report("TEE-KEY-ATTR-01", attributes_ok ? TEST_PASS : TEST_FAIL,
-                    "Core-secret-attribute-allowed-control+nonextractable-denied+buffer-intact+key-usable-no-"
+                    "Core-secret-attribute-allowed-control+nonextractable-denied+buffer-intact+key-"
+                    "usable-no-"
                     "key-export",
                     0UL);
     }

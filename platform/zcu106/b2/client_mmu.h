@@ -18,6 +18,7 @@ struct zcu106_b2_page_tables {
 #endif
     _Alignas(B2_PAGE_SIZE) uint64_t uart[B2_TABLE_ENTRIES];
 };
-bool zcu106_b2_build_page_tables(struct zcu106_b2_page_tables *tables, uint64_t vector_base, uint64_t vector_end);
+bool zcu106_b2_build_page_tables(struct zcu106_b2_page_tables *tables, uint64_t vector_base,
+                                 uint64_t vector_end);
 bool platform_prepare_tee_client(void);
 #endif

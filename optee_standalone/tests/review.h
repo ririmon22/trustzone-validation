@@ -9,7 +9,10 @@ struct review_result {
     char id[24];
     uint32_t status, phase, count, overflow;
     char reason[96];
-    struct { char name[32]; uint64_t expected, actual; } checks[B2_REVIEW_CHECKS];
+    struct {
+        char name[32];
+        uint64_t expected, actual;
+    } checks[B2_REVIEW_CHECKS];
 };
 struct review_buffer {
     uint32_t magic, version, bytes, state;

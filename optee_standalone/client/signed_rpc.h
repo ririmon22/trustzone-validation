@@ -12,26 +12,22 @@
 #define SIGNED_BUNDLE_MAGIC 0x5441424eU
 #define SIGNED_CASES 8U
 #define SIGNED_UUID_BYTES 16U
-struct signed_image
-{
+struct signed_image {
     uint64_t offset, size;
     uint8_t hash[32];
 };
-struct signed_bundle
-{
+struct signed_bundle {
     uint32_t magic, version, bytes, count;
     uint8_t uuid[16];
     struct signed_image images[3];
 };
-struct signed_case_record
-{
+struct signed_case_record {
     uint32_t scenario, expected, expected_origin, invokes;
     struct tee_reply opened, echoed, queried, closed;
     uint32_t rpc_count, queries, copies, allocations, frees, live, unsupported, local_refusals;
     uint64_t declared_size;
 };
-struct signed_rpc_audit
-{
+struct signed_rpc_audit {
     uint32_t version, bytes, state, completed;
     uint64_t run_id;
     uint32_t rpc_count, queries, copies, allocations, frees, live, unsupported, local_refusals;

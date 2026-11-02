@@ -1,5 +1,14 @@
 #ifndef RUNTIME_H
 #define RUNTIME_H
+/* 例外ハンドラが回復を許すprobeの種類。expected_faultの記憶幅はuint64_tのまま。
+ * 通常probeはfault PCと読書き方向、物理probeは専用記録との一致を検査する。 */
+enum expected_fault_kind {
+    EXPECTED_FAULT_NONE = 0,
+    EXPECTED_FAULT_READ = 1,
+    EXPECTED_FAULT_WRITE = 2,
+    EXPECTED_FAULT_PHYSICAL_READ = 3,
+    EXPECTED_FAULT_PHYSICAL_WRITE = 4,
+};
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
@@ -23,7 +32,12 @@
 #define SCR_NS 1UL
 #define SCTLR_EL1_RES1 0x30d00800UL
 #define VECTOR_ALIGNMENT 2048U
-struct smc_result { uint64_t x0; uint64_t x1; uint64_t x2; uint64_t x3; };
+struct smc_result {
+    uint64_t x0;
+    uint64_t x1;
+    uint64_t x2;
+    uint64_t x3;
+};
 void console_putc(char value);
 void platform_uart_putc(char value);
 void console_write(const char *text);

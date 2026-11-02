@@ -13,27 +13,36 @@ static bool ok(struct tee_reply reply)
 }
 static bool cycle(unsigned int index)
 {
-    struct tee_session a = { 0U, false }, b = { 0U, false };
+    struct tee_session a = {0U, false}, b = {0U, false};
     bool opened_a = ok(tee_session_open(&a, validation_ta_uuid));
     bool opened_b = ok(tee_session_open(&b, validation_ta_b_uuid));
     if (!opened_a || !opened_b) {
         /* 片方だけOpenできた場合も所有sessionを残さない。stats sessionは呼出し元が所有する。 */
-        if (a.open) { (void)tee_session_close(&a); }
-        if (b.open) { (void)tee_session_close(&b); }
+        if (a.open) {
+            (void)tee_session_close(&a);
+        }
+        if (b.open) {
+            (void)tee_session_close(&b);
+        }
         return false;
     }
     struct tee_reply first = tee_invoke(&a, TA_COMMAND_ECHO, STRESS_TOKEN);
     struct tee_reply second = tee_invoke(&b, TA_COMMAND_ECHO, STRESS_TOKEN);
-    bool passed = ok(first) && ok(second) && first.value == STRESS_TOKEN && second.value == STRESS_TOKEN;
+    bool passed =
+        ok(first) && ok(second) && first.value == STRESS_TOKEN && second.value == STRESS_TOKEN;
     struct tee_reply invalid = tee_probe_buffer_unchecked(&a, OPTEE_RESERVED_BASE, 16UL);
-    passed = passed && invalid.transport == TEE_CLIENT_OK && invalid.result == TEE_ERROR_BAD_PARAMETERS;
+    passed =
+        passed && invalid.transport == TEE_CLIENT_OK && invalid.result == TEE_ERROR_BAD_PARAMETERS;
     passed = passed && ok(tee_invoke(&b, TA_COMMAND_ECHO, STRESS_TOKEN));
-    passed = passed && ok(tee_invoke(&a, TA_COMMAND_KEY_CYCLE, 0U)) && ok(tee_invoke(&a, TA_COMMAND_CRYPTO, 0U));
+    passed = passed && ok(tee_invoke(&a, TA_COMMAND_KEY_CYCLE, 0U)) &&
+             ok(tee_invoke(&a, TA_COMMAND_CRYPTO, 0U));
     if (index % PANIC_INTERVAL == 0U) {
         struct tee_reply fault = tee_invoke(&a, TA_COMMAND_PANIC, 0U);
-        passed = passed && fault.transport == TEE_CLIENT_OK && fault.result == TEE_ERROR_TARGET_DEAD && !a.open;
+        passed = passed && fault.transport == TEE_CLIENT_OK &&
+                 fault.result == TEE_ERROR_TARGET_DEAD && !a.open;
         struct tee_reply alive = tee_invoke(&b, TA_COMMAND_ECHO, STRESS_TOKEN);
-        passed = passed && ok(alive) && alive.value == STRESS_TOKEN && ok(tee_session_open(&a, validation_ta_uuid));
+        passed = passed && ok(alive) && alive.value == STRESS_TOKEN &&
+                 ok(tee_session_open(&a, validation_ta_uuid));
         struct tee_reply recovered = tee_invoke(&a, TA_COMMAND_ECHO, STRESS_TOKEN);
         passed = passed && ok(recovered) && recovered.value == STRESS_TOKEN;
     }
@@ -43,49 +52,86 @@ static bool cycle(unsigned int index)
 }
 static bool read_stats(struct tee_session *session, uint32_t values[3])
 {
-    const uint32_t commands[] = { CANARY_COMMAND_HEAP, CANARY_COMMAND_TA_RAM, CANARY_COMMAND_ALLOC_FAILURES };
+    const uint32_t commands[] = {CANARY_COMMAND_HEAP, CANARY_COMMAND_TA_RAM,
+                                 CANARY_COMMAND_ALLOC_FAILURES};
     for (unsigned int i = 0U; i < 3U; ++i) {
         struct tee_reply reply = tee_invoke(session, commands[i], 0U);
-        if (!ok(reply)) { return false; }
+        if (!ok(reply)) {
+            return false;
+        }
         values[i] = reply.value;
     }
     return true;
 }
 void run_stress_tests(void)
 {
-    b2_stress_results.version = 1U; b2_stress_results.state = B2_RUNNING;
+    b2_stress_results.version = 1U;
+    b2_stress_results.state = B2_RUNNING;
     b2_stress_results.run_id = debug_boot.run_id;
-    b2_stress_results.warmup = STRESS_WARMUP; b2_stress_results.iterations = STRESS_ITERATIONS;
-    b2_stress_results.completed = 0U; b2_stress_results.status = TEST_NOT_RUN;
-    (void)log_printf("%s", "STRESS_META iterations=512 warmup=32 panic_every=16 invalid_shm_per_iteration=1 key_cycle_per_iteration=1 alternating=A-B-A sessions_per_iteration=2\n");
+    b2_stress_results.warmup = STRESS_WARMUP;
+    b2_stress_results.iterations = STRESS_ITERATIONS;
+    b2_stress_results.completed = 0U;
+    b2_stress_results.status = TEST_NOT_RUN;
+    (void)log_printf(
+        "%s", "STRESS_META iterations=512 warmup=32 panic_every=16 invalid_shm_per_iteration=1 "
+              "key_cycle_per_iteration=1 alternating=A-B-A sessions_per_iteration=2\n");
     uint64_t started = counter_read();
-    struct tee_session stats = { 0U, false };
-    if (!ok(tee_session_open(&stats, validation_pta_uuid))) { b2_stress_results.status = TEST_BLOCKED; b2_stress_results.state = B2_COMPLETE; test_report("TEE-STRESS-01", TEST_BLOCKED, "Core-stats-service-unavailable", 0U); return; }
+    struct tee_session stats = {0U, false};
+    if (!ok(tee_session_open(&stats, validation_pta_uuid))) {
+        b2_stress_results.status = TEST_BLOCKED;
+        b2_stress_results.state = B2_COMPLETE;
+        test_report("TEE-STRESS-01", TEST_BLOCKED, "Core-stats-service-unavailable", 0U);
+        return;
+    }
     bool passed = true;
-    for (unsigned int i = 0U; i < STRESS_WARMUP; ++i) { if (!cycle(i)) { passed = false; break; } }
-    uint32_t before[3] = { 0U }, after[3] = { 0U };
+    for (unsigned int i = 0U; i < STRESS_WARMUP; ++i) {
+        if (!cycle(i)) {
+            passed = false;
+            break;
+        }
+    }
+    uint32_t before[3] = {0U}, after[3] = {0U};
     passed = passed && read_stats(&stats, before);
     unsigned int completed = 0U;
     while (passed && completed < STRESS_ITERATIONS) {
         passed = cycle(completed);
-        if (!passed) { break; }
+        if (!passed) {
+            break;
+        }
         completed++;
         if (completed % PROGRESS_INTERVAL == 0U) {
-            (void)log_printf("%s", "STRESS_PROGRESS completed="); (void)log_printf("%llu", (unsigned long long)(completed)); (void)log_printf("%s", "\n");
+            (void)log_printf("%s", "STRESS_PROGRESS completed=");
+            (void)log_printf("%llu", (unsigned long long)(completed));
+            (void)log_printf("%s", "\n");
         }
     }
     bool observed = read_stats(&stats, after);
-    (void)log_printf("%s", "STRESS_RESOURCE heap_before="); (void)log_printf("%llu", (unsigned long long)(before[0])); (void)log_printf("%s", " heap_after="); (void)log_printf("%llu", (unsigned long long)(after[0]));
-    (void)log_printf("%s", " ta_before="); (void)log_printf("%llu", (unsigned long long)(before[1])); (void)log_printf("%s", " ta_after="); (void)log_printf("%llu", (unsigned long long)(after[1]));
-    (void)log_printf("%s", " alloc_fail_before="); (void)log_printf("%llu", (unsigned long long)(before[2])); (void)log_printf("%s", " alloc_fail_after="); (void)log_printf("%llu", (unsigned long long)(after[2]));
-    (void)log_printf("%s", " completed="); (void)log_printf("%llu", (unsigned long long)(completed)); (void)log_printf("%s", "\n");
-    passed = passed && observed && completed == STRESS_ITERATIONS && after[0] <= before[0] && after[1] <= before[1] && after[2] == before[2];
+    (void)log_printf("%s", "STRESS_RESOURCE heap_before=");
+    (void)log_printf("%llu", (unsigned long long)(before[0]));
+    (void)log_printf("%s", " heap_after=");
+    (void)log_printf("%llu", (unsigned long long)(after[0]));
+    (void)log_printf("%s", " ta_before=");
+    (void)log_printf("%llu", (unsigned long long)(before[1]));
+    (void)log_printf("%s", " ta_after=");
+    (void)log_printf("%llu", (unsigned long long)(after[1]));
+    (void)log_printf("%s", " alloc_fail_before=");
+    (void)log_printf("%llu", (unsigned long long)(before[2]));
+    (void)log_printf("%s", " alloc_fail_after=");
+    (void)log_printf("%llu", (unsigned long long)(after[2]));
+    (void)log_printf("%s", " completed=");
+    (void)log_printf("%llu", (unsigned long long)(completed));
+    (void)log_printf("%s", "\n");
+    passed = passed && observed && completed == STRESS_ITERATIONS && after[0] <= before[0] &&
+             after[1] <= before[1] && after[2] == before[2];
     passed = ok(tee_session_close(&stats)) && passed && tee_client_active_sessions() == 0U;
     for (unsigned int i = 0U; i < 3U; ++i) {
-        b2_stress_results.before[i] = before[i]; b2_stress_results.after[i] = after[i];
+        b2_stress_results.before[i] = before[i];
+        b2_stress_results.after[i] = after[i];
     }
     b2_stress_results.completed = completed;
     b2_stress_results.status = passed ? TEST_PASS : TEST_FAIL;
     b2_stress_results.state = B2_COMPLETE;
-    test_report("TEE-STRESS-01", passed ? TEST_PASS : TEST_FAIL, "bounded-session-command-panic-shm-key-cycles+Core-resource-recheck", counter_read() - started);
+    test_report("TEE-STRESS-01", passed ? TEST_PASS : TEST_FAIL,
+                "bounded-session-command-panic-shm-key-cycles+Core-resource-recheck",
+                counter_read() - started);
 }

@@ -19,11 +19,15 @@ def generate_keys(directory):
         (directory/(name+'.pub.pem')).write_bytes(key.public_key().public_bytes(serialization.Encoding.PEM,serialization.PublicFormat.SubjectPublicKeyInfo))
 
 
-def build_bundle(workspace):
+def build_bundle(workspace, base=None, keys=None, out=None, optee=None):
     import uuid
-    base=workspace/'build/external/ta-external';normal=base/(UUID+'.ta');elf=base/(UUID+'.stripped.elf')
-    keys=workspace/'build/signed-test-keys';out=workspace/'build/external/signed';out.mkdir()
-    command=[sys.executable,str(workspace/'third_party/optee/scripts/sign_encrypt.py'),'sign-enc','--uuid',UUID,'--key',str(keys/'wrong.pem'),'--in',str(elf),'--out',str(out/'wrong.ta')]
+    base = base or workspace/'build/external/ta-external'
+    normal=base/(UUID+'.ta');elf=base/(UUID+'.stripped.elf')
+    keys = keys or workspace/'build/signed-test-keys'
+    out = out or workspace/'build/external/signed'
+    optee = optee or workspace/'third_party/optee'
+    out.mkdir()
+    command=[sys.executable,str(optee/'scripts/sign_encrypt.py'),'sign-enc','--uuid',UUID,'--key',str(keys/'wrong.pem'),'--in',str(elf),'--out',str(out/'wrong.ta')]
     subprocess.run(command,check=True)
     good=normal.read_bytes();header=struct.unpack_from('<4I2H',good)
     if header[0]!=0x4f545348 or header[1]!=1 or header[4]!=32 or len(good)>MAX_BYTES:raise ValueError('Unsupported signed TA format/size')
@@ -43,3 +47,20 @@ def build_bundle(workspace):
     report=dict(test_id='EXT-TA-V03',alias='T-16 / TEE-04',uuid=UUID,images=records,bundle_sha256=hashlib.sha256(bundle).hexdigest(),tamper='bootstrap ta_version byte changed; UUID/ELF/signed header lengths unchanged',trusted_public_sha256=hashlib.sha256((keys/'trusted.pub.pem').read_bytes()).hexdigest(),private_keys='generated test only; never transfer/commit')
     (out/'manifest.json').write_text(json.dumps(report,indent=4)+'\n')
     return out
+
+
+if __name__ == '__main__':
+    import argparse
+    parser = argparse.ArgumentParser(description='試験鍵生成または署名TA比較用bundle生成。JSON入力なし。')
+    parser.add_argument('operation', choices=('keys', 'bundle'))
+    parser.add_argument('--keys', type=Path, required=True)
+    parser.add_argument('--ta-dir', type=Path)
+    parser.add_argument('--output', type=Path)
+    parser.add_argument('--optee', type=Path)
+    args = parser.parse_args()
+    if args.operation == 'keys':
+        generate_keys(args.keys)
+    else:
+        if not all((args.ta_dir, args.output, args.optee)):
+            parser.error('bundle needs --ta-dir --output --optee')
+        build_bundle(Path(__file__).resolve().parents[1], args.ta_dir, args.keys, args.output, args.optee)
