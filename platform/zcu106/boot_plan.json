@@ -125,7 +125,7 @@
             "translation_evidence": null
         },
         "bl33": {
-            "path": "build/zcu106/optee_bl33.elf",
+            "path": "build/bl33/clang/basic/optee_bl33.elf",
             "sha256": null,
             "entry": null,
             "translation_verified": false,

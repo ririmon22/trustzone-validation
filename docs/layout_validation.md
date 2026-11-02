@@ -1,5 +1,7 @@
 # 現行入口と旧手順の分離：確認記録
 
+現在の実ビルド・PC検証は [最新確認記録](pc_validation.md) を参照。以下の過去の確認状態や111版の実績を、現行の実機成功へ転記しない。
+
 対象ブランチ `refactor/readable-components-review-20261102`。
 開始commitは `672e4a05a8ed7be600d22d7713c2d77a5c79afc8`、開始時のgit statusはclean。
 元の別worktree `trustzone-validation` の未コミット変更には触れていない。

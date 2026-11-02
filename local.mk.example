@@ -1,10 +1,17 @@
-# local.mkへコピーする。絶対パスを指定し、空白を含むパスは避ける。
+# local.mkへコピーする。Git管理外。空白を含むパスは未対応。
+# ソースの標準配置はthird_party/tfa-amd、optee。変える場合は絶対パスを指定。
 # TFA_SOURCE := /path/to/arm-trusted-firmware
 # OPTEE_SOURCE := /path/to/optee_os
-# EXTERNAL_CROSS_COMPILE := /path/to/bin/aarch64-linux-gnu-
-# BL33のみClang/GCCを選択可能。外部MakeルートはGCC。
+# Arm GNU Toolchain 13.3.Rel1（GCC 13.3.1/binutils 2.42）で実ビルド済み。
+EXTERNAL_CROSS_COMPILE := $(HOME)/.local/opt/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-linux-gnu/bin/aarch64-none-linux-gnu-
+CROSS_COMPILE := $(EXTERNAL_CROSS_COMPILE)
+# BL33はclang/gccの両方を確認。外部プロジェクトはGCCだけ。
 TOOLCHAIN := clang
-# CROSS_COMPILE := /path/to/bin/aarch64-none-elf-
-# 署名試験専用の鍵。本番鍵を使わない。
-# TA_SIGN_KEY := /path/to/test-private.pem
-# TA_PUBLIC_KEY := /path/to/test-public.pem
+PYTHON := $(CURDIR)/build/python/bin/python
+# 初回にmake_signed_bundle.py keysで生成する試験専用鍵。本番鍵を使わない。
+TA_SIGN_KEY := $(CURDIR)/build/signed-test-keys/trusted.pem
+TA_PUBLIC_KEY := $(CURDIR)/build/signed-test-keys/trusted.pub.pem
+# OP-TEE参照commit時刻。Cの__TIME__/__DATE__とCoreの版文字列を固定する。
+export SOURCE_DATE_EPOCH := 1737117274
+# 外部compiler/source/鍵/設定を変えたら、未使用の出力先でSDKから作り直す。
+# BUILD_ROOT := build/new-run

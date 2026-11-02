@@ -9,7 +9,7 @@
         "pmufw": {"path": null, "sha256": null, "expected_entry": null},
         "bl31": {"path": "build/components/basic/tfa/zynqmp/release/bl31/bl31.elf", "sha256": null, "expected_entry": 4096},
         "bl32": {"path": "build/components/basic/optee/core/tee.elf", "sha256": null, "expected_entry": 1610612736},
-        "bl33": {"path": "build/zcu106/optee_bl33.elf", "sha256": null, "expected_entry": 270532608}
+        "bl33": {"path": "build/bl33/clang/basic/optee_bl33.elf", "sha256": null, "expected_entry": 270532608}
     },
     "targets": {"apu_filter": null, "pmu_filter": null},
     "source_provenance": {"tfa_fixed_commit_verified": false, "optee_fixed_commit_verified": false, "zip_build_reported": true, "evidence": null},

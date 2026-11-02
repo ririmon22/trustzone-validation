@@ -40,6 +40,8 @@ if __name__ == '__main__':
     parser.add_argument('elf', type=Path)
     parser.add_argument('--output', type=Path, required=True)
     args = parser.parse_args()
+    if args.output.resolve() == args.elf.resolve() or args.output.with_suffix('.json').resolve() == args.elf.resolve():
+        parser.error('output must preserve input ELF')
     records = plan(args.elf)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text('# ELF SHA256: ' + hashlib.sha256(args.elf.read_bytes()).hexdigest() + '\nset tz_capture_plan {\n' + ''.join('    {' + n + ' ' + hex(a) + ' ' + str(s) + '}\n' for n, a, s in records) + '}\n')

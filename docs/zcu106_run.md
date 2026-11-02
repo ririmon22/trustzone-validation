@@ -1,120 +1,190 @@
-# 現行Make生成物の点検・JTAG準備・結果回収
+# 実機確認の入口：点検・ロード・停止・回収
 
-[入口](../README.md) · [基本build](build.md) · [追加構成](profiles.md)
+[入口](../README.md) · [PC検証と残項目](pc_validation.md) · [署名／物理](profiles.md)
 
-全コマンドはリポジトリ直下で実行する。JSONは実機情報・検査結果用で、ELF生成の設定ではない。
-実機・実XSDBは未実行。`B2_RUNTIME_READY=0` / `B2_PHYS_REVIEWED=0` を維持する。
-静的検査PASSや回収計画の生成は、ロード・実行許可を意味しない。
+実XSDB・MMIO・実機試験は未実行。PCでの生成物検査はPASSだが、起動計画はBLOCKED、
+`B2_RUNTIME_READY=0` / `B2_PHYS_REVIEWED=0`、生成Tclの実行許可0を維持する。
+この文書の実機操作は、下記入力と証跡を確認して別途承認した後の段階別手順である。
 
-## 何を実行できるか
+## このビルドの起動方式と必要入力
 
-| ツール | 新Makeとの接続 | 今回の確認 |
-|---|---|---|
-| check_signed_layout.py | `--elf` で署名BL33を指定 | PASS、実機BLOCKED |
-| check_b2_physical_reservation.py | `--elf` を複数指定。BL33/Coreの予約衝突を点検 | BL33だけPASS。Coreは未実行 |
-| check_b2_review_profile.py | `--elf` / `--core` / `--conf` を明示。旧Core固定パスを廃止 | 引数経路のみ確認。実Core検査は未実行 |
-| check_signed_profile.py | `--core` / `--conf` / `--bundle` / `--keys` / `--optee` を明示 | 引数経路のみ確認。実署名TA/Core検査は未実行 |
-| check_boot_plan.py | 既定はMake基本構成。`--bl31` / `--bl32` / `--bl33` で選択 | 入力点検はBLOCKED、BL33 inventory生成は成功 |
-| prepare_b2_jtag.py | 同じELF引数と `--inputs` / `--boot-plan` を指定 | 点検・Tcl定義生成のみ。常に実行許可0、終了値2 |
-| prepare_jtag_capture.py | 位置引数で実際のBL33を指定。symbol/LOADから採取範囲を決める | 3構成で生成成功。実採取は未実行 |
-| prepare_signed_capture.py | `--elf` / `--core` を明示。監査CoreとBL33を対応付ける | Core不足のため未実行 |
-| inventory_b2_inputs.py | `--input` の実機使用ELF/XSAを採取。Make生成物との同一性は自己申告しない | 合成入力でBL33の採取を確認 |
-| prepare_xmpu_test.py、jtag/*.tcl | 実機証跡・限定操作用。旧build専用ではないため現行に残す | 未確認入力の拒否・Tclの実行ゲートのみ確認。実機未実行 |
-| decode_*.py、analyze_benchmarks.py | dumpとELFを明示するPC解析。buildを呼ばない | import/CLI確認。今回新たな実dumpなし |
-| legacy/scripts/check_b2_integration.py | 旧ログ・旧配置結合の統合検査 | **現行で使用不可・参照専用**。BL31/BL32/TAを含む代替統合確認も未対応 |
+TF-Aは `RESET_TO_BL31=1 SPD=opteed`。BL2/FIPやLinuxを経由せず、XSDBでELFを配置する方式を対象にする。
+取得したTF-Aの `plat/xilinx/zynqmp/bl31_zynqmp_setup.c` を読むと、**JTAG boot modeではbuild時の既定入口**を使い、
+それ以外ではFSBL(XBL) handoffを使って失敗時にpanicする。非JTAGでも既定入口へfallbackすると仮定しない。
+このPCで確認した既定入口はBL32=0x60000000、BL33=0x10200000・Normal EL2hで、
+`boot/bl33_start.S` がEL1hへ移る。実際のboot modeとSCR/SPSR/ELは実機で照合する。
 
-## まずPC上でBL33だけを点検する
+| 入力／条件 | 必要性と確認方法 |
+|---|---|
+| 同じXSA/BSP由来のFSBL | DDR・MIO・clock等のPS初期化が必要。出所・hash・OCM/DDRの全runtime予約を照合する。旧成功版のLOAD断片だけで置換しない |
+| 対応するPMUFW | TF-A/OP-TEEのZynqMP power managementとの整合が必要。firmware固有のready address/mask/期待値・根拠を確認する。推測値で起動しない |
+| bitstream | CコードにPL peripheral/DMAの試験backendはない。これだけでbitstreamを必須とはしないが、対象XSA・FSBL・clock/reset設計がPLに依存するか不明なので、実構成で要否を決めて記録する |
+| DTB／pageable image | 今回のOP-TEE実confはCFG_DT=n、CFG_WITH_PAGER=n。今回のELFロードで別DTB/pageable imageは要求しない。設定を変えた場合はこの手順の対応外 |
+| JTAG/XSDB接続 | 実際のAPU/PMUのfilterが一意であること、debug権限、boot mode、reset/初期化、system PA/alias経路を確認する。固定target番号を使わない |
+| 初期状態 | 他A53/masterの停止、EL3/S-EL1/NS-EL1、Stage2、MMU/cacheとdirty dataの扱いをcold bootから確認する。状態不明のままSCTLR等を書き換えない |
+| 予約と保護 | FSBL/PMUFWのstack/heap/動的領域、DDR実効範囲、共有RAM・bundle・物理窓、XMPU/master/lock/poisonをレビューする |
+
+XSA/FSBL/PMUFW/bitstreamの実物・VitisはこのPCにないため、要否・起動を成功扱いしていない。
+Vitis 2025.1を用意し、対象XSAに合ったFSBL/PMUFWをソースから作り、元source/BSP/XSAのhashを記録する。
+その作業にはボード設計入力が必要であり、汎用の空BSPや別ボードのELFで補わない。
+
+## PC上で選ぶ生成物と点検
+
+例は署名構成＋GCC。BL31/BL32/TA/bundleは同じprofileから選ぶ。
+他compilerのBL33を選ぶ場合はELF・コンパイルログ・回収計画・hashを全て揃える。
+現在のbuildはrun ID=1。実機runでは未使用の非ゼロIDでBL33を作り直し、下記検査とhashを更新する。
 
 ```sh
-python3 scripts/check_signed_layout.py --platform zcu106 \
-  --elf build/zcu106/signed/optee_bl33.elf --output results/signed-layout.json
-python3 scripts/check_b2_physical_reservation.py \
-  --elf build/zcu106/physical/optee_bl33.elf --output results/physical-reservation.json
-python3 scripts/check_boot_plan.py --inventory build/zcu106/optee_bl33.elf \
-  --output results/bl33-inventory.json
-python3 scripts/prepare_jtag_capture.py build/zcu106/optee_bl33.elf \
-  --output results/capture-basic.tcl
-python3 scripts/prepare_jtag_capture.py build/zcu106/signed/optee_bl33.elf \
-  --output results/capture-signed.tcl
-python3 scripts/prepare_jtag_capture.py build/zcu106/physical/optee_bl33.elf \
-  --output results/capture-physical.tcl
+# 例: 次の実機run用。既存の検証記録とはhashが変わる。
+make PROFILE=signed TOOLCHAIN=gcc DEBUG_RUN_ID=0x20261102 bl33 > results/signed-run-bl33.log 2>&1
+build/python/bin/python scripts/check_components.py --profile signed \
+  --bl31 build/components/signed/tfa/zynqmp/release/bl31/bl31.elf \
+  --bl32 build/components/signed/optee/core/tee.elf --bl33 build/bl33/gcc/signed/optee_bl33.elf \
+  --conf build/components/signed/optee/conf.mk \
+  --ta-a build/components/signed/ta-a/6dc13418-534f-4642-9138-215876304910.stripped.elf \
+  --ta-b build/components/signed/ta-b/6dc13419-534f-4642-9138-215876304910.stripped.elf \
+  --bl31-log results/pc-preflight/run-a/signed-bl31.log --bl33-log results/signed-run-bl33.log \
+  --output results/signed-run-components.json
+build/python/bin/python scripts/check_signed_profile.py --platform zynqmp \
+  --core build/components/signed/optee/core/tee.elf --conf build/components/signed/optee/conf.mk \
+  --bundle build/components/signed/bundle --keys build/signed-test-keys \
+  --optee third_party/optee --output results/signed-run-profile.json
 ```
 
-Coreが作れたら、物理予約検査へ `--elf build/components/physical/optee/core/tee.elf` も加える。
-profile整合・署名の検査は [追加構成](profiles.md) のコマンドを使う（今回未実行）。
+このrun ID変更例は操作用の例で、今回のhash記録はID=1の両回の生成物に対するもの。
+ID変更自体の実機動作は未実行。buildの既定選択は変えていない。
 
-## 起動入力の点検：現状は実行不可
-
-1. `config/b2_hardware_capture.example.json` をGit管理外の `results/hardware.local.json` へコピーし、
-   実際に使用するELF/XSA/ソースの位置を記入する。相対パスはこの入力ファイルの親を基点にする。
-   `python3 scripts/inventory_b2_inputs.py --input results/hardware.local.json --output results/hardware-inputs.json`
-   はPC上でhash/entry/LOADを読むだけで、実機の使用版を認証しない。
-2. `platform/zcu106/jtag_b2_inputs.json` と `platform/zcu106/boot_plan.json` を
-   `results/` 以下のlocalファイルへコピーし、実機証跡・hash・entryを記入する。
-   この2つのJSON内の相対ELF/証跡パスは**リポジトリ直下基点**。上の採取入力と基点が異なる。
-   初期例のELFは `build/components/basic/` と `build/zcu106/` に一致する。
-3. 使用する構成のELFを明示して点検する。次は署名構成の例（外部ELF不足のため実検証は未実行）。
+実機使用入力の採取には `config/b2_hardware_capture.example.json` を新しい `results/hardware.local.json` へコピーし、
+実際のELF/XSA/source等のパスを記入する。ここでの相対パスは**入力JSONの親基点**。
 
 ```sh
-python3 scripts/prepare_b2_jtag.py --inputs results/jtag.local.json \
+build/python/bin/python scripts/inventory_b2_inputs.py \
+  --input results/hardware.local.json --output results/hardware-inputs.json
+```
+
+これはPC上でファイルを読むだけで、実機使用版の認証ではない。
+次に `platform/zcu106/jtag_b2_inputs.json` と `boot_plan.json` を `results/` 以下のlocalファイルへコピーし、
+hash/entry、XSA結合、review証跡、停止位置を記入する。この2種のJSONの相対パスは**リポジトリ直下基点**。
+source原本の固定commitとclean状態を確認したログを証跡にし、legacyのzip_reportを流用しない。
+
+```sh
+build/python/bin/python scripts/prepare_b2_jtag.py --inputs results/jtag.local.json \
   --boot-plan results/boot.local.json \
   --bl31 build/components/signed/tfa/zynqmp/release/bl31/bl31.elf \
   --bl32 build/components/signed/optee/core/tee.elf \
-  --bl33 build/zcu106/signed/optee_bl33.elf \
+  --bl33 build/bl33/gcc/signed/optee_bl33.elf --bundle-dir build/components/signed/bundle \
   --output results/boot-inspection.json --emit-tcl results/boot-inspection.tcl
 ```
 
-ファイル引数は選択パスだけを置き換える。hash/entry/実機証跡は確認済みにせず、入力値と照合する。
-入力とboot planが別のELFを指す場合も拒否する。生成Tclは `tz_boot_authorized 0` の定義のみ。
-このツールは常に終了値2のBLOCKEDであり、実機起動許可を生成する経路は**未対応**。
-`check_boot_plan.py --plan ... --bl31 ... --bl32 ... --bl33 ... --output ...` でも同じパス指定ができるが、
-必要な実機証跡なしではBLOCKED。gateを編集して許可を作らない。
+同じ明示パスで今回6組×2回の点検・定義生成を確認した。未確認入力があるため終了値2が正しい。
+パス指定だけでhash/entryや証跡を確認済みにしない。入力/planの別ELF、不正bundleも拒否する。
+署名構成では `--bundle-dir` が必要。bundleのslot・TA・digest・manifestを照合し、raw fileのパスをTclへ渡す。
+`check_boot_plan.py` の `--inventory` はELFだけの情報採取、`--plan` は証跡込みの点検であり実行許可ではない。
 
-`scripts/jtag/b2_boot.tcl` はsourceだけでは操作しない。`tz_b2_execute` は許可時に
-PMUFW ready待ち→FSBLの停止→BL32/BL33/BL31配置→BL31入口停止を行う候補で、
-download・実行・breakpoint・timeout時停止の副作用がある。現行の未許可計画では使用不可。
-reset・boot mode・初期EL/Security State・MMU/cache・Stage2も別レビューが必要。
+## 停止位置を決める
 
-## 停止済みRAMの回収（実操作は未実行）
-
-通常は上記の `prepare_jtag_capture.py`、監査Coreも照合する署名構成は次を使う。
+| 段階 | 指定する位置と意味 |
+|---|---|
+| FSBL Exit | 実FSBLの終了・引渡し直前をmap/sourceで決める。今回のアドレスは未知。ここに達しただけでDDR・handoff全条件が成立したとしない |
+| BL31入口 | 対象BL31 ELFのentry（今回0x1000）。全image配置後、最初のEL3命令を実行する前にEL/SCR/MPIDR/stack/cache状態を記録 |
+| OP-TEE初期化 | 実tee.elfの `boot_init_primary_final` の入口等をsource/mapで選ぶ。関数入口ではfinalcallsはまだ未完了なので「初期化完了」と誤記しない |
+| BL33 main | 選んだBL33 ELFの `standalone_main`。この時点でEL1、EL2引渡し記録、MMU/cache初期状態、run IDを確認し、試験開始前のゲートをレビュー |
 
 ```sh
-python3 scripts/prepare_signed_capture.py --elf build/zcu106/signed/optee_bl33.elf \
-  --core build/components/signed/optee/core/tee.elf --output results/capture-audit.tcl
+# 実ELFに存在する候補symbolをPCで確認できる。
+build/python/bin/python - <<'PY'
+import sys
+from pathlib import Path
+sys.path.insert(0, 'scripts')
+from elf_symbols import elf_symbols
+for path, name in [('build/components/signed/optee/core/tee.elf', 'boot_init_primary_final'),
+                   ('build/bl33/gcc/signed/optee_bl33.elf', 'standalone_main')]:
+    print(path, name, hex(elf_symbols(Path(path))[2][name]['address']))
+PY
 ```
 
-Coreの内部traceを任意PAから読めると仮定せず、監査PTAがNormalへ返すsnapshotを採取する。
-Coreの隣の `build/components/signed/ta-a/` / `ta-b/` からEarly TA入力hashも記録する。
-生成物が同居しているだけでは実機同一性の証明ではない。
+アドレスが得られることと、そのPA/VA経路で実XSDB breakpointが使えることは別。後者は実機で確認する。
+
+## 承認後の段階別ロード候補（実XSDB未実行）
+
+`scripts/jtag/b2_boot.tcl` と生成inspection Tclはsourceだけでは操作しない。
+現在のinspectionは実行許可0で、次の関数は全て拒否する。この記録だけを根拠に許可1へ変えない。
 
 ```tcl
-# 以下は実XSDB未検証。停止状態・一意の対象・PA経路のレビュー後だけ使う候補。
-source scripts/jtag/capture.tcl
-source results/capture-basic.tcl
-# tz_dump {name =~ "*Cortex-A53*#0"} $tz_capture_plan /実際の新しい保存先/raw
+source scripts/jtag/b2_boot.tcl
+source results/boot-inspection.tcl
+# 証跡と別途承認したreviewed planが揃った後にのみ:
+# tz_b2_execute
+#   PMU targetを一意確認 → PMUFW dow/con → firmware固有ready待ち
+#   APU targetを一意確認 → FSBL dow/con → FSBL Exitで停止
+#   BL32 ELF → BL33 ELF → 署名ならbundleを0x10600000へdow -data → BL31 ELF
+#   BL31 entryを検査して停止。自動継続しない。
+# tz_b2_to_optee
+#   BL31から上表のCore停止位置まで。レジスタと初期化状態を再確認。
+# tz_b2_to_bl33
+#   BL33 main停止まで。まだ試験成功ではない。
 ```
 
-`tz_stop_for_capture` はCPU停止を伴う。回収は読出しだけと区別し、対象0件/複数件を許可しない。
-各runは新しい保存先と固有run IDで管理する。PCでのdecode例（dumpは今回未採取）:
+CPU停止・download・breakpoint・実行は副作用がある。resetやbitstream書込みはこのTclに含めていない。
+他のboot modeで手順を流用せず、XBL handoffを別途確認する。APU停止待ちのtimeoutではstopし、追加したbreakpointは不一致・timeout時にも除去する。
+PMU readyのtimeoutはFSBLを開始せず打ち切るがPMUを自動停止しないため、停止・復旧はfirmwareに対応したレビュー済み手順で行う。
+一意target、bundle download順序、timeoutの引数経路は [Tcl mock](../tests/host/jtag_mock.tcl) で検査した。
+構文の根拠はAMD [UG1725 dow](https://docs.amd.com/r/2024.2-English/ug1725-xsdb-reference-guide/dow?contentId=Weac07A1d2_rm0_~QevHsw) と
+[UG1208 targets](https://docs.amd.com/api/khub/documents/V9ibETBbaN2~qlUquLPsTA/content)。実際に使うVitis/XSDB版でhelpと動作を再確認する。
+
+## 実機で根拠が揃った後に何を変更するか
+
+1. **初回はgate=0の生成物で起動前状態・各停止位置・実メモリ経路を確認**する。
+   FSBL/PMUFW全runtime予約、全master/alias、実効DDR、EL/Security State/MMU/cache、共有WB属性、debug/clock/GIC等を
+   実レジスタ・同じhashのfirmware/sourceと結び付けた証跡でレビューする。
+2. 実行を許可する段階では、別のレビュー済み変更で `platform/zcu106/b2/memory_map.h` のB2_RUNTIME_READYを変更する。
+   対応する実機情報JSONの確認状態と証跡も同時に更新し、検査の「未確認版は0固定」という期待値を
+   証跡付きreview済み版の方針へ合わせて再検査する。このbranchの未確認版用checkerは1を意図的に拒否する。
+   ヘッダだけの変更、デバッガでのconst書換え、生成Tclの0だけの書換えで迂回しない。
+3. 物理試験はさらにXMPU経路/master/lock/poison/priority・他master停止・専用1MiB予約・回復手順をレビューしてから
+   B2_PHYS_REVIEWEDとその証跡を変更する。初回の通常試験許可と物理試験許可をまとめない。
+   `prepare_xmpu_test.py` / `jtag/xmpu_test.tcl` は限定領域だけの操作候補で、CTRL全体や未知offsetを推測で書かない。
+4. 変更後は固有run IDでBL33を再buildし、全hash・配置/署名/契約検査・停止/回収計画を作り直す。
+   reviewed planは承認者・対象hash・証跡を結合して管理する。自動の許可昇格機能は設けていない。
+
+## RAM回収と合否判定
+
+署名構成は監査Coreも照合した計画を使う。他は `prepare_jtag_capture.py ELF --output ...`。
 
 ```sh
-python3 scripts/decode_b2_results.py results/run/raw/b2_results.bin \
-  --ram-log results/run/raw/debug_ram_log.bin --elf build/zcu106/signed/optee_bl33.elf \
+build/python/bin/python scripts/prepare_signed_capture.py \
+  --elf build/bl33/gcc/signed/optee_bl33.elf --core build/components/signed/optee/core/tee.elf \
+  --output results/capture-audit.tcl
+```
+
+PCで両compilerの定義生成とCore/TA input hashの記録まで確認した。
+正常完了後の停止状態から、対象とPA/alias経路をレビューしたうえで次の読出しを行う候補とする。
+
+```tcl
+source scripts/jtag/capture.tcl
+source results/capture-audit.tcl
+# 一意のAPU filterを実環境から指定する。番号や名前を推測しない。
+# tz_dump $tz_apu_filter $tz_capture_plan /実際の新しい保存先/raw
+```
+
+`tz_dump` は停止を自動実行せず、停止済みでなければ拒否する。`tz_stop_for_capture` は明示的にCPUを停止する別操作。
+回収範囲はELF symbol/LOADから決め、任意のCore PAを直接読めると仮定せずNormal側snapshotを使う。
+publishのPoC cleanはコードにあるが、JTAG APのcoherencyやPA経路は実機で確認する。
+
+```sh
+build/python/bin/python scripts/decode_b2_results.py results/run/raw/b2_results.bin \
+  --ram-log results/run/raw/debug_ram_log.bin --elf build/bl33/gcc/signed/optee_bl33.elf \
   --core-elf build/components/signed/optee/core/tee.elf --capture-plan results/capture-audit.json \
   --run-id 0x20261102 --output results/run/report.txt
 ```
 
-単独の例外は `decode_exception.py`、RAMログは `decode_ram_log.py`。
-欠落・古いrun・形式/hash不一致・未完了・後始末不備を成功扱いしない。
-完了publishはPoCへcleanするが、JTAG APのPA/alias・権限・coherencyは実機確認が必要。
-性能測定中のbreakpointは値を無効にし、閾値なしの時間はMEASUREDで速度PASSにしない。
+- collection=COMPLETEと試験PASSは別。古いID/hash不一致・欠落・途中停止・後始末不備は成功扱いしない。
+- default基本selection14は従来ルートなので、新しいb2_results表を使わず `decode_ram_log.py --expected-run-id ...` でログを読む。
+  新しい子試験表はselection0、署名review表は17、物理は15である。試験選択の意味を混ぜない。
+- 署名8ケースは実ローダのstage監査・返答・継続・Close/live=0を含めて判定する。PC署名検証の結果を転記しない。
+- 物理は期待VA→PA、限定fault PC/ESR/FAR、Secure pattern非改変、後始末、XMPU証跡を揃える。
+  Stage1 permission fault、予約成功、poison、無応答をDDR保護成立のPASSにしない。
+- 性能は測定区間・timer Hz・cache状態・overhead・raw sampleを保存する。測定中のbreakpointは値を無効にする。
+  閾値なしはMEASUREDで、速度合格PASSとはしない。
 
-## XMPU採取・物理試験
-
-`config/xmpu_test.example.json`、`scripts/prepare_xmpu_test.py`、
-`scripts/jtag/xmpu_readonly.tcl` と `xmpu_test.tcl` は現行の限定実機操作用として残す。
-未知のmaster/lockやCTRL全体へ推測で書かない。
-[物理試験の仕様と前提](b2_test_specification.md) に従う。実XSDB/MMIOは未実行。
-過去のA53読出しfault、PSUでのXMPU読出し等のUSER_REPORTEDは
-[21項目の旧版観測](b2_scope_21.md) と区別し、今回の確認済みへ転記しない。
+正式範囲と各試験の期待値は [21項目](b2_scope_21.md) と [試験仕様](b2_test_specification.md) を参照。

@@ -4,14 +4,14 @@
         "branch": "xlnx_rebase_v2.12",
         "release": "xlnx_rebase_v2.12_2025.1",
         "commit": "dd3512287a17eea866d5c82fa7b86ad58de59163",
-        "compatibility": "Reference revision only; ZIP mode does not verify this commit. Vitis 2025.1/GNU route and ZCU106 hardware NOT_RUN."
+        "compatibility": "Current Make: BL31 built and statically checked with Arm GNU 13.3.Rel1. Source Git commit verified on this PC. Vitis and ZCU106 hardware NOT_RUN. Legacy ZIP provenance remains unverified."
     },
     "optee": {
         "repository": "https://github.com/OP-TEE/optee_os.git",
         "branch": "4.5.0",
         "release": "4.5.0",
         "commit": "0919de0f7c79ad35ad3c8ace5f823ad1344b4716",
-        "compatibility": "Reference revision only; ZIP mode does not verify this commit. Vitis 2025.1/GNU route and ZCU106 hardware NOT_RUN."
+        "compatibility": "Current Make: SDK, TA-A/B, Core basic/signed/physical built and checked with Arm GNU 13.3.Rel1. Runtime loader and ZCU106 hardware NOT_RUN. Legacy ZIP provenance remains unverified."
     },
     "embeddedsw": {
         "repository": "https://github.com/Xilinx/embeddedsw.git",

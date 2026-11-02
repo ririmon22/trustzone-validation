@@ -23,12 +23,11 @@ override B2_SECURE_SGI := 0
 B2_TEST_INDEX ?= 14
 B2_SIGNED_TA_PROFILE ?= 0
 TOOLCHAIN ?= clang
-CROSS_COMPILE ?= aarch64-none-elf-
+CROSS_COMPILE ?= aarch64-none-linux-gnu-
 PYTHON ?= python3
-BUILD := build/$(PLATFORM)
-ifneq ($(PROFILE),basic)
-BUILD := build/$(PLATFORM)/$(PROFILE)
-endif
+# compiler/profileを分け、空のBUILD_ROOTを指定すれば全て新規に作れる。
+BUILD_ROOT ?= build
+BUILD := $(BUILD_ROOT)/bl33/$(TOOLCHAIN)/$(PROFILE)
 # 設定変更時の取り違えを防ぐため、毎回コンパイルする。
 .PHONY: FORCE
 FORCE:

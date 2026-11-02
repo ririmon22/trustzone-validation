@@ -1,6 +1,9 @@
 # UG1725 2025.1のtargets/state/mrdに基づく。sourceだけではtargetへ接続しない。
 proc tz_dump {filter plan output_dir} {
     # 対象0件・複数件を許可せず、番号を固定しない。
+    if {[llength [targets -target-properties -filter $filter]] != 1} {
+        error "BLOCKED: exactly one capture target required"
+    }
     targets -set -filter $filter
     if {![string match -nocase *stopped* [state]]} {
         error "BLOCKED: halt and review the target before collection; this procedure never stops it"
@@ -17,6 +20,9 @@ proc tz_dump {filter plan output_dir} {
 }
 # 副作用はCPU停止だけ。呼出し前に対象runと停止の影響をreviewする。
 proc tz_stop_for_capture {filter} {
+    if {[llength [targets -target-properties -filter $filter]] != 1} {
+        error "BLOCKED: exactly one capture target required"
+    }
     targets -set -filter $filter
     stop
     set deadline [expr {[clock milliseconds] + 3000}]

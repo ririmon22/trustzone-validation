@@ -10,7 +10,7 @@ LIMIT = 1 << 64
 B2_ARTIFACT_PATHS = {
     'bl31': 'build/components/basic/tfa/zynqmp/release/bl31/bl31.elf',
     'bl32': 'build/components/basic/optee/core/tee.elf',
-    'bl33': 'build/zcu106/optee_bl33.elf',
+    'bl33': 'build/bl33/clang/basic/optee_bl33.elf',
 }
 
 

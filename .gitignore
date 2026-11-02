@@ -3,3 +3,6 @@
 /results/
 __pycache__/
 *.pyc
+/third_party/tfa-amd/
+/third_party/optee/
+/third_party/pyelftools/

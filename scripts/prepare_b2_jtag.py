@@ -3,11 +3,13 @@ import hashlib
 import json
 from pathlib import Path
 from check_boot_plan import elf_inventory, check_plan, B2_ARTIFACT_PATHS
+from elf_symbols import elf_symbols, symbol_payload
+from check_signed_profile import check_bundle
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def inspect(inputs, boot_plan=None, artifact_paths=None):
+def inspect(inputs, boot_plan=None, artifact_paths=None, bundle_dir=None):
     issues, inventory = [], {}
     for role, record in inputs['images'].items():
         name = record.get('path')
@@ -54,7 +56,17 @@ def inspect(inputs, boot_plan=None, artifact_paths=None):
     issues += gate['issues']
     if '#define B2_RUNTIME_READY 0' in (ROOT / 'platform/zcu106/b2/memory_map.h').read_text():
         issues.append('B2_RUNTIME_READY=0; not authorized to execute')
-    return dict(status='BLOCKED', issues=issues, elf_inventory=inventory, hardware_execution='NOT_RUN', execution_authorized=False)
+    bundle_record = None
+    if 'bl33' in inventory:
+        linked = elf_symbols(ROOT / inputs['images']['bl33']['path'])
+        signed = int.from_bytes(symbol_payload(linked,'b2_signed_profile'),'little') == 1
+        if signed and bundle_dir is None:
+            issues.append('signed BL33 requires explicit --bundle-dir')
+        elif signed:
+            bundle_record = check_bundle(bundle_dir)
+        elif bundle_dir is not None:
+            issues.append('bundle specified for non-signed BL33')
+    return dict(status='BLOCKED', issues=issues, elf_inventory=inventory, signed_bundle=bundle_record, hardware_execution='NOT_RUN', execution_authorized=False)
 
 
 if __name__ == '__main__':
@@ -65,6 +77,7 @@ if __name__ == '__main__':
         parser.add_argument('--' + role, type=Path)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--emit-tcl', type=Path)
+    parser.add_argument('--bundle-dir', type=Path)
     args = parser.parse_args()
     inputs = {}
     try:
@@ -77,8 +90,9 @@ if __name__ == '__main__':
                 artifacts[role] = str(path.resolve())
                 inputs['images'][role]['path'] = artifacts[role]
                 boot_plan['images'][role]['path'] = artifacts[role]
-        report = inspect(inputs, boot_plan, artifacts)
-    except (OSError, ValueError, KeyError, TypeError) as error:
+        report = inspect(inputs, boot_plan, artifacts, args.bundle_dir)
+    except (OSError, ValueError, KeyError, TypeError, IndexError, AttributeError) as error:
+        inputs = {}
         report = dict(status='BLOCKED', issues=[str(error)], hardware_execution='NOT_RUN', execution_authorized=False)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, indent=4) + '\n')
@@ -94,6 +108,7 @@ if __name__ == '__main__':
         ready = inputs.get('pmu_ready', {})
         script = '# Inspection only. No authorization is emitted.\nset tz_boot_authorized 0\n'
         script += 'set tz_images [dict create ' + ' '.join(word(role) + ' ' + word((ROOT / rec['path']).resolve() if rec.get('path') else None) for role, rec in images.items()) + ']\n'
+        script += 'set tz_signed_bundle ' + word((report.get('signed_bundle') or {}).get('path')) + '\n'
         script += 'set tz_apu_filter ' + word(targets.get('apu_filter')) + '\nset tz_pmu_filter ' + word(targets.get('pmu_filter')) + '\n'
         script += 'set tz_pmu_ready [list ' + ' '.join(word(ready.get(key)) for key in ('address','mask','expected')) + ']\n'
         script += 'set tz_stops [dict create ' + ' '.join(key + ' ' + word(stops.get(key + '_address')) for key in ('fsbl_exit','optee_init','bl33_main')) + ']\n'

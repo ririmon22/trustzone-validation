@@ -16,7 +16,7 @@
 | scripts/build_workspace.py、select_b2_test.py | 旧ソース複製・JSONによる試験選択 |
 | scripts/check_build_environment.py、source_snapshot.py、zip_sources.py | 上記専用の環境・来歴検査 |
 | scripts/stage_optee_overlay.py | 旧自動化用Core複製。現行はscripts/prepare_core.py |
-| scripts/check_b2_integration.py | 旧ログ形式を要求するBL31/Core/TA統合検査。現行での代替統合確認は未対応 |
+| scripts/check_b2_integration.py | 旧ログ形式を要求するBL31/Core/TA統合検査。現行はscripts/check_components.pyへ必要な検査を移植 |
 | config/b2.example.json | 旧ビルド入力例。通常Makeでは未使用 |
 | docs/zcu106_build.md、compiler-runtime.mk | 旧ビルド資料・外部Clang runtimeレシピ（参照のみ） |
 

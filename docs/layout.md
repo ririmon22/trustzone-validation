@@ -47,3 +47,6 @@ BL32=0x60000000..0x70000000、BL33 code/data/stack=0x10200000/0x10300000/0x10400
 SHM=0x10500000..0x10600000。変更時は全箇所を同時に照合し、
 readelfのPT_LOAD/section/map、Core conf.mk、TF-Aの実build引数を確認する。
 リンカASSERTは領域超過を検査する。JSONの提案を実機保護確認済みに読み替えない。
+
+実生成物の統合検査は `scripts/check_components.py`、試験は `tests/host/test_artifact_checks.py` と `jtag_mock.tcl`。
+依存Python版は `build_config/python-requirements.txt`、実行結果は [PC検証](pc_validation.md)。

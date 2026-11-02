@@ -1,0 +1,6 @@
+# Python 3.12.14で確認。pyelftools 0.32は参照commitのローカルsourceから別途導入。
+setuptools==80.9.0
+wheel==0.45.1
+cryptography==46.0.5
+cffi==2.1.1
+pycparser==3.12
