@@ -1,3 +1,7 @@
+"""旧JSON一括ビルドの参照専用コード。現行ツリーでは実行非対応。"""
+if __name__ == '__main__':
+    raise SystemExit('UNSUPPORTED: legacy reference only; use the root Makefile and docs/build.md')
+
 import hashlib
 import json
 import shutil
@@ -17,7 +21,7 @@ def stage(root, physical=False, canary=True, signed=False, sgi=False):
     changes = []
     names = (['validation_canary.c','validation_canary.h'] if canary else []) + (['physical_probe.c','physical_probe.h'] if physical else [])
     for name in names:
-        source = root / 'optee_standalone/pta' / name
+        source = root / 'secure_world/pta' / name
         target = destination / 'core/pta' / name
         target.write_bytes(source.read_bytes())
         changes.append(dict(path=str(target.relative_to(destination)), original_sha256=None,

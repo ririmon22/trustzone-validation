@@ -2,7 +2,7 @@ import argparse
 import hashlib
 import json
 from pathlib import Path
-from check_b2_integration import elf_symbols, symbol_payload
+from elf_symbols import elf_symbols, symbol_payload
 from check_boot_plan import elf_inventory
 from zcu106_b2_layout import load_layout
 ROOT=Path(__file__).resolve().parents[1]

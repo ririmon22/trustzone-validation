@@ -75,7 +75,7 @@
             "translation_evidence": null
         },
         "bl31": {
-            "path": "build/external/tfa-zynqmp-b2/zynqmp/release/bl31/bl31.elf",
+            "path": "build/components/basic/tfa/zynqmp/release/bl31/bl31.elf",
             "sha256": null,
             "entry": null,
             "translation_verified": false,
@@ -100,7 +100,7 @@
             "translation_evidence": null
         },
         "bl32": {
-            "path": "build/external/optee-zynqmp/core/tee.elf",
+            "path": "build/components/basic/optee/core/tee.elf",
             "sha256": null,
             "entry": null,
             "translation_verified": false,

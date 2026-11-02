@@ -1,3 +1,7 @@
+"""旧JSON一括ビルドの参照専用コード。現行ツリーでは実行非対応。"""
+if __name__ == '__main__':
+    raise SystemExit('UNSUPPORTED: legacy reference only; use the root Makefile and docs/build.md')
+
 import argparse
 import datetime
 import json
@@ -10,7 +14,7 @@ from check_build_environment import inspect as inspect_environment
 from build_workspace import copy_sources
 from zip_sources import inspect_zip_source, tree_manifest, input_fingerprint
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 UUIDS = ('6dc13418-534f-4642-9138-215876304910', '6dc13419-534f-4642-9138-215876304910')
 
 
@@ -96,7 +100,7 @@ def run(config, environment, records, output):
         execute(['make',*variables,*targets],filename)
 
     def external(component,extra=()):
-        command=[sys.executable,'scripts/build_external.py',component,'--source-mode','zip','--compiler',selected['compiler'],'--cross-compile',selected['cross_compile'],'--platform','zynqmp','--log-dir',str(logs)]
+        command=[sys.executable,'legacy/scripts/build_external.py',component,'--source-mode','zip','--compiler',selected['compiler'],'--cross-compile',selected['cross_compile'],'--platform','zynqmp','--log-dir',str(logs)]
         if config.get('signed_ta',False):
             if component in ('optee','optee-sdk'):command+=['--signed-ta-profile','--ta-public-key',str(workspace/'build/signed-test-keys/trusted.pub.pem')]
             if component.startswith('ta-'):command+=['--ta-sign-key',str(workspace/'build/signed-test-keys/trusted.pem')]
@@ -127,7 +131,7 @@ def run(config, environment, records, output):
         external('tfa',['--configuration','b2'])
         make(['standalone-optee'],'build-bl33.log')
         result['build_status']='PASS'
-        execute([sys.executable,'scripts/check_b2_integration.py','--platform','zynqmp','--output',str(logs/'b2-integration.json')],'integration.log')
+        execute([sys.executable,'legacy/scripts/check_b2_integration.py','--platform','zynqmp','--output',str(logs/'b2-integration.json')],'integration.log')
         audit=json.loads((logs/'b2-integration.json').read_text())
         if audit.get('software_contract_status')!='PASS':raise RuntimeError('B2 software contract failed')
         if config.get('signed_ta',False):

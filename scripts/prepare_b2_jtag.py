@@ -2,12 +2,12 @@ import argparse
 import hashlib
 import json
 from pathlib import Path
-from check_boot_plan import elf_inventory, check_plan
+from check_boot_plan import elf_inventory, check_plan, B2_ARTIFACT_PATHS
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def inspect(inputs):
+def inspect(inputs, boot_plan=None, artifact_paths=None):
     issues, inventory = [], {}
     for role, record in inputs['images'].items():
         name = record.get('path')
@@ -43,7 +43,14 @@ def inspect(inputs):
         issues.append('bounded timeout must be 1..300000 milliseconds')
     if not inputs['reset_initialization_reviewed']:
         issues.append('reset/initialization order not reviewed')
-    gate = check_plan(json.loads((ROOT / 'platform/zcu106/boot_plan.json').read_text()))
+    if boot_plan is None:
+        boot_plan = json.loads((ROOT / 'platform/zcu106/boot_plan.json').read_text())
+    for role in ('bl31', 'bl32', 'bl33'):
+        image_path = inputs.get('images', {}).get(role, {}).get('path')
+        plan_path = boot_plan.get('images', {}).get(role, {}).get('path')
+        if not image_path or not plan_path or (ROOT / image_path).resolve() != (ROOT / plan_path).resolve():
+            issues.append(role + ': JTAG inputs and boot plan select different ELFs')
+    gate = check_plan(boot_plan, artifact_paths=artifact_paths)
     issues += gate['issues']
     if '#define B2_RUNTIME_READY 0' in (ROOT / 'platform/zcu106/b2/memory_map.h').read_text():
         issues.append('B2_RUNTIME_READY=0; not authorized to execute')
@@ -53,13 +60,24 @@ def inspect(inputs):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--inputs', type=Path, default=ROOT / 'platform/zcu106/jtag_b2_inputs.json')
+    parser.add_argument('--boot-plan', type=Path, default=ROOT / 'platform/zcu106/boot_plan.json')
+    for role in ('bl31', 'bl32', 'bl33'):
+        parser.add_argument('--' + role, type=Path)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--emit-tcl', type=Path)
     args = parser.parse_args()
     inputs = {}
     try:
         inputs = json.loads(args.inputs.read_text())
-        report = inspect(inputs)
+        boot_plan = json.loads(args.boot_plan.read_text())
+        artifacts = dict(B2_ARTIFACT_PATHS)
+        for role in artifacts:
+            path = getattr(args, role)
+            if path is not None:
+                artifacts[role] = str(path.resolve())
+                inputs['images'][role]['path'] = artifacts[role]
+                boot_plan['images'][role]['path'] = artifacts[role]
+        report = inspect(inputs, boot_plan, artifacts)
     except (OSError, ValueError, KeyError, TypeError) as error:
         report = dict(status='BLOCKED', issues=[str(error)], hardware_execution='NOT_RUN', execution_authorized=False)
     args.output.parent.mkdir(parents=True, exist_ok=True)

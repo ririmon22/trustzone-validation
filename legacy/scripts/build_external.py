@@ -1,3 +1,7 @@
+"""旧JSON一括ビルドの参照専用コード。現行ツリーでは実行非対応。"""
+if __name__ == '__main__':
+    raise SystemExit('UNSUPPORTED: legacy reference only; use the root Makefile and docs/build.md')
+
 import argparse
 import json
 import shutil
@@ -5,7 +9,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 
 
 def build_plan(component, prefix, output):
@@ -17,7 +21,7 @@ def build_plan(component, prefix, output):
             command += ["CFG_EARLY_TA=y", "ta_dev_kit"]
         return command
     sdk = ROOT / "build/external/optee-zynqmp/export-ta_arm64"
-    return ["make", "-C", str(ROOT / "optee_standalone/ta"), f"TA_DEV_KIT_DIR={sdk}", f"CROSS_COMPILE={prefix}", f"CROSS_COMPILE64={prefix}", f"CROSS_COMPILE_ta_arm64={prefix}", f"O={output}", f"TA_VARIANT={component[-1]}"]
+    return ["make", "-C", str(ROOT / "secure_world/ta"), f"TA_DEV_KIT_DIR={sdk}", f"CROSS_COMPILE={prefix}", f"CROSS_COMPILE64={prefix}", f"CROSS_COMPILE_ta_arm64={prefix}", f"O={output}", f"TA_VARIANT={component[-1]}"]
 
 
 def preflight(component, prefix, compiler="gcc", source_mode="locked"):
@@ -65,7 +69,7 @@ def configured_plan(args):
     if args.component.startswith("ta-") and getattr(args, "ta_sdk", None):
         command = ["TA_DEV_KIT_DIR=" + str(args.ta_sdk.resolve()) if item.startswith("TA_DEV_KIT_DIR=") else item for item in command]
     if args.component == "ta-external":
-        command[2] = str(ROOT / "optee_standalone/ta_signed")
+        command[2] = str(ROOT / "secure_world/ta_signed")
     if args.component.startswith("ta-") and getattr(args,"ta_sign_key",None):
         command.append("TA_SIGN_KEY="+str(args.ta_sign_key.resolve()))
     if args.component == "tfa":

@@ -8,17 +8,17 @@ from check_hardware_profile import profile_issues
 ROOT = Path(__file__).resolve().parents[1]
 LIMIT = 1 << 64
 B2_ARTIFACT_PATHS = {
-    'bl31': 'build/external/tfa-zynqmp-b2/zynqmp/release/bl31/bl31.elf',
-    'bl32': 'build/external/optee-zynqmp/core/tee.elf',
+    'bl31': 'build/components/basic/tfa/zynqmp/release/bl31/bl31.elf',
+    'bl32': 'build/components/basic/optee/core/tee.elf',
     'bl33': 'build/zcu106/optee_bl33.elf',
 }
 
 
-def b2_binding_issues(plan):
+def b2_binding_issues(plan, artifact_paths=None):
     if plan.get('configuration') != 'B2':
         return []
     issues = []
-    for role, expected in B2_ARTIFACT_PATHS.items():
+    for role, expected in (artifact_paths or B2_ARTIFACT_PATHS).items():
         if plan.get('images', {}).get(role, {}).get('path') != expected:
             issues.append('B2 artifact path differs from integrated build output: ' + role)
     if plan.get('integration', {}).get('required_spd') != 'opteed':
@@ -74,8 +74,8 @@ def range_issues(regions):
     return issues
 
 
-def check_plan(plan, root=ROOT):
-    issues = b2_binding_issues(plan)
+def check_plan(plan, root=ROOT, artifact_paths=None):
+    issues = b2_binding_issues(plan, artifact_paths)
     if plan.get('platform') != 'zcu106' or plan.get('configuration') != 'B2':
         issues.append('platform/configuration is unresolved')
     verified_evidence = set()
@@ -180,6 +180,8 @@ def check_plan(plan, root=ROOT):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--plan', type=Path, default=ROOT / 'platform/zcu106/boot_plan.json')
+    for role in ('bl31', 'bl32', 'bl33'):
+        parser.add_argument('--' + role, type=Path)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--inventory', type=Path, nargs='*')
     args = parser.parse_args()
@@ -187,7 +189,15 @@ def main():
         if args.inventory is not None:
             result = [elf_inventory(path) for path in args.inventory]
         else:
-            result = check_plan(json.loads(args.plan.read_text()))
+            plan = json.loads(args.plan.read_text())
+            artifacts = dict(B2_ARTIFACT_PATHS)
+            for role in artifacts:
+                path = getattr(args, role)
+                if path is not None:
+                    artifacts[role] = str(path.resolve())
+                    plan['images'][role]['path'] = artifacts[role]
+            # パス選択だけを変更する。hash/entry、証跡、保護状態は元の入力を検査する。
+            result = check_plan(plan, artifact_paths=artifacts)
     except (OSError, ValueError, KeyError, TypeError, AttributeError, struct.error) as error:
         result = dict(status='BLOCKED', issues=['Invalid/incomplete input: ' + str(error)], hardware_execution='NOT_RUN')
     args.output.parent.mkdir(parents=True, exist_ok=True)

@@ -1,6 +1,6 @@
 #ifndef B2_PHYSICAL_MEMORY_H
 #define B2_PHYSICAL_MEMORY_H
-#include "../pta/physical_probe.h"
+#include "../../secure_world/pta/physical_probe.h"
 #include "functional.h"
 #ifndef B2_PHYSICAL_DEDICATED
 #define B2_PHYSICAL_DEDICATED 0U

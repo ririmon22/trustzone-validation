@@ -1,3 +1,7 @@
+"""旧JSON一括ビルドの参照専用コード。現行ツリーでは実行非対応。"""
+if __name__ == '__main__':
+    raise SystemExit('UNSUPPORTED: legacy reference only; use the root Makefile and docs/build.md')
+
 import hashlib
 import json
 import os

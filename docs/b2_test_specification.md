@@ -81,20 +81,20 @@ sequenceDiagram
     N->>N: 選択試験開始
 ```
 
-1. `scripts/build_zcu106.py`はSDK→TA-A/B→通常署名TAとbundle→Core→BL31→BL33を作る。ロードはしない。
-2. `scripts/build_external.py:configured_plan`は`SPD=opteed`、BL31/32予約、`PRELOADED_BL33_BASE=0x10200000`を指定。Coreには`CFG_TZDRAM_*`と`CFG_SHMEM_*`を渡す。
+1. [現行Make](build.md) と [追加構成](profiles.md) で各部品を個別に作る。SDK→TA-A/B→Coreの順を守り、署名構成では外部TAとbundleも用意する。ロードはしない。
+2. `build_config/components.mk` は`SPD=opteed`、BL31/32予約、`PRELOADED_BL33_BASE=0x10200000`を指定。Coreには`CFG_TZDRAM_*`と`CFG_SHMEM_*`を渡す。
 3. `scripts/jtag/b2_boot.tcl:tz_b2_execute`は許可時にPMUFW ready待ち→FSBL停止→BL32/33/31配置で**BL31入口停止まで**。一度の関数で試験完了まで進めない。PMU readyのaddress/mask等は未確定入力である。
 4. 外部sourceで照合したTF-A `bl31/bl31_main.c:bl31_main/bl31_prepare_next_image_entry`、`services/spd/opteed/opteed_main.c:opteed_setup/opteed_init/opteed_smc_handler`が担当する初期化とdispatcherへつながる。外部sourceはZIP_UNVERIFIED、移送物外。
-5. `tfa_standalone/integration/start.S:_start`はEL2ならHCR_EL2を設定しEL1へERET、EL2状態を`debug_handoff`へ保存。EL1直接入口では`el2_known=0`のまま。その他ELは待機。入口がEL3という想定ではない。
+5. `boot/bl33_start.S:_start`はEL2ならHCR_EL2を設定しEL1へERET、EL2状態を`debug_handoff`へ保存。EL1直接入口では`el2_known=0`のまま。その他ELは待機。入口がEL3という想定ではない。
 6. `standalone_main`はEL1、`platform_prepare_tee_client`、transport初期化を確認して選択suiteを呼ぶ。ready=0は意図的な初期停止。FSBL Exit到達、BL31入口、Core初期化、BL33入口、試験開始は別の確認点。
 
 ## 共通仕様と読取り規約
 
-本書の`tests/xxx.c`は`optee_standalone/tests/xxx.c`、`ta/xxx.c`は`optee_standalone/ta/xxx.c`、`client/xxx.c`は`optee_standalone/client/xxx.c`、`pta/xxx.c`は`optee_standalone/pta/xxx.c`。`review.c`の親statusと`functional.c`の子statusを分ける。
+本書の `tests/xxx.c` は `tests/validation/xxx.c`、`ta/xxx.c` は `secure_world/ta/xxx.c`、`client/xxx.c` は `normal_world/client/xxx.c`、`pta/xxx.c` は `secure_world/pta/xxx.c`。`review.c`の親statusと`functional.c`の子statusを分ける。
 
 - `tee_reply`のtransportは自作通信の状態、resultはCore/TAの結果、originは発生層。通信成功0とTEE_SUCCESS=0は別field。origin=3はCore、4はTAサービス側の戻りであり、PTAもこの形で返る場合がある。
 - エラー値：ACCESS_DENIED=0xFFFF0001、BAD_PARAMETERS=0xFFFF0006、ITEM_NOT_FOUND=0xFFFF0008、SECURITY=0xFFFF000F、TARGET_DEAD=0xFFFF3024。期待値だけでなくtransport/origin/非改変/継続を確認する箇所を各仕様へ記す。
-- `functional.c:b2_run_functional_suite`は選択された子だけを実行。前後のactive session数を確認。保存は`test_report`→`common/test_runner/runner.c`→`b2_save_report`。重複report、ID不一致、記録overflow、後始末不備は正常完了にしない。
+- `functional.c:b2_run_functional_suite`は選択された子だけを実行。前後のactive session数を確認。保存は`test_report`→`runtime/test_runner/runner.c`→`b2_save_report`。重複report、ID不一致、記録overflow、後始末不備は正常完了にしない。
 - 全試験共通の前提：対応Core・TA・BL33/profile、固有run ID、EL1/handoff、SHM/cache契約、安全gateの別review。実機は未実施。試験準備のOpenが使えなければ多くの子はBLOCKED、Open後の比較違いはFAIL。関数ごとの条件を以下で優先する。
 - 通常の初期化/試験ではprintf互換の`log_printf`を使う。出力はBL33 RAMログで、外部TF-A/Core/TAの詳細traceを吸い上げるものではない。
 

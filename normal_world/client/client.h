@@ -11,8 +11,8 @@
 #define TEE_ERROR_ACCESS_DENIED 0xffff0001U
 #define TEE_ERROR_TARGET_DEAD 0xffff3024U
 #define TEE_ERROR_BAD_PARAMETERS 0xffff0006U
-#include "../ta/validation_ta.h"
-#include "../pta/validation_canary.h"
+#include "../../secure_world/ta/validation_ta.h"
+#include "../../secure_world/pta/validation_canary.h"
 struct tee_session {
     uint32_t id;
     bool open;

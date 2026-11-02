@@ -69,12 +69,12 @@ bl31: check-compiler
 optee-sdk: check-optee
 	$(MAKE) -C $(OPTEE_SOURCE) $(OPTEE_FLAGS_EXTERNAL) ta_dev_kit
 ta-a: check-sdk check-sign-key
-	$(MAKE) -C optee_standalone/ta $(TA_FLAGS) O=$(OUT)/ta-a TA_VARIANT=a
+	$(MAKE) -C secure_world/ta $(TA_FLAGS) O=$(OUT)/ta-a TA_VARIANT=a
 ta-b: check-sdk check-sign-key
-	$(MAKE) -C optee_standalone/ta $(TA_FLAGS) O=$(OUT)/ta-b TA_VARIANT=b
+	$(MAKE) -C secure_world/ta $(TA_FLAGS) O=$(OUT)/ta-b TA_VARIANT=b
 ta-external: check-sdk check-sign-key
 	@test "$(PROFILE)" = signed
-	$(MAKE) -C optee_standalone/ta_signed $(TA_FLAGS) O=$(OUT)/ta-external
+	$(MAKE) -C secure_world/ta_signed $(TA_FLAGS) O=$(OUT)/ta-external
 prepare-core: check-optee
 ifneq ($(PROFILE),basic)
 	$(PYTHON) scripts/prepare_core.py --source $(OPTEE_SOURCE) --destination $(CORE_SOURCE) --profile $(PROFILE)

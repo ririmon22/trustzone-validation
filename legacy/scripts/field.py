@@ -1,3 +1,7 @@
+"""旧JSON一括ビルドの参照専用コード。現行ツリーでは実行非対応。"""
+if __name__ == '__main__':
+    raise SystemExit('UNSUPPORTED: legacy reference only; use the root Makefile and docs/build.md')
+
 import argparse
 import datetime
 import hashlib
@@ -6,7 +10,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-ROOT=Path(__file__).resolve().parents[1]
+ROOT=Path(__file__).resolve().parents[2]
 
 
 def main():
@@ -29,7 +33,7 @@ def main():
         if result.returncode not in allowed:raise ValueError('Command failed; see '+str(out/'commands.log'))
         return result.returncode
     if args.action.startswith('b2-') and args.action!='b2-plan':
-        code=execute([sys.executable,'scripts/build_zcu106.py','--config',str(args.config.resolve()),*(['--check'] if args.action=='b2-check' else [])],allowed=(0,2))
+        code=execute([sys.executable,'legacy/scripts/build_zcu106.py','--config',str(args.config.resolve()),*(['--check'] if args.action=='b2-check' else [])],allowed=(0,2))
         if code==0:
             print('DEPENDENCIES READY; SOURCE ZIP_UNVERIFIED; HARDWARE BLOCKED' if args.action=='b2-check' else 'BUILD PASS; STATIC PASS; SOURCE ZIP_UNVERIFIED; HARDWARE BLOCKED')
         return code

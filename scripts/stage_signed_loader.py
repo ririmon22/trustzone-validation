@@ -3,10 +3,10 @@ from pathlib import Path
 
 
 def apply(root, destination):
-    header=root/'optee_standalone/loader/signed_loader_audit.h'
+    header=root/'secure_world/loader/signed_loader_audit.h'
     target=destination/'core/kernel/signed_loader_audit.h';target.write_bytes(header.read_bytes())
-    (destination/'core/kernel/signed_loader_types.h').write_bytes((root/'optee_standalone/loader/signed_loader_types.h').read_bytes())
-    (destination/'core/pta/signed_loader_audit_pta.c').write_bytes((root/'optee_standalone/loader/signed_loader_audit_pta.c').read_bytes())
+    (destination/'core/kernel/signed_loader_types.h').write_bytes((root/'secure_world/loader/signed_loader_types.h').read_bytes())
+    (destination/'core/pta/signed_loader_audit_pta.c').write_bytes((root/'secure_world/loader/signed_loader_audit_pta.c').read_bytes())
     sub=destination/'core/pta/sub.mk';sub.write_bytes(sub.read_bytes()+b'\nsrcs-$(CFG_TZ_SIGNED_AUDIT_PTA) += signed_loader_audit_pta.c\n')
     path=destination/'core/kernel/ree_fs_ta.c';before=path.read_bytes();text=before.decode()
     replacements=[('struct ree_fs_ta_handle {','#include "signed_loader_audit.h"\nstruct ree_fs_ta_handle {\n    struct signed_loader_entry *audit;'),

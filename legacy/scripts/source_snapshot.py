@@ -1,3 +1,7 @@
+"""旧JSON一括ビルドの参照専用コード。現行ツリーでは実行非対応。"""
+if __name__ == '__main__':
+    raise SystemExit('UNSUPPORTED: legacy reference only; use the root Makefile and docs/build.md')
+
 import hashlib
 import json
 import os
@@ -65,7 +69,7 @@ def main():
     parser.add_argument('components', nargs='+')
     parser.add_argument('--output', type=Path)
     args = parser.parse_args()
-    root = Path(__file__).resolve().parents[1]
+    root = Path(__file__).resolve().parents[2]
     lock = json.loads((root / 'third_party/dependencies.lock.json').read_text())
     try:
         results = {name: verify_source(root / 'third_party' / name, lock[name], args.source_mode) for name in args.components}

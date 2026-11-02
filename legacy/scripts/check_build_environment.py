@@ -1,3 +1,7 @@
+"""旧JSON一括ビルドの参照専用コード。現行ツリーでは実行非対応。"""
+if __name__ == '__main__':
+    raise SystemExit('UNSUPPORTED: legacy reference only; use the root Makefile and docs/build.md')
+
 import argparse
 import importlib.util
 import json
@@ -11,7 +15,7 @@ import tempfile
 from pathlib import Path
 from source_snapshot import verify_source
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 GNU_TOOLS = ('gcc', 'as', 'ld', 'ar', 'objcopy', 'objdump', 'nm', 'readelf')
 LLVM_TOOLS = ('clang', 'ld.lld', 'llvm-ar', 'llvm-objcopy', 'llvm-objdump', 'llvm-nm', 'llvm-readelf')
 

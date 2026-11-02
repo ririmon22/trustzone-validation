@@ -12,17 +12,17 @@ Normal側の小さなプログラムがSecure側へ「この入力を処理し�
 
 |用語|今回の意味・次に読む場所|
 |---|---|
-|CPU（Central Processing Unit）|A53がNormal/Secureの命令を順番に実行。TAごとに別CPUを用意するわけではない。`tfa_standalone/integration/start.S`|
+|CPU（Central Processing Unit）|A53がNormal/Secureの命令を順番に実行。TAごとに別CPUを用意するわけではない。`boot/bl33_start.S`|
 |World|ArmのSecurity Stateで区別するNormal（Non-secure）とSecure。Normal=Linuxという意味ではない。ここではNormalにBL33、SecureにCore/TA|
 |EL（Exception Level：例外レベル）|EL3にBL31、Secure EL1にCore、Secure EL0にuser TA、Normal EL1に試験。Normal EL2入口をEL1へ下ろすcodeもある。`_start`と`read_current_el`|
 |VA（Virtual Address：仮想アドレス）|命令が参照するアドレス。同じ数値でもTA-A/Bのmappingは別。`ta/security.c`のprobeはVAの分離試験|
 |PA（Physical Address：物理アドレス）|変換後にシステムへ渡すアドレス。physical PTAが返すpage PAとNormal aliasの変換先を比較する。全PA aliasの実機対応は未確認|
 |MMU（Memory Management Unit）|page tableに従ってVA→PA変換と権限検査をする。`platform/zcu106/b2/client_mmu.c`。未mapのTranslation FaultだけではXMPU保護の証明でない|
 |XMPU（Xilinx Memory Protection Unit）|CPUのpage tableとは別に、アクセス元/security等に応じて物理memory経路を制御するハードウェア。`prepare_xmpu_test.py`と`xmpu_test.tcl`は候補専用regionの確認/限定設定。全経路を自動認定しない|
-|SMC（Secure Monitor Call）|NormalからEL3へ入る命令。`common/arch.c:smc_call`がregisterにFIDと引数を置き、`smc #0`を実行|
+|SMC（Secure Monitor Call）|NormalからEL3へ入る命令。`runtime/arch.c:smc_call`がregisterにFIDと引数を置き、`smc #0`を実行|
 |RPC（Remote Procedure Call）|この構成ではSecure CoreがNormalへ作業を依頼し、Normalが応答して中断処理を再開する仕組み。別PCへのnetwork通信ではない。`client/signed_rpc.c`|
-|TA（Trusted Application）|Coreが管理するSecure EL0アプリ。A/BはEarly TA、署名TAはRAMから実行時ロード。`optee_standalone/ta`と`ta_signed`|
-|PTA（Pseudo Trusted Application）|Core内のprivilegedサービス。通常user TAと同じEL0分離を持つ別アプリではない。検証canary/物理page/署名監査は`optee_standalone/pta`と`loader`|
+|TA（Trusted Application）|Coreが管理するSecure EL0アプリ。A/BはEarly TA、署名TAはRAMから実行時ロード。`secure_world/ta/`と`secure_world/ta_signed/`|
+|PTA（Pseudo Trusted Application）|Core内のprivilegedサービス。通常user TAと同じEL0分離を持つ別アプリではない。検証canary/物理page/署名監査は`secure_world/pta/`と`secure_world/loader/`|
 |SHM（Shared Memory：共有メモリ）|Normal/Secureのmessage・buffer・RPCの受渡し領域。秘密鍵そのものの置場ではない。`client.c:message_argument`、B2 mapの0x10500000..0x10600000|
 |ELF（Executable and Linkable Format）|entry、LOAD範囲、symbols等を含む実行形式。BL31/BL32/BL33の役割が異なる。ファイルがbuildできても実機handoffが正しいとは限らない|
 |ABI（Application Binary Interface）|register/stack/構造体のbinary上の約束。`client.c`のstatic_assert、`state_call.S`のcallee-saved比較を参照|
@@ -42,7 +42,7 @@ JTAGの`dow`はファイルを配置する操作で、FSBL/BL31/Core/BL33の正�
 
 旧版でユーザーがtest_report入口のTEE-01 PASSを確認した（USER_REPORTED）。これは入口の報告値であり、111版のELF/hash/runを結び付けた新実測ではない。
 
-1. `optee_standalone/tests/functional.c:b2_run_service`はTA-Aへ2つのsessionを開く。sessionはCoreが返すIDと、Normal clientのopen状態で管理する。
+1. `tests/validation/functional.c:b2_run_service`はTA-Aへ2つのsessionを開く。sessionはCoreが返すIDと、Normal clientのopen状態で管理する。
 2. `tee_session_open`は共有messageをzero初期化し、UUIDとPUBLIC login metadataを置く。session枠はNormal clientで最大4。この4という値はCore全体の容量制限ではない。
 3. `tee_invoke(&first, TA_COMMAND_ECHO, 0x45a7)`が呼ばれる。`validation_ta.h`でECHO=0。`client.c`はmessageのcommand=INVOKE_COMMAND、function=0、session=ID、parameter=VALUE_INOUT、value.a=0x45a7へ設定する。
 4. `transport_call`→`smc_call(0x32000004, message PA上位, 下位, 0)`。B2の通常mappingはVA=PAのidentityだがMMUは有効で、Secure領域を全部mapしているわけではない。
@@ -51,7 +51,7 @@ JTAGの`dow`はファイルを配置する操作で、FSBL/BL31/Core/BL33の正�
 7. Coreがmessage result/origin等を返し、NormalへSMCが戻る。`tee_reply`はtransport/result/origin/valueの4field。`b2_run_service`はtransport=OK、result=SUCCESS、value=0x45a7を比較する。
 8. もう一つのsessionでもECHOし、未知commandはBAD_PARAMETERSとなることを確認。3条件が揃ってtest_reportする。両sessionをCloseし、cleanup不備がないことを別に確認する。
 
-読むときは、最初からSMC assemblyをすべて理解しようとせず、「Cの入力値→message→TAの分岐→Cへ戻った値」を紙に書く。次に`common/arch.c:smc_call`でどのregisterが変わってよいかを見る。
+読むときは、最初からSMC assemblyをすべて理解しようとせず、「Cの入力値→message→TAの分岐→Cへ戻った値」を紙に書く。次に`runtime/arch.c:smc_call`でどのregisterが変わってよいかを見る。
 
 ## 4. 一つの試験の準備・操作・判定・後始末
 
@@ -99,7 +99,7 @@ code上は子のPASS報告がClose前にある。したがってtest_report入�
 - **SKIP**は今回方針で試験対象外として実行しない場合。対象外SGIはcodeがBLOCKEDを出すが、資料の範囲分類は「今回対象外」。scopeとruntime enumを混ぜない。
 - **NOT_RUN**は未選択/未実施。親の実機NOT_RUNと、RAM内未選択子NOT_RUNも区別する。
 
-BL33では`common/el1_vectors.S`と`common/include/exception_capture.inc`がCを呼ぶ前にESR（Exception Syndrome Register：原因情報）、FAR（Fault Address Register：対象address）、ELR（Exception Link Register：復帰PC）、SPSR（保存status）、SP/GPRを記録する。`debug_exception`は最初の致命的記録を保持する。`debug_sync_exception`は同期例外の記録なので後の想定probeで更新され得る。
+BL33では`runtime/el1_vectors.S`と`runtime/include/exception_capture.inc`がCを呼ぶ前にESR（Exception Syndrome Register：原因情報）、FAR（Fault Address Register：対象address）、ELR（Exception Link Register：復帰PC）、SPSR（保存status）、SP/GPRを記録する。`debug_exception`は最初の致命的記録を保持する。`debug_sync_exception`は同期例外の記録なので後の想定probeで更新され得る。
 
 物理probeの`b2_handle_phys_fault`は指定命令PC・FAR・read/write種別等が一致する場合だけ限定的に復帰。任意faultを「試験用だから」と握り潰さない。最適化されたC引数のGUI表示ではなくRAM recordを読む。
 
@@ -143,20 +143,20 @@ stage3=EXPECTED_FAULT。意図したTA fault区間へ入っただけで、この
 
 |順|ファイル|注目する関数・定義|読む目的|
 |---|---|---|---|
-|1|optee_standalone/tests/functional.c|cases、b2_run_service、b2_run_functional_suite|試験の入口と一つの完成した例|
-|2|optee_standalone/client/client.c|tee_session_open、tee_invoke、transport_call、tee_session_close|session/message/戻り値、TARGET_DEAD後のClose|
-|3|optee_standalone/ta/ta.c|TA_OpenSessionEntryPoint、TA_InvokeCommandEntryPoint|ECHOとtoken分岐、session状態|
-|4|optee_standalone/ta/validation_ta.h|TA_COMMAND_*、UUID、試験値|command番号とA/Bの差|
-|5|common/arch.c|smc_call、counter_read、platform_halt|World切替要求、counter、待機。WFE待機とdebug停止は別|
-|6|tfa_standalone/integration/start.S、platform/zcu106/b2/client_mmu.c|_start、platform_prepare_tee_client、zcu106_b2_build_page_tables|EL入口、ゲート、MMU/cacheと写像|
-|7|optee_standalone/tests/security_tests.c、optee_standalone/ta/security.c|probe_other_ta、security_invoke、trusted_read、key_attribute_test|分離・TA認可・鍵属性の検査層|
-|8|optee_standalone/tests/review.c|parent_ids、inherit、run_state_retention、run_token_policy、supplement_isolation|子の結果を親21項目へ対応付ける方法|
-|9|optee_standalone/tests/physical_memory.c、physical_policy.c|b2_run_physical_memory、b2_handle_phys_fault、b2_classify_physical_abort|TA VM分離と物理保護の違い|
+|1|tests/validation/functional.c|cases、b2_run_service、b2_run_functional_suite|試験の入口と一つの完成した例|
+|2|normal_world/client/client.c|tee_session_open、tee_invoke、transport_call、tee_session_close|session/message/戻り値、TARGET_DEAD後のClose|
+|3|secure_world/ta/ta.c|TA_OpenSessionEntryPoint、TA_InvokeCommandEntryPoint|ECHOとtoken分岐、session状態|
+|4|secure_world/ta/validation_ta.h|TA_COMMAND_*、UUID、試験値|command番号とA/Bの差|
+|5|runtime/arch.c|smc_call、counter_read、platform_halt|World切替要求、counter、待機。WFE待機とdebug停止は別|
+|6|boot/bl33_start.S、platform/zcu106/b2/client_mmu.c|_start、platform_prepare_tee_client、zcu106_b2_build_page_tables|EL入口、ゲート、MMU/cacheと写像|
+|7|tests/validation/security_tests.c、secure_world/ta/security.c|probe_other_ta、security_invoke、trusted_read、key_attribute_test|分離・TA認可・鍵属性の検査層|
+|8|tests/validation/review.c|parent_ids、inherit、run_state_retention、run_token_policy、supplement_isolation|子の結果を親21項目へ対応付ける方法|
+|9|tests/validation/physical_memory.c、physical_policy.c|b2_run_physical_memory、b2_handle_phys_fault、b2_classify_physical_abort|TA VM分離と物理保護の違い|
 |10|scripts/prepare_xmpu_test.py、scripts/jtag/xmpu_test.tcl|prepare、tz_xmpu_test_apply|候補専用regionだけの確認・設定・readback。実機未検証|
-|11|optee_standalone/tests/signed_ta_tests.c、client/signed_rpc.c|b2_run_signed_ta、signed_rpc_call、load_ta、signed_rpc_end|署名TAを実ローダへ渡す経路と回収|
-|12|scripts/stage_signed_loader.py、optee_standalone/loader/*|apply、signed_loader_begin/note、監査PTA|外部Coreのどこを監査するか。元sourceを作業copyで変更|
+|11|tests/validation/signed_ta_tests.c、client/signed_rpc.c|b2_run_signed_ta、signed_rpc_call、load_ta、signed_rpc_end|署名TAを実ローダへ渡す経路と回収|
+|12|scripts/stage_signed_loader.py、secure_world/loader/*|apply、signed_loader_begin/note、監査PTA|外部Coreのどこを監査するか。元sourceを作業copyで変更|
 |13|scripts/decode_b2_results.py、decode_signed_results.py、decode_b2_review.py|decode、decode_signed、review、benchmarks|RAMを証拠として受理する条件|
-|14|scripts/build_zcu106.py、build_external.py、select_b2_test.py|build入口、configured_plan、選択CLI|Core/TA/BL31/BL33 profileの対応|
+|14|Makefile、build_config/components.mk、docs/profiles.md|個別build入口、試験選択変数|Core/TA/BL31/BL33 profileの対応|
 
 外部sourceは別配置のTF-A `bl31/bl31_main.c`と`services/spd/opteed/opteed_main.c`、OP-TEE `core/tee/entry_std.c`と`core/kernel/ree_fs_ta.c`へ進む。111版には外部本体がない。lockファイルは参照版であり、ZIP由来sourceの固定commit証明ではない。
 

@@ -19,7 +19,7 @@ if args.profile == 'physical':
     names.append('physical_probe')
 for name in names:
     for suffix in ('.c', '.h'):
-        shutil.copyfile(root / 'optee_standalone/pta' / (name + suffix), args.destination / 'core/pta' / (name + suffix))
+        shutil.copyfile(root / 'secure_world/pta' / (name + suffix), args.destination / 'core/pta' / (name + suffix))
 with (args.destination / 'core/pta/sub.mk').open('a') as output:
     output.write('\nsrcs-$(CFG_TZ_VALIDATION_PTA) += validation_canary.c\n')
     if args.profile == 'physical':

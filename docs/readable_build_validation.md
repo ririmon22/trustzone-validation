@@ -1,3 +1,8 @@
+# 前回（672e4a0時点）の記録
+
+このファイルは前回の確認記録。作業場所の経緯は過去の記録であり必須パスではない。
+今回の移動・再検証は [検証記録](layout_validation.md) を参照。以下のソース参照は現行の移動先へ更新した。
+
 # 整理後の確認記録（2026-11-02）
 
 作業ブランチ: `refactor/readable-components-review-20261102`。
@@ -41,8 +46,8 @@ SHM試験の再実行:
 
 ```sh
 clang -std=c11 -Wall -Wextra -Werror -DTEE_CLIENT_HOST_TEST \
-  -Icommon/include -Iplatform/zcu106/b2 -Ioptee_standalone/client \
-  tests/host/client_shm_contract.c optee_standalone/client/client.c \
+  -Iruntime/include -Iplatform/zcu106/b2 -Inormal_world/client \
+  tests/host/client_shm_contract.c normal_world/client/client.c \
   -o /tmp/tz-client-contract
 for i in 0 1 2 3 4 5 6 7 8 9; do /tmp/tz-client-contract "$i" || break; done
 ```

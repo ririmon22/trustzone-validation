@@ -1,3 +1,7 @@
+"""旧JSON一括ビルドの参照専用コード。現行ツリーでは実行非対応。"""
+if __name__ == '__main__':
+    raise SystemExit('UNSUPPORTED: legacy reference only; use the root Makefile and docs/build.md')
+
 import argparse
 import datetime
 import json
@@ -9,7 +13,7 @@ from pathlib import Path
 from decode_b2_results import IDS
 from decode_b2_review import PARENTS
 from build_workspace import copy_sources
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 
 if __name__ == '__main__':
     parser=argparse.ArgumentParser(description='Build only own BL33 in a new workspace; never load hardware or change ready flags')

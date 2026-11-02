@@ -3,7 +3,7 @@ import hashlib
 import json
 import struct
 from pathlib import Path
-from check_b2_integration import elf_symbols, symbol_payload
+from elf_symbols import elf_symbols, symbol_payload
 from decode_ram_log import decode as decode_log
 
 IDS = ['TEE-01', 'TEE-07', 'TEE-AUTH-TA', 'TEE-SHM-01', 'TEE-KEY-API', 'TEE-ISO-TA',

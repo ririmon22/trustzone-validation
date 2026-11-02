@@ -1,10 +1,10 @@
 # 1. 最終111版の範囲と21項目一覧
 
-[読む順の入口](../README.md) → 本書 → [試験仕様と図](b2_test_specification.md) → [仕組みとコードの読み方](b2_reading_guide.md)。操作だけを行う場合は[ビルド](zcu106_build.md)・[起動と回収](zcu106_run.md)。
+[読む順の入口](../README.md) → 本書 → [試験仕様と図](b2_test_specification.md) → [仕組みとコードの読み方](b2_reading_guide.md)。操作だけを行う場合は[ビルド](build.md)・[起動と回収](zcu106_run.md)。
 
 ## 対象版と証拠の扱い
 
-対象は最終111ファイルZIPに収録されたZCU106/B2（TF-A BL31＋OP-TEE BL32＋Standalone BL33）のsource/config/script。公開main、dirty開発tree、QEMU/A/B1の動作と区別する。本資料版は111版を基準に説明書4本を3本へ統合し、性能ログの固定cache/MMU表示だけを採取済SCTLRからの表示へ修正した。試験範囲・計測区間・入力設定は変更していない。
+以下の版・L-B/L-X/L-Dは過去の資料版の証拠分類であり、今回の確認結果は [検証記録](layout_validation.md) に記載する。現行で保持する試験範囲は最終111ファイルZIPに収録されたZCU106/B2（TF-A BL31＋OP-TEE BL32＋Standalone BL33）のsource/config/script。公開main、dirty開発tree、QEMU/A/B1の動作と区別する。本資料版は111版を基準に説明書4本を3本へ統合し、性能ログの固定cache/MMU表示だけを採取済SCTLRからの表示へ修正した。試験範囲・計測区間・入力設定は変更していない。
 
 **分類は12実行可能・1条件待ち・8今回対象外で一致する。** 「実行可能」はcodeと選択経路が揃う意味で、今すぐロード可でも実機PASSでもない。全項目共通でB2_RUNTIME_READY=0、安全ゲートBLOCKED。物理試験はB2_PHYS_REVIEWED=0も維持。正式レビューはこの21親項目だけ。TEE-xx等は親の小試験である。
 
@@ -16,13 +16,13 @@
 - **L-X**：111版の限定XMPU追加処理はホスト不正入力15ケースとTclモックの適用/読戻しを検査。実MMIO/XSDBは未実施。
 - **L-D**：PC decoderの合成RAM・Tclモック検査。TA/Coreの実行成功の代替ではない。
 
-本版で新たに行った検査は、性能metadata表示の8組合せ・未採取/古いrun等のホスト検査、測定ループとcallback順の不変検査、変更BL33のAArch64ビルド、既存性能decoder回帰。実機での再測定は行っていない。
+当時の資料版で行った検査は、性能metadata表示の8組合せ・未採取/古いrun等のホスト検査、測定ループとcallback順の不変検査、変更BL33のAArch64ビルド、既存性能decoder回帰。実機での再測定は行っていない。
 
 各行の実機状況は**111版NOT_RUN（共通起動条件③・証跡⑤）**。対象外は実測結果を作らない。旧版USER_REPORTEDは末尾で別管理する。機能の合否と回収のCOMPLETEは別で、完全なFAIL/BLOCKEDの回収もあり得る。
 
 ## 全21項目
 
-単独欄の`ID`は`python3 scripts/select_b2_test.py --config config/review.local.json --test ID`を表す（PC上のBL33 buildだけ）。一式は`--test review`。それぞれ実生成Core/profileと一致させる。物理と署名は後述の例外がある。
+単独欄のIDは論理的な選択名で、旧 `--test ID` CLIは参照専用・使用不可。現行は [Makeによる試験選択](profiles.md) の `B2_TEST_INDEX` / `B2_REVIEW_PARENT` を使う。一式は `make PROFILE=signed bl33`。物理と署名の単独選択は後述の例外に従う。
 
 |元ID・項目名・目的|今回確認する範囲|今回確認しない範囲|必要code・主要関数|単独／一式|区分・具体的根拠|不足する実装・設定・情報|ローカル／111実機|合格が示すこと／示さないこと|
 |---|---|---|---|---|---|---|---|---|
@@ -52,9 +52,9 @@
 
 1. `all`は機能13子IDだけ（ECHO、panic、TA identity、SHM、鍵API、TA分離、session、ABI、境界、SMCCC/PSCI版、閉Core session、引数、鍵属性）。親21項目の一式ではない。
 2. `review`は13子＋署名TAを実行し、状態保持・token・Core canary/statsを補足、8性能系列を測定する。物理probeは呼ばず、物理親はBLOCKED。対象外親はSKIP又はBLOCKED。
-3. `--test TZ-SYS-03-V01`は親のBLOCKED報告で、`--test TZ-SYS-03`が実probeの選択15。reviewで物理保護PASSを得る経路はない。
-4. `--test EXT-TA-V03`はselection16で子TEE-04を実行する。親RAMのreview表は生成しない。PC側署名監査と合わせてEXT-TA-V03の証拠とする。
-5. `--test PERF-01/02/05`も内部で8系列全部を測る。`performance`はselection18。PERF-03は含まれずBLOCKED。性能の生statusがPASSでもPC表現はMEASUREDで、速度合格を作らない。
+3. 親3の選択は親のBLOCKED報告で、`B2_TEST_INDEX=15`が実probeの選択15。reviewで物理保護PASSを得る経路はない。
+4. `B2_TEST_INDEX=16`はselection16で子TEE-04を実行する。親RAMのreview表は生成しない。PC側署名監査と合わせてEXT-TA-V03の証拠とする。
+5. 親17/18/21の選択も内部で8系列全部を測る。`B2_TEST_INDEX=18`はselection18。PERF-03は含まれずBLOCKED。性能の生statusがPASSでもPC表現はMEASUREDで、速度合格を作らない。
 6. 111版Makefileは`override B2_SECURE_SGI := 0`。`secure_sgi.c`も含めず、overlay生成も拒否する。TZ-SYS-06-V01/PERF-03は「実機条件待ち」ではなく**今回移送対象外**。実機情報取得だけでは復活しない。
 7. legacy経路もcodeに残るが、新結果RAMの通常選択/親集計と同じものではない。legacyのTEE-02/05等の広い親意味を、今回の限定認可/鍵APIの成功へ読み替えない。
 

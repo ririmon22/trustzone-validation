@@ -21,10 +21,10 @@ def generate_keys(directory):
 
 def build_bundle(workspace, base=None, keys=None, out=None, optee=None):
     import uuid
-    base = base or workspace/'build/external/ta-external'
+    base = base or workspace/'build/components/signed/ta-external'
     normal=base/(UUID+'.ta');elf=base/(UUID+'.stripped.elf')
     keys = keys or workspace/'build/signed-test-keys'
-    out = out or workspace/'build/external/signed'
+    out = out or workspace/'build/components/signed/bundle'
     optee = optee or workspace/'third_party/optee'
     out.mkdir()
     command=[sys.executable,str(optee/'scripts/sign_encrypt.py'),'sign-enc','--uuid',UUID,'--key',str(keys/'wrong.pem'),'--in',str(elf),'--out',str(out/'wrong.ta')]

@@ -1,3 +1,7 @@
+# 参照専用：この旧手順は現在使用不可
+
+現行は [Makeビルド](../../docs/build.md)。以下のコマンドは履歴の参照用であり実行しない。
+
 > この文書は保全した旧JSON一括ビルド手順です。通常の個別Makeビルドは[README](../README.md)を参照してください。新しい出力先を旧検査・ロードへ渡す互換性は未確認です。
 
 # ZCU106/B2 ソースビルド
@@ -20,16 +24,16 @@ reference commit/repositoryは`third_party/dependencies.lock.json`。ZIP展開�
 
 ## 操作
 
-1. `config/b2.example.json`を`config/review.local.json`へコピーする。
+1. `legacy/config/b2.example.json`を`config/review.local.json`へコピーする。
 2. 各source directoryを指定する。相対パスはconfigのdirectory基準。compiler/cross_compile/llvm_dirと固有run_idを記入する。configのplatformはzcu106だけ。qemu/host_tests/secure_sgi開発profileは選択できない。
 3. 事前確認する。
    ```bash
-   python3 scripts/field.py b2-check config/review.local.json
+   python3 legacy/scripts/field.py b2-check config/review.local.json
    ```
    不足するtool/module/sourceは具体的に表示し、BLOCKEDで止まる。入力ZIPの構造確認はbuild互換性のためであり、移送ZIPの包装検査ではない。
 4. 一括buildする。
    ```bash
-   python3 scripts/field.py b2-build config/review.local.json
+   python3 legacy/scripts/field.py b2-build config/review.local.json
    ```
    SDK→Early TA-A/B→専用UUIDの通常署名TA→正常/改変/別鍵bundle→公開鍵と監査PTA入りCore→SPD=opteed BL31→BL33を生成する。CROSS_COMPILE/CROSS_COMPILE64/CROSS_COMPILE_ta_arm64を全て明示する。
 5. 表示された`results/zcu106-build/<run>/`を確認する。source-inputs、preflight、source-hashes、result.jsonとworkspace/results/buildの各make logを保存する。BL31/BL32/BL33のentry・LOAD・BSS、予約、SHM/cache、Early TA payload、署名公開鍵、専用物理候補の照合が実施される。
@@ -39,10 +43,10 @@ reference commit/repositoryは`third_party/dependencies.lock.json`。ZIP展開�
 ## 試験を選ぶ
 
 ```bash
-python3 scripts/select_b2_test.py --config config/review.local.json --test all
-python3 scripts/select_b2_test.py --config config/review.local.json --test EXT-AUTH-V01
-python3 scripts/select_b2_test.py --config config/review.local.json --test EXT-TA-V03
-python3 scripts/select_b2_test.py --config config/review.local.json --test review
+python3 legacy/scripts/select_b2_test.py --config config/review.local.json --test all
+python3 legacy/scripts/select_b2_test.py --config config/review.local.json --test EXT-AUTH-V01
+python3 legacy/scripts/select_b2_test.py --config config/review.local.json --test EXT-TA-V03
+python3 legacy/scripts/select_b2_test.py --config config/review.local.json --test review
 ```
 
 allは機能13件、reviewは21親項目の集計で、未確認・対象外を含む。既存legacyは比較用の選択として保持する。未選択はNOT_RUN。選択ELFを、同じsource/profile/公開鍵のCore・bundleと照合する。変更したELFだけを古いCoreへ無条件に組み合わせない。
@@ -51,6 +55,6 @@ allは機能13件、reviewは21親項目の集計で、未確認・対象外を�
 
 Vitis 2025.1のZCU106 Platform、psu_cortexa53_0、Standalone domainと、対応するFSBL/PMUFWを準備する。実GUI操作はNOT_RUN。
 
-BL33は`optee_standalone/client`、`optee_standalone/tests`、common、`tfa_standalone/integration/start.S`、ZCU106/B2 MMUを用いる。実際のMake commandのC/ASM source、include、-mcpu=cortex-a53、-mgeneral-regs-only、freestanding/-nostdlibと`platform/zcu106/b2/linker_bl33.ld`を照合する。BSP startup・crtbegin・既定リンカを二重追加しない。BL31/Coreを通常Standalone applicationとして再リンクしない。生成Mapと実際のlink commandを証跡にする。
+BL33は`normal_world/client`、`tests/validation`、runtime、`boot/bl33_start.S`、ZCU106/B2 MMUを用いる。実際のMake commandのC/ASM source、include、-mcpu=cortex-a53、-mgeneral-regs-only、freestanding/-nostdlibと`platform/zcu106/b2/linker_bl33.ld`を照合する。BSP startup・crtbegin・既定リンカを二重追加しない。BL31/Coreを通常Standalone applicationとして再リンクしない。生成Mapと実際のlink commandを証跡にする。
 
-BUILD PASSと静的検査PASSは実機成功ではない。B2_RUNTIME_READY=0、B2_PHYS_REVIEWED=0、boot planのロード禁止を維持する。次に[zcu106_run.md](zcu106_run.md)を読む。
+BUILD PASSと静的検査PASSは実機成功ではない。B2_RUNTIME_READY=0、B2_PHYS_REVIEWED=0、boot planのロード禁止を維持する。次に[zcu106_run.md](../../docs/zcu106_run.md)を読む。

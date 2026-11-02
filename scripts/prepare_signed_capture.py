@@ -3,7 +3,7 @@ import hashlib
 import json
 from pathlib import Path
 from prepare_jtag_capture import plan
-from check_b2_integration import elf_symbols
+from elf_symbols import elf_symbols
 from check_boot_plan import elf_inventory
 
 if __name__=='__main__':

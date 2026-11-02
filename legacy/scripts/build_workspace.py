@@ -1,9 +1,13 @@
+"""旧JSON一括ビルドの参照専用コード。現行ツリーでは実行非対応。"""
+if __name__ == '__main__':
+    raise SystemExit('UNSUPPORTED: legacy reference only; use the root Makefile and docs/build.md')
+
 import hashlib
 import shutil
 from pathlib import Path
 
 # 実際のbuild/検査が使うsourceだけを新しい作業領域へ複製する。
-SOURCE_DIRECTORIES = ('common', 'optee_standalone', 'platform', 'scripts', 'tfa_standalone')
+SOURCE_DIRECTORIES = ('runtime', 'optee_standalone', 'platform', 'scripts', 'tfa_standalone')
 
 def copy_sources(root, destination):
     root=Path(root).resolve();destination=Path(destination).resolve()

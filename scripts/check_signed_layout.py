@@ -3,7 +3,7 @@ import json
 import re
 from pathlib import Path
 from check_boot_plan import elf_inventory
-from check_b2_integration import elf_symbols,symbol_payload
+from elf_symbols import elf_symbols,symbol_payload
 ROOT=Path(__file__).resolve().parents[1]
 
 def check(root,platform,elf):
