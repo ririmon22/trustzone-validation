@@ -1,12 +1,16 @@
-# TrustZone試験 T-01〜T-21：report.txt・シーケンス・コード根拠
+# TrustZone試験 T-01〜T-21：現行の検証内容・合格基準・reportとコード根拠
 
-改訂日：2026-11-08。**利用者提示の21項目表の連番・項目名・順序に統一した改訂版。** 前版の10グループの番号は使用しない。
+改訂日：2026-11-09。**現行コードの試験内容・検証方法・自動判定条件が一致するように書き直した版。** T-01〜T-21とreport正式IDは維持し、項目名は実施範囲が分かる名称へ修正した。
 
-対象コード：`refactor/readable-components-review-20261102`、commit `a94646ea4130b448961c7921c57d1d317da8f36b`。リンクはこの版へ固定。実際のreport・raw dump・ロード済みELFは未受領のため、本書の期待値はコード上の条件であり実測結果ではない。手元の未push修正、特に物理試験・TF-AのSError対応は差分確認が必要。
+以前の表は「将来確認したい広い内容」と「現行コードのPASS条件」を同じ合格基準へ混ぜていた。本版では各項目に、今回の検証範囲、手順、自動判定条件、追加確認の範囲を明記する。機能を未実装のまま合格扱いにする変更や、コードのPASS条件の変更は行っていない。
+
+対象コード：`refactor/readable-components-review-20261102`、実装確認commit `a94646ea4130b448961c7921c57d1d317da8f36b`。リンクはこの版へ固定。実際のreport・raw dump・ロード済みELFは未受領のため、本書の期待値はコード上の条件であり実測結果ではない。手元の未push修正、特に物理試験・TF-AのSError対応は差分確認が必要。
 
 **読む順番：T番号で項目を選ぶ → reportの正式IDを検索 → checkと期待値 → シーケンス → コード → 公式資料。**
 
-各章の冒頭に「要求表の検証方法・合格基準」を置き、その下で現行実装の範囲を説明する。表が求める範囲より狭い試験のPASSを、そのまま要求全体の合格にしない。
+各章は「今回確認する範囲 → 検証手順 → 合格条件 → 対象外・追加確認 → report証拠 → シーケンス → コード・公式根拠」の順で読む。合格条件は自作試験コードに基づく。公式資料は通信・API・CPU機構の根拠であり、この試験の回数や独自command、独自合否規則を公式が定めたという意味ではない。
+
+2026-11-09に公開ブランチ先端`d22db7ca6c10b762328fe4e8540943429725b2f1`までの差分を確認した。実装確認commitから追加されたのはMD資料2件で、試験ソースの差分はなかった。本書のコードリンクは実装確認commitへ固定する。手元のビルド用Coreコピーや未push修正が一致する保証ではない。
 
 ## 1. T番号とreport名・実装上の親番号の対応
 
@@ -14,27 +18,27 @@
 
 |連番ID|元の21項目ID／reportの親test_id|検証項目|B2_REVIEW_PARENT|reportの詳細証拠|現行結果の採用範囲|
 |---|---|---|---|---|---|
-|[T-01](#t-01)|`TZ-SYS-01-V01`|Secure／Normalの別々の実行|1|TEE-01|reportのPASSはサービス往復。両側EL/Stateの直接証拠は別途|
-|[T-02](#t-02)|`TZ-SYS-02-V01`|Secure呼出し・復帰|2|TEE-01|往復・Normal継続。復帰PCの直接比較は別途|
-|[T-03](#t-03)|`TZ-SYS-02-V02`|繰返し切替と状態保持|3|親自身の16check|256回と指定状態の保持|
-|[T-04](#t-04)|`TZ-SYS-03-V01`|Secureメモリの読書き禁止|4|TZ-SYS-03＋PHYSICAL EVIDENCE|reviewはBLOCKED。専用実行で4probeと追加証跡|
-|[T-05](#t-05)|`TZ-SYS-03-V02`|秘密領域と共有領域の使い分け|5|TEE-SHM-01 / TEE-BOUNDARY-01 / TEE-PARAM-01|SHM・型・内容・境界の実装範囲|
-|[T-06](#t-06)|`TZ-SYS-04-V01`|Secure周辺機器の保護|6|なし|SKIP・未実施|
-|[T-07](#t-07)|`TZ-SYS-05-V01`|DMAからのSecureメモリ保護|7|なし|SKIP・未実施|
-|[T-08](#t-08)|`TZ-SYS-06-V01`|Secure割込みの配送|8|なし|BLOCKED・未実施|
-|[T-09](#t-09)|`TZ-SYS-07-V01`|JTAGデバッグ制限|9|なし|SKIP・未実施|
-|[T-10](#t-10)|`EXT-AUTH-V01`|サービスの認証・認可|10|TEE-AUTH-TA＋親token検査|TA identityと固定tokenのみ。本物のNormal要求者認証は未実装|
-|[T-11](#t-11)|`EXT-BOOT-V01`|起動イメージ署名検証|15|なし|SKIP・未実施|
-|[T-12](#t-12)|`EXT-KEY-V01`|鍵を外に出さない暗号サービス|11|TEE-KEY-API / TEE-KEY-ATTR-01|API・暗号のみ。生メモリ抽出は未実施|
-|[T-13](#t-13)|`EXT-STORE-V01`|Secureデータ永続保存|16|なし|SKIP・未実施|
-|[T-14](#t-14)|`EXT-TA-V01`|User TAの呼出し|12|TEE-01 / TEE-SESSION-01 / TEE-ABI-01 / TEE-SESSION-CORE-01 / TEE-PARAM-01|指定入力・client4枠・session等の範囲|
-|[T-15](#t-15)|`EXT-TA-V02`|2つのUser TAの分離|13|TEE-07 / TEE-ISO-TA＋Core・stress補足|子2件＋Core canary＋512反復を別々に確認|
-|[T-16](#t-16)|`EXT-TA-V03`|署名TAのロード・改ざん拒否|14|TEE-04＋SIGNED LOADER|8ケースとCore署名/digest監査が必要|
-|[T-17](#t-17)|`PERF-01`|Secure呼出しの往復時間|17|BENCHMARKS.series_id=PERF-01|MEASURED・閾値なし|
-|[T-18](#t-18)|`PERF-02`|メモリアクセス性能|18|BENCHMARKS.series_id=PERF-02|NS cached SHM store区間のみMEASURED|
-|[T-19](#t-19)|`PERF-03`|Secure割込み応答時間|19|なし|BLOCKED・未測定|
-|[T-20](#t-20)|`PERF-04`|許可領域のDMA転送性能|20|なし|SKIP・未測定|
-|[T-21](#t-21)|`PERF-05`|TA呼出し・暗号処理時間|21|BENCHMARKSのPERF-05 / 06 / 08 / 09 / 10 / 11|6系列MEASURED。Storage未測定|
+|[T-01](#t-01)|`TZ-SYS-01-V01`|NormalからのTAサービス実行と結果の照合|1|TEE-01|reportのPASSはサービス往復。両側EL/Stateの直接証拠は別途|
+|[T-02](#t-02)|`TZ-SYS-02-V01`|TA呼出しからNormal処理への復帰と継続|2|TEE-01|往復・Normal継続。復帰PCの直接比較は別途|
+|[T-03](#t-03)|`TZ-SYS-02-V02`|256回のTA往復における指定状態の保持|3|親自身の16check|256回と指定状態の保持|
+|[T-04](#t-04)|`TZ-SYS-03-V01`|専用SecureページへのNormal read/write拒否・非改変・復帰|4|TZ-SYS-03＋PHYSICAL EVIDENCE|reviewはBLOCKED。専用実行で4probeと追加証跡|
+|[T-05](#t-05)|`TZ-SYS-03-V02`|共有メモリの範囲・型・内容検査と拒否後の継続|5|TEE-SHM-01 / TEE-BOUNDARY-01 / TEE-PARAM-01|SHM・型・内容・境界の実装範囲|
+|[T-06](#t-06)|`TZ-SYS-04-V01`|Secure周辺機器保護：未実施|6|なし|SKIP・未実施|
+|[T-07](#t-07)|`TZ-SYS-05-V01`|DMAからのSecureメモリ保護：未実施|7|なし|SKIP・未実施|
+|[T-08](#t-08)|`TZ-SYS-06-V01`|Secure割込み配送：選択ZCU構成では未実施|8|なし|BLOCKED・未実施|
+|[T-09](#t-09)|`TZ-SYS-07-V01`|JTAGデバッグ制限：未実施|9|なし|SKIP・未実施|
+|[T-10](#t-10)|`EXT-AUTH-V01`|TA呼出元identityの認可と固定トークンのsession状態|10|TEE-AUTH-TA＋親token検査|TA identityと固定tokenのみ。本物のNormal要求者認証は未実装|
+|[T-11](#t-11)|`EXT-BOOT-V01`|SoC認証bootによる起動署名検証：未実施|15|なし|SKIP・未実施|
+|[T-12](#t-12)|`EXT-KEY-V01`|非抽出鍵のAPI制約とAESの正常動作|11|TEE-KEY-API / TEE-KEY-ATTR-01|API・暗号のみ。生メモリ抽出は未実施|
+|[T-13](#t-13)|`EXT-STORE-V01`|Secureデータ永続保存：未実施|16|なし|SKIP・未実施|
+|[T-14](#t-14)|`EXT-TA-V01`|User TAの正常呼出しと入力・sessionの拒否層|12|TEE-01 / TEE-SESSION-01 / TEE-ABI-01 / TEE-SESSION-CORE-01 / TEE-PARAM-01|指定入力・client4枠・session等の範囲|
+|[T-15](#t-15)|`EXT-TA-V02`|TAの異常終了・仮想空間分離・復旧とCore/資源の補足|13|TEE-07 / TEE-ISO-TA＋Core・stress補足|子2件＋Core canary＋512反復を別々に確認|
+|[T-16](#t-16)|`EXT-TA-V03`|外部署名TAの実ロード・不正image拒否とローダ監査|14|TEE-04＋SIGNED LOADER|8ケースとCore署名/digest監査が必要|
+|[T-17](#t-17)|`PERF-01`|GET_SHM_CONFIG fast SMCの往復時間測定|17|BENCHMARKS.series_id=PERF-01|MEASURED・閾値なし|
+|[T-18](#t-18)|`PERF-02`|Normal cached SHMへの512B store区間の時間測定|18|BENCHMARKS.series_id=PERF-02|NS cached SHM store区間のみMEASURED|
+|[T-19](#t-19)|`PERF-03`|Secure割込み応答時間：選択ZCU構成では未測定|19|なし|BLOCKED・未測定|
+|[T-20](#t-20)|`PERF-04`|許可領域間のDMA転送性能：未測定|20|なし|SKIP・未測定|
+|[T-21](#t-21)|`PERF-05`|TA ECHO・暗号・Open/Close・復旧の6系列測定|21|BENCHMARKSのPERF-05 / 06 / 08 / 09 / 10 / 11|6系列MEASURED。Storage未測定|
 
 親単独を選ぶ一般形は`B2_TEST_INDEX=17 B2_REVIEW_PARENT=<上表の番号>`。**この説明は選択対応であり、未実装項目を有効にする操作ではない。** T-04の物理実probeは別選択15、T-16の署名单独は選択16。実行profile・Core・ゲートも別に一致させる。
 
@@ -53,9 +57,15 @@
 |---|---|---|
 |回収|Collection COMPLETE|必要な実行記録が揃う。FAILやBLOCKEDを完全に回収できる場合もある|
 |実装した小試験|reportのPASS、またはMEASURED|コードに書かれた範囲だけが成立|
-|利用者の要求表|各T項目の合格基準を満たすか|未実装・未測定の小項目も含めて判断。reportがPASSでも不足が残り得る|
+|レビューで採用する結論|本書に明記した検証範囲と追加観測を満たすか|reportのPASSから証明していない範囲へ結論を広げない|
 
-本書の「未実施／保留／不足」は要求表に対するレビュー上の扱いであり、reportを書換えて生成したstatusではない。T-10/T-12の現行reportは限定範囲でPASSを出すが、要求表全体のPASSに読み替えない。
+本版のT-10は「TA identityと固定トークン」、T-12は「非抽出鍵APIとAES」という現行実装の範囲に定義を改めた。その範囲のPASSを説明する。Normal要求者の本人認証や生メモリ鍵抽出耐性を検証済みにする意味ではない。未実施項目は未実施のまま記載する。
+
+### 全項目に適用する採用条件
+
+子のPASSだけで完了としない。対象が選択済みで、記録が今回のELF・run ID・回収計画と対応し、結果が完了し、cleanup_errors=0であることも確認する。子のstatusを先に保存し、その後Closeする実装があるため、子PASSと後始末成功は別々に確認する。
+
+`report.txt`の親、子、追加証跡は異なる判定層である。T-15の親再設定、T-16のCore監査、T-04の外部保護帰属、性能のMEASUREDは特に区別する。個別章の条件をすべて満たした場合に、その章で定義した範囲の結果を採用する。
 
 ## 2. report.txtを開いたら最初に見るところ
 
@@ -192,27 +202,42 @@ sequenceDiagram
 
 <a id="t-01"></a>
 
-## T-01：Secure／Normalの別々の実行（TZ-SYS-01-V01）
+## T-01：NormalからのTAサービス実行と結果の照合（TZ-SYS-01-V01）
 
-|要求表の欄|内容|
+|対応項目|内容|
 |---|---|
-|検証観点|実行状態の分離|
-|検証方法|両側の試験コードでCurrentELとSecurity Stateを確認する。|
-|合格判定基準|各停止点のEL・Security Stateが設計値に一致し、両側の処理が実行される。|
 |reportの親test_id|`TZ-SYS-01-V01`|
-|B2_REVIEW_PARENT|`1`。T番号とは区別|
+|B2_REVIEW_PARENT|`1`。T番号とは別体系|
+|従来の項目名|Secure／Normalの別々の実行|
 
-### 要求表に対して足りる証拠・足りない証拠
+### 今回の検証内容
 
-現行コードはBL33入口でCurrentEL=EL1を検査し、TEE-01成功からSecure TAサービスの実行を確認する。一方、**この親のPASS判定にSecure側CurrentEL・両側Security State・各停止点の実測一致は含まれていない。** よってreportだけで要求表のT-01全体を合格とはしない。
+Normal側BL33がTA-Aのサービスを実行し、返ってきた値をBL33自身で比較できることを確認する。BL33の起動時CurrentEL確認は実行前提として扱う。TA-Aの二つのsessionを使う試験であり、TA-AとTA-Bを一つずつ動かす試験ではない。
 
-要求全体を採用するには、設計した停止点ごとのEL/Worldとその観測根拠を別記する。BL33のCurrentELはEL番号の証拠であり、CurrentEL単独でSecurity Stateを観測したことにはならない。TA-A/BはSecure user TA、OP-TEE Coreとは実行ELが異なるため、「Secure側」の停止点がCoreかTAかも指定する。
+### 具体的な検証方法
 
-コード：[tests/validation/main.c：void standalone_main](https://github.com/ririmon22/trustzone-validation/blob/a94646ea4130b448961c7921c57d1d317da8f36b/tests/validation/main.c#L284)、[runtime/arch.c：uint64_t read_current_el](https://github.com/ririmon22/trustzone-validation/blob/a94646ea4130b448961c7921c57d1d317da8f36b/runtime/arch.c#L6)。公式の境界はO1・O3・O10・O11。
+1. BL33起動時にCurrentELを読み、EL1でなければ試験へ進まず停止する。
+2. `b2_run_service()`でTA-Aへ二つのsessionをOpenする。いずれかのOpenが成立しなければ`TEE-01`はBLOCKEDとなる。
+3. 一つ目のsessionでECHOへ`0x45a7`を渡す。
+4. 二つ目でも同じECHOを実行する。
+5. 一つ目に未定義command `UINT32_MAX`を送り、エラーとして戻ることを調べる。
+6. BL33で応答を比較して子結果を記録し、開いているsessionをCloseする。
+7. review親`TZ-SYS-01-V01`はこの子結果を引き継ぐ。
 
-### 現行コードが実施するサービス試験
+### 現行コードに合わせた合格条件
 
-**説明すること：Normalが要求を送り、SecureのTAが応答し、Normalがその結果を検査して次の処理・Closeまで進む。** 本項目とT-02は同じ子TEE-01を継承するが、要求表の観点は異なる。
+- 1回目・2回目のECHOはともに`transport=0`、`result=TEE_SUCCESS`、`value=0x45a7`。
+- 未定義commandは`transport=0`、`result=TEE_ERROR_BAD_PARAMETERS`。この子の判定式ではoriginの数値一致まで要求していない。
+- `first-echo`、`second-echo`、`unknown-command-rejected`がすべて1で、`TEE-01`がPASS。
+- 親を実行した場合は`TZ-SYS-01-V01`がPASS。さらに共通の回収完了・後始末条件を満たす。
+
+### この結果だけでは確認していないこと・追加確認
+
+各処理地点のSecurity State、TF-A/Core/TAの実行ELを直接採取する試験はこの親に含まれない。5地点でのEL/World観測は追加のデバッガ確認として別記する。CurrentELだけではSecure/Non-secureを区別できない。
+
+### レビューでの説明例
+
+> Normalで要求を出し、TA-Aの二つのsessionから期待値を受け取り、Normalの比較処理と後始末まで進むことを確認しています。
 
 ### reportで見る場所
 
@@ -274,19 +299,41 @@ sequenceDiagram
 
 <a id="t-02"></a>
 
-## T-02：Secure呼出し・復帰（TZ-SYS-02-V01）
+## T-02：TA呼出しからNormal処理への復帰と継続（TZ-SYS-02-V01）
 
-|要求表の欄|内容|
+|対応項目|内容|
 |---|---|
-|検証観点|World間通信|
-|検証方法|Normalから既知の入力でSecureサービスを呼び、出力と復帰先を確認する。|
-|合格判定基準|想定した経路で往復し、出力・戻り先が一致する。TA実行確認とは分けて記録する。|
 |reportの親test_id|`TZ-SYS-02-V01`|
-|B2_REVIEW_PARENT|`2`。T番号とは区別|
+|B2_REVIEW_PARENT|`2`。T番号とは別体系|
+|従来の項目名|Secure呼出し・復帰|
 
-### 要求表との対応
+### 今回の検証内容
 
-現行の親`TZ-SYS-02-V01`はTEE-01の成功を継承し、SMC後にNormalの比較・後続Invoke・Closeへ進むことを確認する。**復帰先PCを期待アドレスと直接比較して保存するcheckはない。** 復帰を確認する根拠は、`smc_call`から戻り後続コードが実行された制御フローと、応答・後始末の結果である。要求表で「戻り先一致」を直接観測必須とするなら、指定復帰点の実行証拠を追加する。
+T-01と共通の`TEE-01`を、要求の受渡しと復帰後の継続という観点で評価する。T-01とは別の往復試験を追加実行しているわけではない。
+
+### 具体的な検証方法
+
+1. BL33の`tee_invoke()`が共有メモリのmessageへcommand、session、値を設定する。
+2. `transport_call()`から`smc_call()`を呼び、`CALL_WITH_ARG`とmessageの物理アドレスを渡す。
+3. TF-AがSecure側へ処理を中継し、OP-TEEが対象sessionとcommandを解釈してTA-Aを実行する。
+4. Secure側がmessageへ結果を書き、TF-Aを経てBL33のSMC後の処理へ戻る。
+5. BL33が通信結果とmessage内の処理結果を読み、ECHO比較、次のInvoke、Closeへ進む。
+6. `TZ-SYS-02-V01`は`TEE-01`の結果を引き継ぐ。
+
+### 現行コードに合わせた合格条件
+
+- 共通の`TEE-01`の3比較がすべて成立してPASSになる。
+- 親`TZ-SYS-02-V01`の`functional-status`が期待値0と一致し、親がPASSになる。
+- 全体の後始末で失敗がなく、回収記録が完了する。
+- 復帰の根拠は、SMC後のBL33コードが実行され、応答比較と後続処理まで進んだことである。
+
+### この結果だけでは確認していないこと・追加確認
+
+SMC直後のPCを期待PCと比較するcheck、TF-A/Coreの全入口をtraceするcheckはない。それらは追加BP観測で補強できるが、この親の自動PASS条件へ混ぜない。
+
+### レビューでの説明例
+
+> TAから応答が返り、Normal側が結果を読み取って次の処理とCloseを実行できることを確認しています。
 
 ### reportで見る場所
 
@@ -335,21 +382,43 @@ sequenceDiagram
 
 <a id="t-03"></a>
 
-## T-03：繰返し切替と状態保持（TZ-SYS-02-V02）
+## T-03：256回のTA往復における指定状態の保持（TZ-SYS-02-V02）
 
-|要求表の欄|内容|
+|対応項目|内容|
 |---|---|
-|検証観点|切替時の状態保持|
-|検証方法|両側の状態値を用意し、規定回数切り替えて前後を比較する。|
-|合格判定基準|全回正常復帰し、保持すべき状態が一致する。回数と対象register/dataは詳細レビューで確定。|
 |reportの親test_id|`TZ-SYS-02-V02`|
-|B2_REVIEW_PARENT|`3`。T番号とは区別|
+|B2_REVIEW_PARENT|`3`。T番号とは別体系|
+|従来の項目名|繰返し切替と状態保持|
 
-### 要求表との対応
+### 今回の検証内容
 
-要求表で未確定としていた回数は、現行実装では256回。各TA sessionのcounterは128増分。保持対象は以下の16checkに限定する。これを今回の採用範囲とするかレビューで確定し、全レジスタ保持と拡張しない。
+TA-A/Bを交互に呼び出し、毎回のECHOとsession counter、BL33の指定レジスタ状態とデータ、TA内の試験用状態を確認する。全CPUレジスタの保存試験ではない。
 
-**説明すること：A/Bへ交互に呼んでも、戻り値、session内counter、指定したNormal側状態が保たれる。** 実装上の親番号3 `TZ-SYS-02-V02`。子TEE-01のPASSの言い換えではなく、追加で実行する。
+### 具体的な検証方法
+
+1. TA-AとTA-BへsessionをOpenする。
+2. BL33の`SCTLR_EL1`、`TTBR0_EL1`、`TCR_EL1`、`DAIF`を保存し、Normal側状態値を初期化する。
+3. 256反復する。偶数回はA、奇数回はBへ、`seed ^ (i * 0x10201)`をECHO入力として送る。
+4. 各ECHOの前にASM wrapperでx19〜x28へ既知値を設定し、x29へその時点のSPを設定する。復帰後、x19〜x28とx29/SPの整合を検査する。
+5. 同じsessionのcounter commandを呼び、各sessionが128回ずつ増えることを確認する。256反復はECHO 256回にcounter呼出し256回を加えた構成である。
+6. 各回、ECHO値、counter値、Normal側データ、レジスタ比較の結果を検査し、一致しなければループを終了する。
+7. 最後にEL1設定を再取得し、A/Bの秘密tagを読み、16個の記録checkとCloseを評価する。
+
+### 現行コードに合わせた合格条件
+
+- `iterations=256`、`per-session-counter-steps=128`、`x19-x29-SP-errors=0`。
+- 保存した4個のEL1設定と終了時の値が一致する。
+- 各反復のECHO、counter、Normal側状態が期待値と一致し、最後の応答も記録checkと一致する。
+- A-secret=`0x6d3a4719`、B-secret=`0xb5208c14`。
+- 最後のECHO/counterは通信・処理成功、両originは4、Closeも成功し、親がPASSになる。
+
+### この結果だけでは確認していないこと・追加確認
+
+x0〜x18、NZCV、SIMD/浮動小数点などは対象外。ASMのSPに関する実装は「保存したx29と復帰後SPの一致」という検査であり、SP専用の独立した完全な破壊検出だと広げない。全反復の生レジスタ列はreportへ保存していない。
+
+### レビューでの説明例
+
+> 256反復の往復中に、決めたレジスタとNormalデータ、A/Bそれぞれの状態が保たれるかを確認しています。
 
 ### reportで見る場所：REVIEW → TZ-SYS-02-V02
 
@@ -412,17 +481,44 @@ O6（AAPCS64）にcallee-savedの根拠。**C関数呼出しを含む往復の�
 
 <a id="t-04"></a>
 
-## T-04：Secureメモリの読書き禁止（TZ-SYS-03-V01）
+## T-04：専用SecureページへのNormal read/write拒否・非改変・復帰（TZ-SYS-03-V01）
 
-|要求表の欄|内容|
+|対応項目|内容|
 |---|---|
-|検証観点|物理メモリの保護|
-|検証方法|専用領域でSecure正常対照と同一PAへのNormal read/writeを比較。変換・XMPU・例外を照合する。|
-|合格判定基準|NS stage1未写像だけによらない拒否を確認し、書込み後も対象非改変、正常系が継続する。|
 |reportの親test_id|`TZ-SYS-03-V01`|
-|B2_REVIEW_PARENT|`4`。T番号とは区別|
+|B2_REVIEW_PARENT|`4`。T番号とは別体系|
+|従来の項目名|Secureメモリの読書き禁止|
 
-**説明すること：Normal側のStage1変換は同じ物理ページまで成立したうえで、外部の保護機構がread/writeを拒否し、Secureデータが変化せず、例外後にNormalとTAが続行できる。**
+### 今回の検証内容
+
+Secure側で用意した専用4KiBページと同一PAへNormal側からアクセスし、stage1未写像による拒否と区別した上で、期待する例外・ページ非改変・正常処理継続を確認する。review一式では実アクセスを行わずBLOCKEDを記録し、専用physical実行を用いる。
+
+### 具体的な検証方法
+
+1. physical対応Core、BL33、予約領域、実機保護設定を一致させる。reviewの親4だけを選んでも物理probeは実行されない。
+2. Secureの物理probe PTAが専用ページを準備し、既知patternを書き、PAとサイズを返す。
+3. BL33が試験用VA aliasを作成し、アドレス変換結果が対象PAを指すことを確認する。EL1、EL2/Stage2情報、属性も記録する。
+4. ページ先頭のread、先頭のwrite、末尾8B位置のread、末尾8B位置のwriteを順に行う。
+5. 各アクセスで、限定したprobe命令からの期待する同期Data Abortを記録して復帰する。想定外例外の無条件読み飛ばしはしない。
+6. 各回、Secure側PTAがページ全体を照合する。アクセス拒否のあとも内容が変わっていないことを確認する。
+7. TA ECHOとNormal側制御処理で継続を確認し、alias除去、ページrelease、session Closeを行う。
+8. PC側decoderが4試行の変換・例外・継続・後始末を照合する。XMPUの設定と違反記録は別途デバッガで採取する。
+
+### 現行コードに合わせた合格条件
+
+- 専用子`TZ-SYS-03`がPASSで、ページサイズ4096、4試行すべてが期待するPA変換とアクセス条件を満たす。
+- 4試行すべて`completed=2`、`classification=PRECISE_EXTERNAL_ABORT`。FAR、ELR、read/write方向も各probeと一致する。
+- 4回ともSecureページの検証tag=`0x50485953`で非改変を確認できる。
+- `post-probe-TA-ECHO`と`Normal-control`が各`0xa35b`、後始末エラー0。
+- `PHYSICAL EVIDENCE`の厳密検査を通過する。XMPU由来と説明するには、これに実機の対象bank設定・master/属性・該当違反記録の整合を加える。
+
+### この結果だけでは確認していないこと・追加確認
+
+SErrorやTF-A panicで止まり、4試行・非改変・継続を完了しなければ、この試験全体の合格にはしない。アクセス拒否を一部観測した事実は別途記録できる。ESR単独で拒否元をXMPUと確定しない。DMA・他master・全Secure領域の保護は対象外。
+
+### レビューでの説明例
+
+> Normalから同じ物理ページへのread/writeを拒否でき、ページが変わらず、その後の処理へ戻れるかまでを確認する試験です。
 
 ### まずreportを選ぶ
 
@@ -518,21 +614,43 @@ XMPU対象bank、region START/END/MASTER/CONFIG、CTRL/POISON/LOCK、アクセ�
 
 <a id="t-05"></a>
 
-## T-05：秘密領域と共有領域の使い分け（TZ-SYS-03-V02）
+## T-05：共有メモリの範囲・型・内容検査と拒否後の継続（TZ-SYS-03-V02）
 
-|要求表の欄|内容|
+|対応項目|内容|
 |---|---|
-|検証観点|保護と通信の両立|
-|検証方法|秘密/共有領域を分け、正常な共有通信と不正memref・境界値を比較する。|
-|合格判定基準|秘密領域を共有扱いせず、正常通信成功。不正入力の拒否層とerror/originが一致し、bufferが不変。|
 |reportの親test_id|`TZ-SYS-03-V02`|
-|B2_REVIEW_PARENT|`5`。T番号とは区別|
+|B2_REVIEW_PARENT|`5`。T番号とは別体系|
+|従来の項目名|秘密領域と共有領域の使い分け|
 
-### 要求表との対応
+### 今回の検証内容
 
-正常通信・不正memref・型・内容・境界の小試験を照合する。originまで判定する入力と、resultのみを判定する入力は後述のコードどおりに分ける。すべての拒否についてoriginを自動比較していると説明しない。物理PAへの直接アクセス保護はT-04。
+共有メモリを介した正常なbuffer操作と、範囲外・サイズ・型・内容の不正入力を比較する。拒否する場所をclient、OP-TEE Core、TAに分けて評価する。
 
-**説明すること：正しい共有入力は受け付け、不正な範囲・長さ・型・内容を想定した層で拒否し、bufferと正常経路が保たれる。** 実装上の親番号5 `TZ-SYS-03-V02`。物理PAへNormalから直接loadする試験ではない。
+### 具体的な検証方法
+
+1. `TEE-SHM-01`では16Bへ0x50〜0x5fを書き、正常buffer要求を送る。
+2. unchecked probeで15B、SHM越境、Secure予約領域、アドレス加算wrapを送る。通常clientによるSecure領域指定のlocal拒否も試す。
+3. 正常な16Bを再試行し、元の16Bが変わっていないか確認する。
+4. `TEE-BOUNDARY-01`ではSHM末尾に収まる16B、1Bはみ出す範囲、0B、messageとの重複を比較する。正常再試行と16B非改変も確認する。
+5. `TEE-PARAM-01`ではTAが期待するVALUE_INOUTをVALUE_INPUTへ変え、TAでの型拒否を確認する。
+6. bufferの先頭内容を不正にし、TAのSECURITY拒否とbuffer非改変、内容を戻した後の成功、BのECHO継続を確認する。
+7. 各子の複合判定とClose、親の3子継承を評価する。
+
+### 現行コードに合わせた合格条件
+
+- 上記3子がすべてPASS、各複合predicateが1となる。
+- SHM子の15BはBAD_PARAMETERS/origin4、越境・Secure領域・wrapはBAD_PARAMETERS/origin3。通信自体は正常に戻る。
+- 通常clientのSecure領域指定は`TEE_CLIENT_SHM_UNAVAILABLE`でlocal拒否となる。
+- 正常buffer操作・正常再試行が成功し、コードが照合する16Bが維持される。
+- 型・内容の異常は、後述の各子の判定式どおりに拒否される。`TZ-SYS-03-V02`は3子PASSを継承し、共通後始末条件も満たす。
+
+### この結果だけでは確認していないこと・追加確認
+
+不正入力すべてについてoriginまで比較する実装ではない。buffer非改変もコードで指定した16Bと観測時点が対象である。Secure物理PAへの直接load/store拒否はT-04で確認する。
+
+### レビューでの説明例
+
+> 共有用bufferは利用でき、不正な範囲・型・内容は所定の層で拒否され、拒否後も通常通信が続くかを確認しています。
 
 ### reportで見る場所
 
@@ -590,36 +708,57 @@ O1・O2・O4がSHM/message検査の根拠。16B・0x50+iという内容ルール
 
 <a id="t-06"></a>
 
-## T-06：Secure周辺機器の保護（TZ-SYS-04-V01）
+## T-06：Secure周辺機器保護：未実施（TZ-SYS-04-V01）
 
-|要求表の欄|内容|
+|対応項目|内容|
 |---|---|
-|検証観点|周辺機器のアクセス制御|
-|検証方法|試験用周辺機器とXPPU等の経路を特定し、Secure/Normalの同じ操作を比較する。|
-|合格判定基準|Secure許可操作が成功、禁止したNormal操作が拒否され機器状態が意図せず変わらない。対象機器・操作を要確定。|
 |reportの親test_id|`TZ-SYS-04-V01`|
-|B2_REVIEW_PARENT|`6`。T番号とは区別|
+|B2_REVIEW_PARENT|`6`。T番号とは別体系|
+|従来の項目名|Secure周辺機器の保護|
+
+### 今回の検証内容
+
+Secure/Normalで同じ周辺機器を操作するbackendがない。
+
+### 具体的な検証方法
+
+1. BL33のreviewが当該親IDの選択を確認する。
+2. 対象外項目の分岐へ入る。
+3. `SKIP`、理由、`phase=DONE`を保存する。この項目の実操作・測定は実行しない。
+4. 未選択の場合はNOT_RUNであり、SKIPを記録した場合とも区別する。
+
+### 現行コードに合わせた合格条件
+
+**現行版に機能の合格判定基準はない。SKIPは合格ではなく、未実施理由の記録である。** 記録内容の整合を見るなら、対象の正式ID、status=SKIP、phase=DONE、構成に合うreasonを確認する。これは「検査に合格した」とは報告しない。
+
+### この結果だけでは確認していないこと・追加確認
+
+将来、対象機器の選定、Secure/Normalの許可・拒否対照、保護設定と機器状態の非改変確認を追加する場合は、期待値と合格基準を実装と合わせて別途定める。現行の合格基準欄へ先取りして書かない。
+
+### レビューでの説明例
+
+> 今回は実操作を行わず、未実施の理由を結果に残しています。
 
 ### 現行reportで見る場所と扱い
 
 `REVIEW`内の`test_id: TZ-SYS-04-V01`を見る。review一式、または当該親を選択したrunでは**`status: SKIP`、`phase: DONE`**が現行コードの想定。これは試験に合格した意味ではない。未選択ならNOT_RUNのままなので、実施済みと数えない。
 
 - 未実装の部分：対象周辺機器を操作するbackendがない。
-- 要求表の合格基準に対する判定：**未実施／保留。PASSの実行証拠は生成されない。**
+- 現行の機能検証に対する判定：**未実施／保留。PASSの実行証拠は生成されない。**
 - T-04のDDRページ保護は周辺機器保護の代替ではない。
 
 reasonは`OUT-OF-SCOPE: peripheral-DMA-debug-authenticated-boot-persistent-storage`を固定長フィールドへ保存する。JSONの`reason`は長い文字列の末尾が切れる場合があるため、`OUT-OF-SCOPE:`と正式ID・statusで識別する。
 
 ### 現行コードが実際に行う流れ
 
-実装のない機能を動かす図は描かない。実際には以下の**結果記録だけ**を行い、要求表にある実操作は行わない。
+実装のない機能を動かす図は描かない。実際には以下の**結果記録だけ**を行い、当初想定していた実操作は行わない。
 
 |順序|担当|実際の処理|
 |---|---|---|
 |1|BL33|b2_run_reviewで対象親が選択されているか調べる|
 |2|BL33|対象外親IDの分岐でfinishを呼ぶ|
 |3|BL33|SKIP・reason・DONEを保存する|
-|4|TF-A／OP-TEE／TA-A／TA-B|この親の要求操作は呼ばれない。他の選択試験で動くこととは区別|
+|4|TF-A／OP-TEE／TA-A／TA-B|この項目の実操作は呼ばれない。他の選択試験で動くこととは区別|
 
 ### コードと必要な追加証拠
 
@@ -631,36 +770,57 @@ reasonは`OUT-OF-SCOPE: peripheral-DMA-debug-authenticated-boot-persistent-stora
 
 <a id="t-07"></a>
 
-## T-07：DMAからのSecureメモリ保護（TZ-SYS-05-V01）
+## T-07：DMAからのSecureメモリ保護：未実施（TZ-SYS-05-V01）
 
-|要求表の欄|内容|
+|対応項目|内容|
 |---|---|
-|検証観点|CPU以外のmasterに対する保護|
-|検証方法|DMA master ID・属性・保護経路を確認し、許可領域と禁止領域の転送を比較する。|
-|合格判定基準|許可転送はデータ一致、禁止転送は拒否され保護領域非改変。CPUの拒否をDMAの証拠に流用しない。|
 |reportの親test_id|`TZ-SYS-05-V01`|
-|B2_REVIEW_PARENT|`7`。T番号とは区別|
+|B2_REVIEW_PARENT|`7`。T番号とは別体系|
+|従来の項目名|DMAからのSecureメモリ保護|
+
+### 今回の検証内容
+
+DMA masterで許可・禁止転送を比較するbackendがない。
+
+### 具体的な検証方法
+
+1. BL33のreviewが当該親IDの選択を確認する。
+2. 対象外項目の分岐へ入る。
+3. `SKIP`、理由、`phase=DONE`を保存する。この項目の実操作・測定は実行しない。
+4. 未選択の場合はNOT_RUNであり、SKIPを記録した場合とも区別する。
+
+### 現行コードに合わせた合格条件
+
+**現行版に機能の合格判定基準はない。SKIPは合格ではなく、未実施理由の記録である。** 記録内容の整合を見るなら、対象の正式ID、status=SKIP、phase=DONE、構成に合うreasonを確認する。これは「検査に合格した」とは報告しない。
+
+### この結果だけでは確認していないこと・追加確認
+
+将来、DMA master/属性/経路を確定した許可転送、禁止転送、保護領域の非改変確認を追加する場合は、期待値と合格基準を実装と合わせて別途定める。現行の合格基準欄へ先取りして書かない。
+
+### レビューでの説明例
+
+> 今回は実操作を行わず、未実施の理由を結果に残しています。
 
 ### 現行reportで見る場所と扱い
 
 `REVIEW`内の`test_id: TZ-SYS-05-V01`を見る。review一式、または当該親を選択したrunでは**`status: SKIP`、`phase: DONE`**が現行コードの想定。これは試験に合格した意味ではない。未選択ならNOT_RUNのままなので、実施済みと数えない。
 
 - 未実装の部分：DMA転送backendがない。
-- 要求表の合格基準に対する判定：**未実施／保留。PASSの実行証拠は生成されない。**
+- 現行の機能検証に対する判定：**未実施／保留。PASSの実行証拠は生成されない。**
 - A53のload/store拒否はDMA masterの拒否を証明しない。
 
 reasonは`OUT-OF-SCOPE: peripheral-DMA-debug-authenticated-boot-persistent-storage`を固定長フィールドへ保存する。JSONの`reason`は長い文字列の末尾が切れる場合があるため、`OUT-OF-SCOPE:`と正式ID・statusで識別する。
 
 ### 現行コードが実際に行う流れ
 
-実装のない機能を動かす図は描かない。実際には以下の**結果記録だけ**を行い、要求表にある実操作は行わない。
+実装のない機能を動かす図は描かない。実際には以下の**結果記録だけ**を行い、当初想定していた実操作は行わない。
 
 |順序|担当|実際の処理|
 |---|---|---|
 |1|BL33|b2_run_reviewで対象親が選択されているか調べる|
 |2|BL33|対象外親IDの分岐でfinishを呼ぶ|
 |3|BL33|SKIP・reason・DONEを保存する|
-|4|TF-A／OP-TEE／TA-A／TA-B|この親の要求操作は呼ばれない。他の選択試験で動くこととは区別|
+|4|TF-A／OP-TEE／TA-A／TA-B|この項目の実操作は呼ばれない。他の選択試験で動くこととは区別|
 
 ### コードと必要な追加証拠
 
@@ -672,36 +832,57 @@ reasonは`OUT-OF-SCOPE: peripheral-DMA-debug-authenticated-boot-persistent-stora
 
 <a id="t-08"></a>
 
-## T-08：Secure割込みの配送（TZ-SYS-06-V01）
+## T-08：Secure割込み配送：選択ZCU構成では未実施（TZ-SYS-06-V01）
 
-|要求表の欄|内容|
+|対応項目|内容|
 |---|---|
-|検証観点|割込みのrouting|
-|検証方法|指定した割込みを発生し、GIC設定、受信EL/World、handler実行と復帰を確認する。|
-|合格判定基準|設計したhandlerで規定回数処理され、誤ったWorldへ配送されず正常復帰する。発生源・routingを要確定。|
 |reportの親test_id|`TZ-SYS-06-V01`|
-|B2_REVIEW_PARENT|`8`。T番号とは区別|
+|B2_REVIEW_PARENT|`8`。T番号とは別体系|
+|従来の項目名|Secure割込みの配送|
+
+### 今回の検証内容
+
+現行ZCU構成はB2_SECURE_SGI=0で、対応PTAとGIC配送構成が用意されていない。
+
+### 具体的な検証方法
+
+1. BL33のreviewが当該親IDの選択を確認する。
+2. run_secure_sgiの構成確認で停止する。
+3. `BLOCKED`、理由、`phase=DONE`を保存する。この項目の実操作・測定は実行しない。
+4. 未選択の場合はNOT_RUNであり、BLOCKEDを記録した場合とも区別する。
+
+### 現行コードに合わせた合格条件
+
+**現行版に機能の合格判定基準はない。BLOCKEDは合格ではなく、未実施理由の記録である。** 記録内容の整合を見るなら、対象の正式ID、status=BLOCKED、phase=DONE、構成に合うreasonを確認する。これは「検査に合格した」とは報告しない。
+
+### この結果だけでは確認していないこと・追加確認
+
+将来、実際の割込み発生、対象handler到達、受信EL/World、回数、復帰、誤配送の確認を追加する場合は、期待値と合格基準を実装と合わせて別途定める。現行の合格基準欄へ先取りして書かない。
+
+### レビューでの説明例
+
+> 今回は実操作を行わず、未実施の理由を結果に残しています。
 
 ### 現行reportで見る場所と扱い
 
 `REVIEW`内の`test_id: TZ-SYS-06-V01`を見る。review一式、または当該親を選択したrunでは**`status: BLOCKED`、`phase: DONE`**が現行コードの想定。これは試験に合格した意味ではない。未選択ならNOT_RUNのままなので、実施済みと数えない。
 
 - 未実装の部分：B2_SECURE_SGI=0でSGI PTAが選択Coreに含まれず、ZCU用配送構成もない。
-- 要求表の合格基準に対する判定：**未実施／保留。PASSの実行証拠は生成されない。**
+- 現行の機能検証に対する判定：**未実施／保留。PASSの実行証拠は生成されない。**
 - 実機の設定値を読むだけではhandler実行試験が追加されたことにはならない。
 
 検索するreasonは`Secure-SGI-not-in-selected-Core; ZCU-SGI-group-route-review-required`または`Secure-SGI-profile-not-enabled`。T-08/T-19の選択の組合せでreasonが分かれるため、文字列が一種類だけだと思わない。
 
 ### 現行コードが実際に行う流れ
 
-実装のない機能を動かす図は描かない。実際には以下の**結果記録だけ**を行い、要求表にある実操作は行わない。
+実装のない機能を動かす図は描かない。実際には以下の**結果記録だけ**を行い、当初想定していた実操作は行わない。
 
 |順序|担当|実際の処理|
 |---|---|---|
 |1|BL33|b2_run_reviewで対象親が選択されているか調べる|
 |2|BL33|run_secure_sgiのB2_SECURE_SGI != 1分岐へ入る|
 |3|BL33|finishでBLOCKED・reason・DONEを保存し、PTA Openへ進まない|
-|4|TF-A／OP-TEE／TA-A／TA-B|この親の要求操作は呼ばれない。他の選択試験で動くこととは区別|
+|4|TF-A／OP-TEE／TA-A／TA-B|この項目の実操作は呼ばれない。他の選択試験で動くこととは区別|
 
 ### コードと必要な追加証拠
 
@@ -713,36 +894,57 @@ reasonは`OUT-OF-SCOPE: peripheral-DMA-debug-authenticated-boot-persistent-stora
 
 <a id="t-09"></a>
 
-## T-09：JTAGデバッグ制限（TZ-SYS-07-V01）
+## T-09：JTAGデバッグ制限：未実施（TZ-SYS-07-V01）
 
-|要求表の欄|内容|
+|対応項目|内容|
 |---|---|
-|検証観点|デバッグ権限|
-|検証方法|承認したデバッグ設定で接続・停止・register/memoryアクセスを許可/禁止状態別に確認する。|
-|合格判定基準|許可状態は利用可能、禁止状態は規定操作を拒否。設定の可逆性・対象範囲を事前確定する。|
 |reportの親test_id|`TZ-SYS-07-V01`|
-|B2_REVIEW_PARENT|`9`。T番号とは区別|
+|B2_REVIEW_PARENT|`9`。T番号とは別体系|
+|従来の項目名|JTAGデバッグ制限|
+
+### 今回の検証内容
+
+デバッグ許可/禁止状態を作り分けて操作を比較する試験構成がない。
+
+### 具体的な検証方法
+
+1. BL33のreviewが当該親IDの選択を確認する。
+2. 対象外項目の分岐へ入る。
+3. `SKIP`、理由、`phase=DONE`を保存する。この項目の実操作・測定は実行しない。
+4. 未選択の場合はNOT_RUNであり、SKIPを記録した場合とも区別する。
+
+### 現行コードに合わせた合格条件
+
+**現行版に機能の合格判定基準はない。SKIPは合格ではなく、未実施理由の記録である。** 記録内容の整合を見るなら、対象の正式ID、status=SKIP、phase=DONE、構成に合うreasonを確認する。これは「検査に合格した」とは報告しない。
+
+### この結果だけでは確認していないこと・追加確認
+
+将来、承認された可逆設定による接続・停止・register/memory操作の許可/禁止比較を追加する場合は、期待値と合格基準を実装と合わせて別途定める。現行の合格基準欄へ先取りして書かない。
+
+### レビューでの説明例
+
+> 今回は実操作を行わず、未実施の理由を結果に残しています。
 
 ### 現行reportで見る場所と扱い
 
 `REVIEW`内の`test_id: TZ-SYS-07-V01`を見る。review一式、または当該親を選択したrunでは**`status: SKIP`、`phase: DONE`**が現行コードの想定。これは試験に合格した意味ではない。未選択ならNOT_RUNのままなので、実施済みと数えない。
 
 - 未実装の部分：debug認証と許可/禁止状態を切り替える試験構成がない。
-- 要求表の合格基準に対する判定：**未実施／保留。PASSの実行証拠は生成されない。**
+- 現行の機能検証に対する判定：**未実施／保留。PASSの実行証拠は生成されない。**
 - 今JTAGで接続・RAM回収できることは、禁止状態の制御を検証した証拠ではない。
 
 reasonは`OUT-OF-SCOPE: peripheral-DMA-debug-authenticated-boot-persistent-storage`を固定長フィールドへ保存する。JSONの`reason`は長い文字列の末尾が切れる場合があるため、`OUT-OF-SCOPE:`と正式ID・statusで識別する。
 
 ### 現行コードが実際に行う流れ
 
-実装のない機能を動かす図は描かない。実際には以下の**結果記録だけ**を行い、要求表にある実操作は行わない。
+実装のない機能を動かす図は描かない。実際には以下の**結果記録だけ**を行い、当初想定していた実操作は行わない。
 
 |順序|担当|実際の処理|
 |---|---|---|
 |1|BL33|b2_run_reviewで対象親が選択されているか調べる|
 |2|BL33|対象外親IDの分岐でfinishを呼ぶ|
 |3|BL33|SKIP・reason・DONEを保存する|
-|4|TF-A／OP-TEE／TA-A／TA-B|この親の要求操作は呼ばれない。他の選択試験で動くこととは区別|
+|4|TF-A／OP-TEE／TA-A／TA-B|この項目の実操作は呼ばれない。他の選択試験で動くこととは区別|
 
 ### コードと必要な追加証拠
 
@@ -754,21 +956,42 @@ reasonは`OUT-OF-SCOPE: peripheral-DMA-debug-authenticated-boot-persistent-stora
 
 <a id="t-10"></a>
 
-## T-10：サービスの認証・認可（EXT-AUTH-V01）
+## T-10：TA呼出元identityの認可と固定トークンのsession状態（EXT-AUTH-V01）
 
-|要求表の欄|内容|
+|対応項目|内容|
 |---|---|
-|検証観点|呼出し元の識別と権限|
-|検証方法|TA identity、偽装、PUBLIC、認可状態、Normal要求者認証を個別に比較する。|
-|合格判定基準|各小項目の許可/拒否が一致。本物のNormal要求者認証が未実装なら、固定token smoke成功だけで親項目をPASSにしない。|
 |reportの親test_id|`EXT-AUTH-V01`|
-|B2_REVIEW_PARENT|`10`。T番号とは区別|
+|B2_REVIEW_PARENT|`10`。T番号とは別体系|
+|従来の項目名|サービスの認証・認可|
 
-### 要求表に対する判定：限定小試験のPASS、要求全体は保留
+### 今回の検証内容
 
-現行の`EXT-AUTH-V01 PASS`は、固定試験tokenによるsession状態とTA identityの許可リストを検査した結果。**本物のNormal要求者認証は実装していないため、提示されたT-10全体の合格条件は満たしたと判断しない。** 以下をTA identity／固定tokenの実施済み範囲として示し、Normal要求者認証を未実施小項目として残す。コードの親名と要求の親名が同じでも範囲は同じではない。
+Coreが提供するTA identityによるA→Bの許可と、固定の試験トークンによるsessionごとの許可状態を確認する。本物のNormal利用者・アプリの本人認証は今回の検証項目に含めない。
 
-**説明すること：固定試験tokenで与えた許可は、そのsessionだけに限定され、取消・Close・再Openで引き継がれない。別途、TA-AからTA-Bへの呼出元identityを検査する。** 実装上の親番号10 `EXT-AUTH-V01`。
+### 具体的な検証方法
+
+1. identity子で、NormalからTRUSTED_APPを装ったlogin Openを送り、Coreの拒否を確認する。
+2. PUBLIC sessionでBへAらしいID値を引数として渡しても、Bが許可しないことを確認する。
+3. Aから`TEE_OpenTASession`でBを呼び、Bが`gpd.client.identity`のloginとUUIDを使ってAを許可することを確認する。
+4. Bの正常ECHOも実行し、拒否後の継続を確認する。
+5. token親でTA-Aへfirst/otherの二つのsessionを作る。firstで許可前READ、誤トークン、正トークン、許可後READを実行する。
+6. otherのREADは拒否されること、firstへ誤トークンを再送すると許可が取り消されREADが拒否されることを確認する。
+7. firstをCloseし、閉handleのclient拒否、再Open後の未認可状態を確認する。全sessionをCloseする。
+
+### 現行コードに合わせた合格条件
+
+- `TEE-AUTH-TA`の`TA-identity-policy=1`でPASS。偽loginはBAD_PARAMETERS/origin3、PUBLICの偽IDはACCESS_DENIED/origin4、A→B自己試験はSUCCESS/value0、B継続は成功する。
+- 正トークン操作が成功し、そのsessionのREADだけが試験秘密値`0x59436e`を返す。
+- 許可前・誤トークン・別session・取消後・再Open後はACCESS_DENIED。コードが指定する拒否応答のtransport0/origin4を満たす。
+- 閉handleはclient BAD_STATE=4、9個の親checkと子PASS継承が成立し、後始末成功で親がPASS。
+
+### この結果だけでは確認していないこと・追加確認
+
+固定トークンはコードに埋めた試験値である。端末利用者の本人確認、Normalプロセスの真正性、秘密credentialの配備や更新、リプレイ耐性を確認したとはしない。追加する場合は別の認証試験として扱う。
+
+### レビューでの説明例
+
+> 自己申告IDではなくCoreのTA identityで許可し、sessionの許可が別sessionや再Openへ漏れないことを確認しています。
 
 ### reportで見る場所
 
@@ -859,36 +1082,57 @@ sequenceDiagram
 
 <a id="t-11"></a>
 
-## T-11：起動イメージ署名検証（EXT-BOOT-V01）
+## T-11：SoC認証bootによる起動署名検証：未実施（EXT-BOOT-V01）
 
-|要求表の欄|内容|
+|対応項目|内容|
 |---|---|
-|検証観点|起動の真正性|
-|検証方法|SoC認証bootで正規・改変・未信頼イメージの起動を比較する。|
-|合格判定基準|正規のみ起動し、不正イメージを実行前拒否。JTAGロードやhost署名比較は代替にしない。|
 |reportの親test_id|`EXT-BOOT-V01`|
-|B2_REVIEW_PARENT|`15`。T番号とは区別|
+|B2_REVIEW_PARENT|`15`。T番号とは別体系|
+|従来の項目名|起動イメージ署名検証|
+
+### 今回の検証内容
+
+BootROMからの認証bootチェーンと正規/不正imageの起動対照を構成していない。
+
+### 具体的な検証方法
+
+1. BL33のreviewが当該親IDの選択を確認する。
+2. 対象外項目の分岐へ入る。
+3. `SKIP`、理由、`phase=DONE`を保存する。この項目の実操作・測定は実行しない。
+4. 未選択の場合はNOT_RUNであり、SKIPを記録した場合とも区別する。
+
+### 現行コードに合わせた合格条件
+
+**現行版に機能の合格判定基準はない。SKIPは合格ではなく、未実施理由の記録である。** 記録内容の整合を見るなら、対象の正式ID、status=SKIP、phase=DONE、構成に合うreasonを確認する。これは「検査に合格した」とは報告しない。
+
+### この結果だけでは確認していないこと・追加確認
+
+将来、正規imageの起動成功、改変/未信頼imageの実行前拒否の実機記録を追加する場合は、期待値と合格基準を実装と合わせて別途定める。現行の合格基準欄へ先取りして書かない。
+
+### レビューでの説明例
+
+> 今回は実操作を行わず、未実施の理由を結果に残しています。
 
 ### 現行reportで見る場所と扱い
 
 `REVIEW`内の`test_id: EXT-BOOT-V01`を見る。review一式、または当該親を選択したrunでは**`status: SKIP`、`phase: DONE`**が現行コードの想定。これは試験に合格した意味ではない。未選択ならNOT_RUNのままなので、実施済みと数えない。
 
 - 未実装の部分：SoC認証bootチェーン・正規/改変/未信頼イメージによる起動比較を構成していない。
-- 要求表の合格基準に対する判定：**未実施／保留。PASSの実行証拠は生成されない。**
+- 現行の機能検証に対する判定：**未実施／保留。PASSの実行証拠は生成されない。**
 - T-16のTA runtime署名検査やhost署名比較、JTAG dow成功はSoC認証bootの代替ではない。
 
 reasonは`OUT-OF-SCOPE: peripheral-DMA-debug-authenticated-boot-persistent-storage`を固定長フィールドへ保存する。JSONの`reason`は長い文字列の末尾が切れる場合があるため、`OUT-OF-SCOPE:`と正式ID・statusで識別する。
 
 ### 現行コードが実際に行う流れ
 
-実装のない機能を動かす図は描かない。実際には以下の**結果記録だけ**を行い、要求表にある実操作は行わない。
+実装のない機能を動かす図は描かない。実際には以下の**結果記録だけ**を行い、当初想定していた実操作は行わない。
 
 |順序|担当|実際の処理|
 |---|---|---|
 |1|BL33|b2_run_reviewで対象親が選択されているか調べる|
 |2|BL33|対象外親IDの分岐でfinishを呼ぶ|
 |3|BL33|SKIP・reason・DONEを保存する|
-|4|TF-A／OP-TEE／TA-A／TA-B|この親の要求操作は呼ばれない。他の選択試験で動くこととは区別|
+|4|TF-A／OP-TEE／TA-A／TA-B|この項目の実操作は呼ばれない。他の選択試験で動くこととは区別|
 
 ### コードと必要な追加証拠
 
@@ -900,21 +1144,41 @@ reasonは`OUT-OF-SCOPE: peripheral-DMA-debug-authenticated-boot-persistent-stora
 
 <a id="t-12"></a>
 
-## T-12：鍵を外に出さない暗号サービス（EXT-KEY-V01）
+## T-12：非抽出鍵のAPI制約とAESの正常動作（EXT-KEY-V01）
 
-|要求表の欄|内容|
+|対応項目|内容|
 |---|---|
-|検証観点|鍵の秘密保持と暗号正常動作|
-|検証方法|Secure鍵生成/利用、usage制限、独自export拒否、Core属性取得拒否、生メモリ抽出、既知解を別小項目で検査する。|
-|合格判定基準|各小項目の期待値に一致。API拒否と生メモリ抽出耐性を分け、未実施の抽出試験を含めた親項目のPASSを推定しない。|
 |reportの親test_id|`EXT-KEY-V01`|
-|B2_REVIEW_PARENT|`11`。T番号とは区別|
+|B2_REVIEW_PARENT|`11`。T番号とは別体系|
+|従来の項目名|鍵を外に出さない暗号サービス|
 
-### 要求表に対する判定：API・暗号は確認可能、生メモリ抽出は未実施
+### 今回の検証内容
 
-現行の`EXT-KEY-V01 PASS`を採用できるのは、生成・usage・独自export拒否・Core属性取得拒否・暗号往復/KATという範囲。**生メモリ抽出試験は含まれない。** T-04の専用patternページ拒否も、実際の鍵が全経路で抽出できないことの代替にしない。要求表T-12の未実施小項目を含む全体PASSは保留する。
+TA内の一時AES鍵を使用でき、許可しないexportとCoreのsecret属性取得が拒否されることを確認する。生成鍵の暗号往復と、既知鍵の既知解比較を分けて評価する。
 
-**説明すること：TA内の生成鍵を許可した暗号処理に使え、持出し禁止APIが拒否し、Coreの属性取得制約も働く。** 実装上の親番号11 `EXT-KEY-V01`。
+### 具体的な検証方法
+
+1. TAの初期化でAES鍵を生成し、usageを暗号化・復号へ制限してEXTRACTABLEを外す。
+2. KEY_POLICYでusageと鍵利用を確認する。
+3. 独自KEY_EXPORT commandを呼び、拒否と出力0を確認する。
+4. CRYPTO自己試験で生成鍵による暗号化・復号の平文一致と、別の既知ゼロ鍵によるAES-ECB既知解一致を確認する。再度KEY_POLICYを呼ぶ。
+5. 属性子では抽出可能な対照鍵を作り、そのsecret属性は取得できることを確認する。
+6. 非抽出鍵のsecret属性はCore内部の属性取得経路へ直接要求し、BAD_PARAMETERSになること、0xa5で埋めた出力16Bが変わらないことを確認する。
+7. 拒否後の鍵利用と資源解放を評価し、BL33が自己試験結果を判定する。
+
+### 現行コードに合わせた合格条件
+
+- `TEE-KEY-API`の3checkが1：鍵が前後で使える、独自exportがACCESS_DENIED/value0、AES往復・KATが成功する。
+- `TEE-KEY-ATTR-01`の複合predicateが1：対照取得成功、非抽出属性取得のBAD_PARAMETERS、出力16B非改変、拒否後の鍵利用が成立する。
+- 親`EXT-KEY-V01`は両子がPASSのときPASSを引き継ぐ。共通後始末条件も満たす。
+
+### この結果だけでは確認していないこと・追加確認
+
+生RAMからの鍵抽出、DMA、debug読み出し、side channel、乱数品質、永続鍵保存は対象外。「APIからsecret属性を取得できない」と「どの経路でも鍵が漏れない」は異なる。公開APIのpanic挙動と、試験で使用する内部syscallの返値を区別する。
+
+### レビューでの説明例
+
+> 鍵を暗号処理に使えることと、今回対象にした持出しAPIが拒否されることを、正常対照を付けて確認しています。
 
 ### reportで見る場所
 
@@ -974,36 +1238,57 @@ O5が鍵APIの規約、O7が実使用版の`TEE_USAGE_EXTRACTABLE`と`syscall_cr
 
 <a id="t-13"></a>
 
-## T-13：Secureデータ永続保存（EXT-STORE-V01）
+## T-13：Secureデータ永続保存：未実施（EXT-STORE-V01）
 
-|要求表の欄|内容|
+|対応項目|内容|
 |---|---|
-|検証観点|永続性・保存データ保護|
-|検証方法|保存・読出し・再起動・改変・破損・削除を試す。|
-|合格判定基準|正常再起動でデータ一致、改変等を仕様どおり検出/処理。不正データを正常利用しない。rollbackは別途対象可否を決める。|
 |reportの親test_id|`EXT-STORE-V01`|
-|B2_REVIEW_PARENT|`16`。T番号とは区別|
+|B2_REVIEW_PARENT|`16`。T番号とは別体系|
+|従来の項目名|Secureデータ永続保存|
+
+### 今回の検証内容
+
+永続Storage/RPC backendを構成していない。
+
+### 具体的な検証方法
+
+1. BL33のreviewが当該親IDの選択を確認する。
+2. 対象外項目の分岐へ入る。
+3. `SKIP`、理由、`phase=DONE`を保存する。この項目の実操作・測定は実行しない。
+4. 未選択の場合はNOT_RUNであり、SKIPを記録した場合とも区別する。
+
+### 現行コードに合わせた合格条件
+
+**現行版に機能の合格判定基準はない。SKIPは合格ではなく、未実施理由の記録である。** 記録内容の整合を見るなら、対象の正式ID、status=SKIP、phase=DONE、構成に合うreasonを確認する。これは「検査に合格した」とは報告しない。
+
+### この結果だけでは確認していないこと・追加確認
+
+将来、保存・読出し・再起動・改変・破損・削除時の期待動作の確認を追加する場合は、期待値と合格基準を実装と合わせて別途定める。現行の合格基準欄へ先取りして書かない。
+
+### レビューでの説明例
+
+> 今回は実操作を行わず、未実施の理由を結果に残しています。
 
 ### 現行reportで見る場所と扱い
 
 `REVIEW`内の`test_id: EXT-STORE-V01`を見る。review一式、または当該親を選択したrunでは**`status: SKIP`、`phase: DONE`**が現行コードの想定。これは試験に合格した意味ではない。未選択ならNOT_RUNのままなので、実施済みと数えない。
 
 - 未実装の部分：永続Storage/RPC backendがない。
-- 要求表の合格基準に対する判定：**未実施／保留。PASSの実行証拠は生成されない。**
+- 現行の機能検証に対する判定：**未実施／保留。PASSの実行証拠は生成されない。**
 - TA内の一時鍵・session counter・RAMログ保存は、永続保存の耐改変・再起動保持の証拠ではない。
 
 reasonは`OUT-OF-SCOPE: peripheral-DMA-debug-authenticated-boot-persistent-storage`を固定長フィールドへ保存する。JSONの`reason`は長い文字列の末尾が切れる場合があるため、`OUT-OF-SCOPE:`と正式ID・statusで識別する。
 
 ### 現行コードが実際に行う流れ
 
-実装のない機能を動かす図は描かない。実際には以下の**結果記録だけ**を行い、要求表にある実操作は行わない。
+実装のない機能を動かす図は描かない。実際には以下の**結果記録だけ**を行い、当初想定していた実操作は行わない。
 
 |順序|担当|実際の処理|
 |---|---|---|
 |1|BL33|b2_run_reviewで対象親が選択されているか調べる|
 |2|BL33|対象外親IDの分岐でfinishを呼ぶ|
 |3|BL33|SKIP・reason・DONEを保存する|
-|4|TF-A／OP-TEE／TA-A／TA-B|この親の要求操作は呼ばれない。他の選択試験で動くこととは区別|
+|4|TF-A／OP-TEE／TA-A／TA-B|この項目の実操作は呼ばれない。他の選択試験で動くこととは区別|
 
 ### コードと必要な追加証拠
 
@@ -1015,21 +1300,41 @@ reasonは`OUT-OF-SCOPE: peripheral-DMA-debug-authenticated-boot-persistent-stora
 
 <a id="t-14"></a>
 
-## T-14：User TAの呼出し（EXT-TA-V01）
+## T-14：User TAの正常呼出しと入力・sessionの拒否層（EXT-TA-V01）
 
-|要求表の欄|内容|
+|対応項目|内容|
 |---|---|
-|検証観点|TA利用と入力/セッション管理|
-|検証方法|Open/Invoke/Close、形式/型/値/command、上限/重複/閉鎖ID/再Openを検査。標準SMC疎通は補助観点として扱う。|
-|合格判定基準|正常処理と後始末が成功し、不正入力・状態を所定層で拒否。ローカル拒否とCore拒否を区別。|
 |reportの親test_id|`EXT-TA-V01`|
-|B2_REVIEW_PARENT|`12`。T番号とは区別|
+|B2_REVIEW_PARENT|`12`。T番号とは別体系|
+|従来の項目名|User TAの呼出し|
 
-### 要求表との対応
+### 今回の検証内容
 
-各小試験の正常対照・拒否層・後始末を個別に示す。4sessionはBL33 clientの上限で、Core全体の上限ではない。標準SMCのVERSION応答は補助子B2-SMCCC-01であり、TA利用成功の代替にしない。
+TAのOpen/Invoke/Closeが成立し、client・Core・TAそれぞれの不正入力と状態の扱いが期待どおりであることを確認する。
 
-**説明すること：正常呼出しが通り、clientの状態検査とCore/TAの入力検査をそれぞれ確認できる。** 実装上の親番号12 `EXT-TA-V01`。
+### 具体的な検証方法
+
+1. `TEE-01`で二つのsessionのECHOと未知command拒否を確認する。
+2. `TEE-SESSION-01`でclientの4枠を使用し、5個目のOpen、同じhandleの重複Open、Close済みhandleの再Close/Invokeをclientが拒否することを確認する。全枠を解放する。
+3. `TEE-ABI-01`で不正attributeをCoreへ送り、未知commandをTAへ送る。ECHOの0とUINT32_MAXを正常対照とする。
+4. `TEE-SESSION-CORE-01`でClose前のCore session IDを保存し、Close後にraw IDをCoreへ送って拒否を確認する。別sessionの正常通信、再Open、counter初期化も検査する。
+5. `TEE-PARAM-01`で型・buffer内容の異常と正常再試行を確認する。
+6. 各子でsessionを片付け、親が5子の結果を継承する。
+
+### 現行コードに合わせた合格条件
+
+- 上記5子がすべてPASSであり、それぞれの複合predicateが成立する。
+- client容量超過・重複・閉handleはclient BAD_STATE。Coreへ送った不正attributeと閉Core IDはBAD_PARAMETERS/origin3。未知commandはBAD_PARAMETERS/origin4。
+- ECHOの0とUINT32_MAXはその値で返り、型・内容検査後も正常呼出しが成立する。
+- 全sessionの後始末と共通回収条件が成立し、親`EXT-TA-V01`がPASSになる。
+
+### この結果だけでは確認していないこと・追加確認
+
+4枠は自作BL33 clientの制約であり、OP-TEE全体のsession上限ではない。試した代表入力の結果であり、全入力空間の網羅ではない。SMCCC_VERSION等の標準問い合わせは別の補助子で、TA実行の代替ではない。
+
+### レビューでの説明例
+
+> 正常呼出しに加え、不正入力や閉じたsessionがclient・Core・TAのどこで拒否されるかを分けて確認しています。
 
 ### reportで見る場所
 
@@ -1082,21 +1387,42 @@ sequenceDiagram
 
 <a id="t-15"></a>
 
-## T-15：2つのUser TAの分離（EXT-TA-V02）
+## T-15：TAの異常終了・仮想空間分離・復旧とCore/資源の補足（EXT-TA-V02）
 
-|要求表の欄|内容|
+|対応項目|内容|
 |---|---|
-|検証観点|メモリ分離・障害の局所化|
-|検証方法|AからBの秘密VAと同値のVAへread/write。B非改変、A再生成、panic時のB継続を確認。TA→Coreと反復資源確認も追加小項目とする。|
-|合格判定基準|方向別の拒否・非改変・復旧が一致。VAとPAを区別し、TARGET_DEADだけでfault種類を断定しない。Core/統計PTA不足は該当小項目をBLOCKEDにする。|
 |reportの親test_id|`EXT-TA-V02`|
-|B2_REVIEW_PARENT|`13`。T番号とは区別|
+|B2_REVIEW_PARENT|`13`。T番号とは別体系|
+|従来の項目名|2つのUser TAの分離|
 
-### 要求表との対応
+### 今回の検証内容
 
-TA-A→TA-BのVM probeとpanic復旧が本体。TA→Core canary、512反復は追加小項目として分ける。方向別の子結果と追加小項目をすべて見る。Core/統計PTAがなければ当該補足はBLOCKEDで、TA間分離の観測まで消して未実施扱いにする必要はないが、補足込みの全体合格にはしない。
+Aだけを異常終了させてもBとNormalが継続し、Aを再生成できることを確認する。AからBの秘密VAと同じ数値のVAへのread/write probeを行う。Core canaryと512回の資源反復は追加の小試験として分ける。
 
-**説明すること：TA-Aが意図的に異常終了しても、TA-BとCoreの検査データが保たれ、Aを再生成して正常処理を続けられる。指定反復の前後で資源統計も照合する。** 実装上の親番号13 `EXT-TA-V02`。
+### 具体的な検証方法
+
+1. `TEE-07`でAへ意図的PANICを要求する。TARGET_DEAD、BのECHO継続、Aの再OpenとECHOを確認する。これはメモリアクセス違反を起こす試験とは別である。
+2. `TEE-ISO-TA`でBから試験用秘密変数のVAを得て、A/Bの秘密tagを確認する。
+3. AへそのVA数値でreadを要求する。Aの空間でも有効なVAならACCESS_CONFLICTとして実アクセスせず、A再生成で最大8回再試行する。
+4. Aでアクセス不能なVAについて実loadを行い、AのTARGET_DEAD、B非改変、A再Openと状態復旧を確認する。write方向も同様に行う。
+5. 補足Core probeでAから検証用Core canaryのread/writeを試み、TARGET_DEAD、canary非改変、A/B継続を検査する。
+6. stats PTAを使い、32回warmup後に512資源cycleを実行する。各cycleのA/BへのOpen、ECHO、不正SHM拒否、鍵再生成、AES、Closeを行い、16回ごとにAをPANICさせB継続とA復旧を確認する。観測資源統計を前後で比較する。
+7. 子2件と補足結果、後始末を別々に照合する。
+
+### 現行コードに合わせた合格条件
+
+- `TEE-07`がPASS。Aの期待する終了とB継続、A再Open/ECHOが成立する。
+- `TEE-ISO-TA`がPASSでread/write両statusがPASS=0。両方向ともTARGET_DEAD/origin3、B tag維持、A再生成後tag復旧を満たす。
+- 補足を採用するrunではCore-canary-status=0、resource-stress-status=0、stress-completed=512で、それぞれの内部比較が成立する。資源統計は終了時heap使用量・TA RAM使用量が開始時以下、allocation failure数が開始時と同じであることを比較し、clientの残sessionが0であることも確認する。
+- 子と補足、後始末のすべてを確認する。現行コードでは補足関数が親statusを再設定するため、親PASSだけをこの項目全体の合格根拠にしない。
+
+### この結果だけでは確認していないこと・追加確認
+
+8回ともVA aliasなら該当probeはBLOCKED。TARGET_DEADだけでは例外種別を特定できないため、ESR/FAR/ELR/mappingは追加BP観測で取得する。Core/stats PTAがなければ補足はBLOCKED。物理PAのXMPU保護、無期限のリーク不存在は対象外。
+
+### レビューでの説明例
+
+> Aの異常をAに閉じ込め、BとNormalが続き、Aを作り直せることを確認します。VM probe、意図的PANIC、Core/資源補足は分けて説明します。
 
 ### reportで見る場所
 
@@ -1189,21 +1515,42 @@ O4の`tee_ta_invoke_command`とTARGET_DEAD処理、O5の`TEE_Panic`、O1のTA/Co
 
 <a id="t-16"></a>
 
-## T-16：署名TAのロード・改ざん拒否（EXT-TA-V03）
+## T-16：外部署名TAの実ロード・不正image拒否とローダ監査（EXT-TA-V03）
 
-|要求表の欄|内容|
+|対応項目|内容|
 |---|---|
-|検証観点|実行時TAの真正性|
-|検証方法|実runtime loaderで正規署名TA、改変TA、未信頼鍵TAを比較する。|
-|合格判定基準|正規のみロード・実行成功。不正TAは実行前拒否し既存サービス継続。Early TA組込みでは代替しない。|
 |reportの親test_id|`EXT-TA-V03`|
-|B2_REVIEW_PARENT|`14`。T番号とは区別|
+|B2_REVIEW_PARENT|`14`。T番号とは別体系|
+|従来の項目名|署名TAのロード・改ざん拒否|
 
-### 要求表との対応
+### 今回の検証内容
 
-正常・改変・別鍵の実runtime loader検査に加え、不在UUID・過大サイズ・正常再試行を含む8ケースを実施する。Coreの署名/digest監査で拒否層を確認する。正常再試行は署名TAサービスの継続の証拠で、全ての既存サービスを負荷下で網羅した意味にはしない。
+Early TAとは別UUIDの外部署名TAを実runtime loaderでロードする。正常・改変・別鍵の拒否段階、供給側エラー、拒否後の再実行、RPC後始末を確認する。
 
-**説明すること：正しい署名TAをCoreが実際にロードし、改変payload・別鍵署名を想定段階で拒否し、拒否後の正常TA実行とRPC解放が成立する。** 実装上の親14 `EXT-TA-V03`、子`TEE-04`。旧alias `T-16`もあり、今回の要求表T-16と対応する。
+### 具体的な検証方法
+
+1. 正常・payload改変・別鍵署名などを含むbundleを用意し、BL33の限定RPCでTA bytesを供給する。
+2. 0正常、1改変、2正常、3別鍵、4正常、5不在UUID、6過大サイズ、7正常の順で8ケースを実行する。
+3. 正常ケースはOpen後、ECHOとinstance counterを各1回呼び、Closeする。不正ケースはOpen失敗を確認しInvokeしない。
+4. 各ケースでRPC照会・コピー・確保/解放・live・非対応要求を記録する。
+5. Core監査PTAから8件のsnapshotを取得する。
+6. PC側でCore ELF/hashと監査を照合し、正常は署名/digest通過、payload改変はdigest拒否、別鍵は署名拒否という到達段階まで評価する。
+
+### 現行コードに合わせた合格条件
+
+- `TEE-04`がPASS、8個のsigned-loader-subcaseが1、Core-loader-audit-readが1。
+- 正常4ケースはOpen SUCCESS/origin4、ECHO=`0x7e168ac1`、counter=1、Close SUCCESS/origin3。不正ケースのInvoke数は0。
+- 改変・別鍵はSECURITY/origin3、不在はITEM_NOT_FOUND/origin3、過大はBAD_PARAMETERS/origin3。
+- 正常系はcopies/queriesあり、不在・過大はlocal拒否でcopies0。live0、確保数=解放数、unsupported0、poisoned0。
+- `SIGNED LOADER`の厳密監査照合がPASSし、fresh8件・overflow0・UUID順・署名/digest結果が後述正解表と一致する。review runなら親PASSも照合する。
+
+### この結果だけでは確認していないこと・追加確認
+
+Core監査未取得・hash照合不足なら署名拒否元の証明は未成立。SoC Secure Boot、rollback、製品鍵の配備は対象外。拒否後の正常ケースは対象署名TAの再利用確認であり、全既存サービスの網羅的継続試験ではない。
+
+### レビューでの説明例
+
+> 本物の実行時ローダでTAを読み込み、改変と別鍵をそれぞれの段階で拒否し、その後も正常TAを実行できるかを確認しています。
 
 ### reportで見る場所
 
@@ -1284,19 +1631,40 @@ Core監査はどこで拒否したかを示し、Normal側のエラー表示だ�
 
 <a id="t-17"></a>
 
-## T-17：Secure呼出しの往復時間（PERF-01）
+## T-17：GET_SHM_CONFIG fast SMCの往復時間測定（PERF-01）
 
-|要求表の欄|内容|
+|対応項目|内容|
 |---|---|
-|検証観点|World間通信性能|
-|検証方法|定義したSMCのcall前後を規定条件・サンプル数で計測する。|
-|合格判定基準|正常応答・sample完備・clock/IRQ/cache/計測区間記録。速度合否は閾値を別途定める。|
 |reportの親test_id|`PERF-01`|
-|B2_REVIEW_PARENT|`17`。T番号とは区別|
+|B2_REVIEW_PARENT|`17`。T番号とは別体系|
+|従来の項目名|Secure呼出しの往復時間|
 
-### 現行実装の範囲
+### 今回の検証内容
 
-`PERF-01`は**GET_SHM_CONFIGのfast SMC往復**。TAを呼ばない。messageを使うTA Invokeとは別の区間で、C wrapper・返値の一致検査も含む。要求表の「定義したSMC」をこの区間に確定するなら、その測定結果として扱う。
+TAを呼ばず、OP-TEEのGET_SHM_CONFIG fast SMCの往復を測定する。呼出wrapperと返値照合も測定区間に含む。
+
+### 具体的な検証方法
+
+1. 初期化時のSHM base/size/cache属性を基準にする。
+2. counter開始、GET_SHM_CONFIG呼出、TF-A/OP-TEE経由の復帰、statusと構成値の比較、counter終了というoperationを測る。
+3. 16回warmupの後に128 sampleを取得し、空operationのoverheadも保存する。
+4. 親17単独選択でも実装は8性能系列を実行する。本項目へ採用するのはseries_id PERF-01である。
+5. 停止せずに測定を終え、回収後に平均・中央値・p95・p99等を確認する。
+
+### 現行コードに合わせた合格条件
+
+- 内部記録のseries-count=8、operation-errors=0、record-complete=2が一致する。
+- `BENCHMARKS`のcollection_status=COMPLETE、errors=0で、対象系列のsampleとoverheadが各128件、warmup16、timer_hzが正値となる。
+- 各operationの正常応答・データ検証・後始末が成立する。
+- decoder表示はMEASUREDであり、速度合格を意味しない。コード内部のTEST_PASSを性能閾値への合格と読み替えない。
+
+### この結果だけでは確認していないこと・追加確認
+
+純粋なWorld切替命令だけの時間ではなく、TA Invoke時間でもない。CPU clock/IRQ/cache等の実施条件と測定中に停止していないことは実行記録で補う。速度の上限値は未設定である。
+
+### レビューでの説明例
+
+> TA処理を含めず、SHM構成問い合わせのSMCを往復するのにかかった時間を測っています。
 
 ### reportで見る共通条件
 
@@ -1329,19 +1697,40 @@ sequenceDiagram
 
 <a id="t-18"></a>
 
-## T-18：メモリアクセス性能（PERF-02）
+## T-18：Normal cached SHMへの512B store区間の時間測定（PERF-02）
 
-|要求表の欄|内容|
+|対応項目|内容|
 |---|---|
-|検証観点|メモリ性能|
-|検証方法|領域・属性・cache状態を固定し、規定read/writeを計測する。|
-|合格判定基準|データ正常・sample完備・条件一致。現在のNS cached SHM結果をSecure DDR性能としない。速度閾値は別途。|
 |reportの親test_id|`PERF-02`|
-|B2_REVIEW_PARENT|`18`。T番号とは区別|
+|B2_REVIEW_PARENT|`18`。T番号とは別体系|
+|従来の項目名|メモリアクセス性能|
 
-### 現行実装の範囲と要求表との差
+### 今回の検証内容
 
-現行は**Normal cached SHMへの64×u64 store＋範囲照会＋DSB**を測る。readbackとzeroは測定後の検証処理であり、read性能を独立測定しない。Secure DDR全体の性能でもない。要求表のread/writeのうちstore区間の限定測定として採用し、独立したread測定が必要なら未実施小項目として残す。
+Normal側の共有メモリへ64個のu64を書き込む区間を測定する。範囲照会とDSBも含む。独立したread性能測定は行っていない。
+
+### 具体的な検証方法
+
+1. 交渉済みSHMの末尾512Bを試験bufferとし、必要なguardと領域サイズを確認する。
+2. counter開始後、shared range照会、64個のu64への値0〜63のstore、DSBを行いcounterを止める。
+3. 測定区間の外で64語をreadbackし、各語が対応するiと一致するか調べ、zeroする。
+4. warmup16後、128 sampleとoverheadを取得する。対象はseries_id PERF-02。
+5. 計測条件と統計値を回収する。
+
+### 現行コードに合わせた合格条件
+
+- 内部記録のseries-count=8、operation-errors=0、record-complete=2が一致する。
+- `BENCHMARKS`のcollection_status=COMPLETE、errors=0で、対象系列のsampleとoverheadが各128件、warmup16、timer_hzが正値となる。
+- 各operationの正常応答・データ検証・後始末が成立する。
+- decoder表示はMEASUREDであり、速度合格を意味しない。コード内部のTEST_PASSを性能閾値への合格と読み替えない。
+
+### この結果だけでは確認していないこと・追加確認
+
+readbackはデータ正常性の確認で、read速度を測ったものではない。Secure DDR、非cacheアクセス、DMA帯域、DDRコントローラ単体性能には読み替えない。性能閾値は未設定。
+
+### レビューでの説明例
+
+> Normalのcache有効なSHMへ512Bを書く処理を測り、測定後にデータが正しく書けたことを確認しています。
 
 ### reportで見る共通条件
 
@@ -1373,36 +1762,57 @@ sequenceDiagram
 
 <a id="t-19"></a>
 
-## T-19：Secure割込み応答時間（PERF-03）
+## T-19：Secure割込み応答時間：選択ZCU構成では未測定（PERF-03）
 
-|要求表の欄|内容|
+|対応項目|内容|
 |---|---|
-|検証観点|割込み性能|
-|検証方法|割込み発生からSecure handlerの定義した時刻点までを計測する。|
-|合格判定基準|配送正常、時刻点とclockが確定、sample完備。応答上限は別途定める。|
 |reportの親test_id|`PERF-03`|
-|B2_REVIEW_PARENT|`19`。T番号とは区別|
+|B2_REVIEW_PARENT|`19`。T番号とは別体系|
+|従来の項目名|Secure割込み応答時間|
+
+### 今回の検証内容
+
+Secure SGIのPTAと配送構成が現行ZCU構成に含まれない。
+
+### 具体的な検証方法
+
+1. BL33のreviewが当該親IDの選択を確認する。
+2. run_secure_sgiの構成確認で停止する。
+3. `BLOCKED`、理由、`phase=DONE`を保存する。この項目の実操作・測定は実行しない。
+4. 未選択の場合はNOT_RUNであり、BLOCKEDを記録した場合とも区別する。
+
+### 現行コードに合わせた合格条件
+
+**現行版に機能の合格判定基準はない。BLOCKEDは合格ではなく、未実施理由の記録である。** 記録内容の整合を見るなら、対象の正式ID、status=BLOCKED、phase=DONE、構成に合うreasonを確認する。これは「検査に合格した」とは報告しない。
+
+### この結果だけでは確認していないこと・追加確認
+
+将来、割込み配送成立後の発生点からhandler時刻点までのsample取得と時刻条件の確定を追加する場合は、期待値と合格基準を実装と合わせて別途定める。現行の合格基準欄へ先取りして書かない。
+
+### レビューでの説明例
+
+> 今回は実操作を行わず、未実施の理由を結果に残しています。
 
 ### 現行reportで見る場所と扱い
 
 `REVIEW`内の`test_id: PERF-03`を見る。review一式、または当該親を選択したrunでは**`status: BLOCKED`、`phase: DONE`**が現行コードの想定。これは試験に合格した意味ではない。未選択ならNOT_RUNのままなので、実施済みと数えない。
 
 - 未実装の部分：Secure SGIのPTAと配送構成がなく、応答時間sampleを取得していない。
-- 要求表の合格基準に対する判定：**未実施／保留。PASSの実行証拠は生成されない。**
+- 現行の機能検証に対する判定：**未実施／保留。PASSの実行証拠は生成されない。**
 - PERF-05のTA Invoke時間や8系列のsample完備をSecure IRQ性能に流用しない。
 
 検索するreasonは`Secure-SGI-not-in-selected-Core; ZCU-SGI-group-route-review-required`または`Secure-SGI-profile-not-enabled`。T-08/T-19の選択の組合せでreasonが分かれるため、文字列が一種類だけだと思わない。
 
 ### 現行コードが実際に行う流れ
 
-実装のない機能を動かす図は描かない。実際には以下の**結果記録だけ**を行い、要求表にある実操作は行わない。
+実装のない機能を動かす図は描かない。実際には以下の**結果記録だけ**を行い、当初想定していた実操作は行わない。
 
 |順序|担当|実際の処理|
 |---|---|---|
 |1|BL33|b2_run_reviewで対象親が選択されているか調べる|
 |2|BL33|run_secure_sgiのB2_SECURE_SGI != 1分岐へ入る|
 |3|BL33|finishでBLOCKED・reason・DONEを保存し、PTA Openへ進まない|
-|4|TF-A／OP-TEE／TA-A／TA-B|この親の要求操作は呼ばれない。他の選択試験で動くこととは区別|
+|4|TF-A／OP-TEE／TA-A／TA-B|この項目の実操作は呼ばれない。他の選択試験で動くこととは区別|
 
 ### コードと必要な追加証拠
 
@@ -1414,36 +1824,57 @@ sequenceDiagram
 
 <a id="t-20"></a>
 
-## T-20：許可領域のDMA転送性能（PERF-04）
+## T-20：許可領域間のDMA転送性能：未測定（PERF-04）
 
-|要求表の欄|内容|
+|対応項目|内容|
 |---|---|
-|検証観点|DMA性能|
-|検証方法|許可領域間でsize・cache・master条件を固定して転送時間/量を計測する。|
-|合格判定基準|転送データ一致、sample完備、条件記録。禁止領域の拒否試験とは分ける。速度閾値は別途。|
 |reportの親test_id|`PERF-04`|
-|B2_REVIEW_PARENT|`20`。T番号とは区別|
+|B2_REVIEW_PARENT|`20`。T番号とは別体系|
+|従来の項目名|許可領域のDMA転送性能|
+
+### 今回の検証内容
+
+DMA転送backendと測定sampleがない。
+
+### 具体的な検証方法
+
+1. BL33のreviewが当該親IDの選択を確認する。
+2. 対象外項目の分岐へ入る。
+3. `SKIP`、理由、`phase=DONE`を保存する。この項目の実操作・測定は実行しない。
+4. 未選択の場合はNOT_RUNであり、SKIPを記録した場合とも区別する。
+
+### 現行コードに合わせた合格条件
+
+**現行版に機能の合格判定基準はない。SKIPは合格ではなく、未実施理由の記録である。** 記録内容の整合を見るなら、対象の正式ID、status=SKIP、phase=DONE、構成に合うreasonを確認する。これは「検査に合格した」とは報告しない。
+
+### この結果だけでは確認していないこと・追加確認
+
+将来、許可領域間での転送データ一致、size/cache/master条件、転送時間/量とsampleの取得を追加する場合は、期待値と合格基準を実装と合わせて別途定める。現行の合格基準欄へ先取りして書かない。
+
+### レビューでの説明例
+
+> 今回は実操作を行わず、未実施の理由を結果に残しています。
 
 ### 現行reportで見る場所と扱い
 
 `REVIEW`内の`test_id: PERF-04`を見る。review一式、または当該親を選択したrunでは**`status: SKIP`、`phase: DONE`**が現行コードの想定。これは試験に合格した意味ではない。未選択ならNOT_RUNのままなので、実施済みと数えない。
 
 - 未実装の部分：DMA転送backendがなく、転送時間/量を測っていない。
-- 要求表の合格基準に対する判定：**未実施／保留。PASSの実行証拠は生成されない。**
+- 現行の機能検証に対する判定：**未実施／保留。PASSの実行証拠は生成されない。**
 - PERF-02のCPUによるSHM store時間はDMA帯域ではない。
 
 reasonは`OUT-OF-SCOPE: peripheral-DMA-debug-authenticated-boot-persistent-storage`を固定長フィールドへ保存する。JSONの`reason`は長い文字列の末尾が切れる場合があるため、`OUT-OF-SCOPE:`と正式ID・statusで識別する。
 
 ### 現行コードが実際に行う流れ
 
-実装のない機能を動かす図は描かない。実際には以下の**結果記録だけ**を行い、要求表にある実操作は行わない。
+実装のない機能を動かす図は描かない。実際には以下の**結果記録だけ**を行い、当初想定していた実操作は行わない。
 
 |順序|担当|実際の処理|
 |---|---|---|
 |1|BL33|b2_run_reviewで対象親が選択されているか調べる|
 |2|BL33|対象外親IDの分岐でfinishを呼ぶ|
 |3|BL33|SKIP・reason・DONEを保存する|
-|4|TF-A／OP-TEE／TA-A／TA-B|この親の要求操作は呼ばれない。他の選択試験で動くこととは区別|
+|4|TF-A／OP-TEE／TA-A／TA-B|この項目の実操作は呼ばれない。他の選択試験で動くこととは区別|
 
 ### コードと必要な追加証拠
 
@@ -1455,19 +1886,42 @@ reasonは`OUT-OF-SCOPE: peripheral-DMA-debug-authenticated-boot-persistent-stora
 
 <a id="t-21"></a>
 
-## T-21：TA呼出し・暗号処理時間（PERF-05）
+## T-21：TA ECHO・暗号・Open/Close・復旧の6系列測定（PERF-05）
 
-|要求表の欄|内容|
+|対応項目|内容|
 |---|---|
-|検証観点|TEEサービス性能|
-|検証方法|ECHO、暗号、Open、Close、異常終了後復旧、Storageの測定を小項目に分ける。|
-|合格判定基準|正常動作と各測定区間の一致、sample完備。未構成Storageは保留。各時間上限は別途。|
 |reportの親test_id|`PERF-05`|
-|B2_REVIEW_PARENT|`21`。T番号とは区別|
+|B2_REVIEW_PARENT|`21`。T番号とは別体系|
+|従来の項目名|TA呼出し・暗号処理時間|
 
-### 現行実装の範囲と要求表との差
+### 今回の検証内容
 
-現行の対象はTA ECHO、AES生成/往復/KAT、Open、Close、panic込み復旧、TARGET_DEAD観測後の復旧の6系列。**Storage測定は構成していないため保留。** 各時間上限も未設定で、6系列のMEASUREDをStorageを含む全項目の速度合格にしない。
+TAを使う6種類の処理区間を別々に測定する。各系列の準備、測定内operation、測定外cleanupを区別する。Storageは含まない。
+
+### 具体的な検証方法
+
+1. ECHO Invokeと返値照合をPERF-05として測る。Open/Closeは区間外。
+2. TA内での鍵生成、AES往復、既知解とtransportをPERF-06として測る。
+3. 既存TA instanceへのsession OpenをPERF-08として測る。後続Closeは区間外。
+4. 別sessionを残した状態のCloseをPERF-09として測る。直前Openは区間外。
+5. PANIC診断、TARGET_DEAD確認、再Open、ECHOをPERF-10として測る。初期Openと最終Closeは区間外。
+6. PANICとTARGET_DEAD観測を事前準備で済ませ、再OpenとECHOだけをPERF-11として測る。
+7. 各系列でwarmup16とsample128、overhead128を取得し、処理結果と後始末を検査する。
+
+### 現行コードに合わせた合格条件
+
+- 内部記録のseries-count=8、operation-errors=0、record-complete=2が一致する。
+- `BENCHMARKS`のcollection_status=COMPLETE、errors=0で、対象系列のsampleとoverheadが各128件、warmup16、timer_hzが正値となる。
+- 各operationの正常応答・データ検証・後始末が成立する。
+- decoder表示はMEASUREDであり、速度合格を意味しない。コード内部のTEST_PASSを性能閾値への合格と読み替えない。
+
+### この結果だけでは確認していないこと・追加確認
+
+6系列とも経路全体や複数操作を含み、暗号primitive単体や純粋な切替だけの時間ではない。Storage時間は未測定。復旧2系列は測定開始点が異なるため同じ指標として混ぜない。速度閾値は未設定。
+
+### レビューでの説明例
+
+> TA利用の時間をECHO・暗号・Open・Close・二種類の復旧に分け、処理が成立したsampleだけを解釈する構成です。
 
 ### reportで見る共通条件
 
