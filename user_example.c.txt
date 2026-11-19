@@ -1,0 +1,10 @@
+/* user.c 側へ組み込む呼び出し例（このファイルはビルド対象外） */
+#include "pcsign_tpmverify.h"
+
+void userTask(ESYS_CONTEXT *esys)
+{
+    /* TPM/TCTI/ESAPIの初期化は既に完了している前提 */
+    int rc = pcsignTpmVerify(esys, "/ram0/pcsign_tpmverify");
+    /* rc == 0 はPASS、rc != 0 はFAIL */
+    (void)rc;
+}
